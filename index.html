@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>取れる？計算機</title>
+<title data-i18n="title">取れる？計算機</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=IBM+Plex+Mono:wght@400;600&display=swap">
 <style>
@@ -69,92 +69,100 @@ button:hover{border-color:var(--blue)}
 .alerts li.bad{color:var(--bad)}
 .say{font-size:.9rem;margin:0}
 .say b{font-weight:700}
+.langsel{display:block;width:auto;flex:none}
+.langsel select{width:auto;font-family:var(--f-body);font-size:.85rem;padding:5px 8px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 @media (prefers-reduced-motion:no-preference){.bar i{transition:width .25s ease}}
 </style>
 </head>
 <body>
 <div class="wrap">
   <header>
-    <h1>取れる？計算機</h1>
-    <p class="sub">輸入新案的枚数和締め切り，用截止前的可用工時判斷接不接得下（見積 × 排程係數，每天 8h，祝日先扣）。設定只存在這個瀏覽器。</p>
+    <div class="row" style="justify-content:space-between;align-items:flex-start">
+      <h1 data-i18n="title">取れる？計算機</h1>
+      <label for="lang" class="langsel"><span class="sr" data-i18n="langLabel">語言</span>
+        <select id="lang"><option value="auto">Auto</option><option value="zh">中文</option><option value="ja">日本語</option><option value="en">English</option></select>
+      </label>
+    </div>
+    <p class="sub" data-i18n="sub"></p>
   </header>
 
   <section class="sheet verdict" id="verdict" aria-live="polite">
     <div class="head"><span class="stamp" id="stamp">—</span><span class="why" id="why"></span></div>
     <div class="nums">
-      <div class="num"><b id="nNeed">0</b><span>新案所需工時（見積 × 係數）</span></div>
-      <div class="num"><b id="nAvail">0</b><span>截止前可用工時</span></div>
-      <div class="num"><b id="nSlack">0</b><span>扣掉手上工作後的餘裕</span></div>
+      <div class="num"><b id="nNeed">0</b><span data-i18n="nNeedL"></span></div>
+      <div class="num"><b id="nAvail">0</b><span data-i18n="nAvailL"></span></div>
+      <div class="num"><b id="nSlack">0</b><span data-i18n="nSlackL"></span></div>
     </div>
-    <div class="bar" role="img" id="bar" aria-label="工時分配"><i id="bLoad" style="background:var(--blue)"></i><i id="bNeed" style="background:var(--red)"></i></div>
-    <div class="legend"><span><em style="background:var(--blue)"></em>手上剩餘</span><span><em style="background:var(--red)"></em>新案</span><span><em style="background:var(--field);border:1px solid var(--rule)"></em>空き</span></div>
+    <div class="bar" role="img" id="bar" data-i18n-aria="barAria"><i id="bLoad" style="background:var(--blue)"></i><i id="bNeed" style="background:var(--red)"></i></div>
+    <div class="legend"><span><em style="background:var(--blue)"></em><span data-i18n="legLoad"></span></span><span><em style="background:var(--red)"></em><span data-i18n="legNew"></span></span><span><em style="background:var(--field);border:1px solid var(--rule)"></em><span>空き</span></span></div>
     <p class="say" id="say"></p>
     <ul class="alerts" id="alerts"></ul>
   </section>
 
   <section class="sheet">
-    <h2>新案</h2>
+    <h2 data-i18n="h2new"></h2>
     <div class="grid">
-      <label for="qDouga">動画 <span class="unit">枚</span><input id="qDouga" type="number" min="0" step="1" inputmode="numeric"></label>
-      <label for="qShiage">仕上 <span class="unit">枚</span><input id="qShiage" type="number" min="0" step="1" inputmode="numeric"></label>
-      <label for="qGentore">清書 <span class="unit">枚</span><input id="qGentore" type="number" min="0" step="1" inputmode="numeric"></label>
-      <label for="cpx">難度
+      <label for="qDouga">動画 <span class="unit" data-i18n="uSheet"></span><input id="qDouga" type="number" min="0" step="1" inputmode="numeric"></label>
+      <label for="qShiage">仕上 <span class="unit" data-i18n="uSheet"></span><input id="qShiage" type="number" min="0" step="1" inputmode="numeric"></label>
+      <label for="qGentore">清書 <span class="unit" data-i18n="uSheet"></span><input id="qGentore" type="number" min="0" step="1" inputmode="numeric"></label>
+      <label for="cpx"><span data-i18n="lCpx"></span>
         <select id="cpx"><option value="easy">簡単</option><option value="normal">普通</option><option value="hard">難しい</option><option value="extreme">ハード</option></select>
       </label>
     </div>
     <div class="row">
-      <label class="chk" for="gaichu"><input id="gaichu" type="checkbox">社外（用社外係數）</label>
-      <label class="chk" for="redo"><input id="redo" type="checkbox">やり直し／ゴミ素材（再 ×1.3）</label>
-      <label class="chk" for="hasRisk"><input id="hasRisk" type="checkbox">手上已有高風險卡</label>
+      <label class="chk" for="gaichu"><input id="gaichu" type="checkbox"><span data-i18n="chkGaichu"></span></label>
+      <label class="chk" for="redo"><input id="redo" type="checkbox"><span data-i18n="chkRedo"></span></label>
+      <label class="chk" for="hasRisk"><input id="hasRisk" type="checkbox"><span data-i18n="chkRisk"></span></label>
     </div>
     <div class="grid">
-      <label for="deadline">締め切り<input id="deadline" type="datetime-local"></label>
-      <label for="load">手上剩餘（一般） <span class="unit">hr</span><input id="load" type="number" min="0" step="0.5"></label>
-      <label for="loadHard">手上剩餘（難卡，自動 ×2） <span class="unit">hr</span><input id="loadHard" type="number" min="0" step="0.5"></label>
+      <label for="deadline"><span data-i18n="lDeadline"></span><input id="deadline" type="datetime-local"></label>
+      <label for="load"><span data-i18n="lLoad"></span> <span class="unit">hr</span><input id="load" type="number" min="0" step="0.5"></label>
+      <label for="loadHard"><span data-i18n="lLoadHard"></span> <span class="unit">hr</span><input id="loadHard" type="number" min="0" step="0.5"></label>
     </div>
   </section>
 
   <section class="sheet">
-    <div class="row" style="justify-content:space-between"><h2>截止前的日子</h2><span class="note">點一下切換「工作／休」；土日與祝日預設休</span></div>
+    <div class="row" style="justify-content:space-between"><h2 data-i18n="h2days"></h2><span class="note" data-i18n="daysHint"></span></div>
     <div class="cal" id="cal"></div>
     <p class="note" id="calNote"></p>
   </section>
 
   <section class="sheet">
-    <h2>內訳</h2>
+    <h2 data-i18n="h2break"></h2>
     <table><tbody id="breakdown"></tbody></table>
   </section>
 
   <section class="sheet">
     <details id="settingsBox">
-      <summary>設定（速度、工作時段）</summary>
+      <summary data-i18n="sumSettings"></summary>
       <div style="display:grid;gap:14px">
         <div class="grid">
-          <label for="kDouga">動画 速度 <span class="unit">hr/枚</span><input id="kDouga" type="number" min="0" step="0.01"></label>
-          <label for="kShiage">仕上 速度 <span class="unit">hr/枚</span><input id="kShiage" type="number" min="0" step="0.01"></label>
-          <label for="kGentore">清書 速度 <span class="unit">hr/枚</span><input id="kGentore" type="number" min="0" step="0.01"></label>
+          <label for="kDouga">動画 <span data-i18n="speedWord"></span> <span class="unit" data-i18n="uHrPer"></span><input id="kDouga" type="number" min="0" step="0.01"></label>
+          <label for="kShiage">仕上 <span data-i18n="speedWord"></span> <span class="unit" data-i18n="uHrPer"></span><input id="kShiage" type="number" min="0" step="0.01"></label>
+          <label for="kGentore">清書 <span data-i18n="speedWord"></span> <span class="unit" data-i18n="uHrPer"></span><input id="kGentore" type="number" min="0" step="0.01"></label>
         </div>
-        <p class="note">速度建議填 Notion 作画_案件 近 30 天的 hr/枚 中位數。</p>
+        <p class="note" data-i18n="speedNote"></p>
         <div class="grid">
-          <label for="start">開工 <span class="unit">時</span><input id="start" type="number" min="0" max="24" step="0.5"></label>
-          <label for="end">收工 <span class="unit">時</span><input id="end" type="number" min="0" max="24" step="0.5"></label>
-          <label for="daily">每日上限 <span class="unit">hr</span><input id="daily" type="number" min="0" max="24" step="0.5"></label>
-          <label for="buffer">額外緩衝 <span class="unit">%</span><input id="buffer" type="number" min="0" step="1"></label>
-          <label for="overhead">每案固定 <span class="unit">hr</span><input id="overhead" type="number" min="0" step="0.25"></label>
-          <label for="target">安心線 <span class="unit">餘裕 %</span><input id="target" type="number" min="0" step="1"></label>
+          <label for="start"><span data-i18n="lStart"></span> <span class="unit" data-i18n="uHour"></span><input id="start" type="number" min="0" max="24" step="0.5"></label>
+          <label for="end"><span data-i18n="lEnd"></span> <span class="unit" data-i18n="uHour"></span><input id="end" type="number" min="0" max="24" step="0.5"></label>
+          <label for="daily"><span data-i18n="lDaily"></span> <span class="unit">hr</span><input id="daily" type="number" min="0" max="24" step="0.5"></label>
+          <label for="buffer"><span data-i18n="lBuffer"></span> <span class="unit">%</span><input id="buffer" type="number" min="0" step="1"></label>
+          <label for="overhead"><span data-i18n="lOverhead"></span> <span class="unit">hr</span><input id="overhead" type="number" min="0" step="0.25"></label>
+          <label for="target"><span data-i18n="lTarget"></span> <span class="unit" data-i18n="uSlackPct"></span><input id="target" type="number" min="0" step="1"></label>
         </div>
         <div class="grid">
-          <label for="cEasy">簡単 係數<input id="cEasy" type="number" min="0" step="0.05"></label>
-          <label for="cNormal">普通 係數<input id="cNormal" type="number" min="0" step="0.05"></label>
-          <label for="cHard">難しい 係數<input id="cHard" type="number" min="0" step="0.05"></label>
-          <label for="cExtreme">ハード 係數<input id="cExtreme" type="number" min="0" step="0.05"></label>
-          <label for="cGaichu">社外 係數<input id="cGaichu" type="number" min="0" step="0.05"></label>
+          <label for="cEasy"><span data-i18n="lCEasy"></span><input id="cEasy" type="number" min="0" step="0.05"></label>
+          <label for="cNormal"><span data-i18n="lCNormal"></span><input id="cNormal" type="number" min="0" step="0.05"></label>
+          <label for="cHard"><span data-i18n="lCHard"></span><input id="cHard" type="number" min="0" step="0.05"></label>
+          <label for="cExtreme"><span data-i18n="lCExtreme"></span><input id="cExtreme" type="number" min="0" step="0.05"></label>
+          <label for="cGaichu"><span data-i18n="lCGaichu"></span><input id="cGaichu" type="number" min="0" step="0.05"></label>
         </div>
-        <div class="row"><button type="button" id="reset">恢復預設值</button><span class="note" id="savedNote"></span></div>
+        <div class="row"><button type="button" id="reset" data-i18n="reset"></button><span class="note" id="savedNote"></span></div>
       </div>
     </details>
   </section>
-  <p class="note">排程係數來自 13 個月的崩壞回溯（2026-10-17）：簡単 0.8／普通 1.4／難しい 2.0／ハード 2.8；社外卡一律用社外係數 2.0（等於難しい），不跟難度疊乘；やり直し或ゴミ素材再 ×1.3。係數已含低估的部分，所以額外緩衝預設 0。這些預設是一個人的實測值，別人用時請在設定裡改成自己「實際÷預期工時」的中位數。高風險＝難しい／ハード 且 ≥9 枚，或社外；同時最多一卡。規則全文在 Notion 專案的「崩壞規則與接卡算法」。</p>
+  <p class="note" data-i18n="footNote"></p>
 </div>
 
 <script>
@@ -164,7 +172,124 @@ const JP_HOLIDAYS = new Set([
   "2027-01-01","2027-01-11","2027-02-11","2027-02-23","2027-03-22","2027-04-29","2027-05-03","2027-05-04","2027-05-05",
   "2027-07-19","2027-08-11","2027-09-20","2027-09-23","2027-10-11","2027-11-03","2027-11-23"
 ]);
-const DAY_NAMES = ["日","月","火","水","木","金","土"];
+
+// UI strings. Industry terms (動画/仕上/清書/難しい/社外 and the phrases said to 主任) stay Japanese in every language.
+const I18N = {
+  zh: {
+    title:"取れる？計算機", langLabel:"語言",
+    sub:"輸入新案的枚数和締め切り，用截止前的可用工時判斷接不接得下（見積 × 排程係數，每天 8h，祝日先扣）。設定只存在這個瀏覽器。",
+    nNeedL:"新案所需工時（見積 × 係數）", nAvailL:"截止前可用工時", nSlackL:"扣掉手上工作後的餘裕",
+    barAria:"工時分配", legLoad:"手上剩餘", legNew:"新案",
+    h2new:"新案", uSheet:"枚", lCpx:"難度",
+    chkGaichu:"社外（用社外係數）", chkRedo:"やり直し／ゴミ素材（再 ×1.3）", chkRisk:"手上已有高風險卡",
+    lDeadline:"締め切り", lLoad:"手上剩餘（一般）", lLoadHard:"手上剩餘（難卡，自動 ×2）",
+    h2days:"截止前的日子", daysHint:"點一下切換「工作／休」；土日與祝日預設休",
+    h2break:"內訳", sumSettings:"設定（速度、工作時段）",
+    speedWord:"速度", uHrPer:"hr/枚", speedNote:"速度建議填 Notion 作画_案件 近 30 天的 hr/枚 中位數。",
+    lStart:"開工", lEnd:"收工", uHour:"時", lDaily:"每日上限", lBuffer:"額外緩衝", lOverhead:"每案固定",
+    lTarget:"安心線", uSlackPct:"餘裕 %",
+    lCEasy:"簡単 係數", lCNormal:"普通 係數", lCHard:"難しい 係數", lCExtreme:"ハード 係數", lCGaichu:"社外 係數",
+    reset:"恢復預設值", saved:"已儲存", saveFail:"這個瀏覽器無法儲存設定",
+    footNote:"排程係數來自 13 個月的崩壞回溯（2026-10-17）：簡単 0.8／普通 1.4／難しい 2.0／ハード 2.8；社外卡一律用社外係數 2.0（等於難しい），不跟難度疊乘；やり直し或ゴミ素材再 ×1.3。係數已含低估的部分，所以額外緩衝預設 0。這些預設是一個人的實測值，別人用時請在設定裡改成自己「實際÷預期工時」的中位數。高風險＝難しい／ハード 且 ≥9 枚，或社外；同時最多一卡。規則全文在 Notion 專案的「崩壞規則與接卡算法」。",
+    weekdays:["日","月","火","水","木","金","土"],
+    calFill:"填好締め切り後會出現日曆。", tagDl:"締切", tagOff:"休", tagHol:"祝",
+    dateLabel:(m,d)=>`${m}月${d}日`, work:"工作", off:"休",
+    calNote:(n,off)=>`共 ${n} 天，休 ${off} 天。土日和日本祝日預設算休，要上班就點一下改回工作。`,
+    whyNoDl:"請填締め切り", whyPast:"締め切り早於現在", whyNoQty:"請填枚数",
+    whyBad:(h,d)=>`差 ${h}h，相當於約 ${d} 天的工作量`,
+    whyWarn:(h,t)=>`餘裕 ${h}h，低於安心線（新案的 ${t}%）`,
+    whyOk:(h,w)=>`餘裕 ${h}h，${w} 個工作日內`,
+    sayHead:"回主任：", sayOr:"、或", sayDate:(m,d)=>`「${m}月${d}日なら行けます」`,
+    alertTwo:"高風險卡同時最多一卡：手上已有一張，這張先別接。",
+    alertRisk:"這是高風險卡：清書做完若速度低於當月中位 0.7 倍，當天就跟主任講。",
+    alertGaichu:(h,over,need)=>`社外：從今天起每天做 ${h}h${over?`（實際需要每天 ${need}h，超過 3h）`:""}，不准留到最後 3 天；5 天後進度不到三分之一要警告。`,
+    rows:{douga:"動画",shiage:"仕上",gentore:"清書",overhead:"每案固定",cpx:"排程係數",buffer:"緩衝",total:"新案合計",avail:"可用工時",load:"手上剩餘（難卡 ×2 後）",slack:"餘裕"},
+    workdays:w=>`（${w} 個工作日）`, sheets:"枚"
+  },
+  ja: {
+    title:"取れる？計算機", langLabel:"言語",
+    sub:"新案件の枚数と締め切りを入力すると、締切までの稼働可能時間で受けられるかを判定します（見積 × 排程係数、1日8h、祝日は先に除外）。設定はこのブラウザにだけ保存されます。",
+    nNeedL:"新案件の所要工数（見積 × 係数）", nAvailL:"締切までの稼働可能時間", nSlackL:"手持ち作業を引いた余裕",
+    barAria:"工数の配分", legLoad:"手持ち残り", legNew:"新案件",
+    h2new:"新案件", uSheet:"枚", lCpx:"難易度",
+    chkGaichu:"社外（社外係数を使う）", chkRedo:"やり直し／ゴミ素材（さらに ×1.3）", chkRisk:"手持ちに高リスクカードあり",
+    lDeadline:"締め切り", lLoad:"手持ち残り（通常）", lLoadHard:"手持ち残り（難カード、自動 ×2）",
+    h2days:"締切までの日", daysHint:"クリックで「稼働／休」を切替。土日と祝日は初期状態で休み",
+    h2break:"内訳", sumSettings:"設定（速度・作業時間帯）",
+    speedWord:"速度", uHrPer:"hr/枚", speedNote:"速度は Notion 作画_案件 の直近30日の hr/枚 の中央値を入れるのがおすすめです。",
+    lStart:"開始", lEnd:"終了", uHour:"時", lDaily:"1日の上限", lBuffer:"追加バッファ", lOverhead:"案件ごとの固定",
+    lTarget:"安心ライン", uSlackPct:"余裕 %",
+    lCEasy:"簡単 係数", lCNormal:"普通 係数", lCHard:"難しい 係数", lCExtreme:"ハード 係数", lCGaichu:"社外 係数",
+    reset:"初期値に戻す", saved:"保存しました", saveFail:"このブラウザには設定を保存できません",
+    footNote:"排程係数は 13 か月分の崩壊の振り返り（2026-10-17）に基づきます：簡単 0.8／普通 1.4／難しい 2.0／ハード 2.8。社外カードは常に社外係数 2.0（難しい相当）を使い、難易度とは掛け合わせません。やり直しやゴミ素材はさらに ×1.3。係数に過小見積もり分が含まれているため、追加バッファの初期値は 0 です。これらの初期値は一人分の実測値なので、他の人が使うときは設定で自分の「実績÷見込み工数」の中央値に変更してください。高リスク＝難しい／ハード かつ 9 枚以上、または社外。同時に持てるのは 1 枚まで。ルール全文は Notion プロジェクトの「崩壊ルールと受注判断アルゴリズム」にあります。",
+    weekdays:["日","月","火","水","木","金","土"],
+    calFill:"締め切りを入力するとカレンダーが表示されます。", tagDl:"締切", tagOff:"休", tagHol:"祝",
+    dateLabel:(m,d)=>`${m}月${d}日`, work:"稼働", off:"休",
+    calNote:(n,off)=>`全 ${n} 日、休み ${off} 日。土日と日本の祝日は初期状態で休みです。出勤する日はクリックして稼働に戻します。`,
+    whyNoDl:"締め切りを入力してください", whyPast:"締め切りが現在より前です", whyNoQty:"枚数を入力してください",
+    whyBad:(h,d)=>`${h}h 不足、約 ${d} 日分の作業量です`,
+    whyWarn:(h,t)=>`余裕 ${h}h、安心ライン（新案件の ${t}%）を下回っています`,
+    whyOk:(h,w)=>`余裕 ${h}h、${w} 稼働日以内`,
+    sayHead:"主任への返事：", sayOr:"、または", sayDate:(m,d)=>`「${m}月${d}日なら行けます」`,
+    alertTwo:"高リスクカードは同時に 1 枚まで。すでに 1 枚あるので、これは受けないでください。",
+    alertRisk:"高リスクカードです。清書が終わった時点で速度が当月中央値の 0.7 倍未満なら、その日のうちに主任へ伝えてください。",
+    alertGaichu:(h,over,need)=>`社外：今日から毎日 ${h}h 作業。最後の 3 日に回さないでください。5 日経って進捗が 3 分の 1 未満なら警告です。${over?`（実際には毎日 ${need}h 必要で、3h を超えています）`:""}`,
+    rows:{douga:"動画",shiage:"仕上",gentore:"清書",overhead:"案件ごとの固定",cpx:"排程係数",buffer:"バッファ",total:"新案件 合計",avail:"稼働可能時間",load:"手持ち残り（難カード ×2 後）",slack:"余裕"},
+    workdays:w=>`（${w} 稼働日）`, sheets:"枚"
+  },
+  en: {
+    title:"Can I Take It? Calculator", langLabel:"Language",
+    sub:"Enter the new job's sheet counts and deadline to check whether it fits in the working hours before the deadline (estimate × schedule coefficient, 8h/day, holidays excluded first). Settings are saved only in this browser.",
+    nNeedL:"Hours the new job needs (estimate × coefficient)", nAvailL:"Hours available before the deadline", nSlackL:"Slack after current workload",
+    barAria:"Hours allocation", legLoad:"Current workload", legNew:"New job",
+    h2new:"New job", uSheet:"sheets", lCpx:"Difficulty",
+    chkGaichu:"External client 社外 (use 社外 coefficient)", chkRedo:"Redo / poor source material (extra ×1.3)", chkRisk:"Already holding a high-risk card",
+    lDeadline:"Deadline", lLoad:"Remaining workload (normal)", lLoadHard:"Remaining workload (hard cards, auto ×2)",
+    h2days:"Days until the deadline", daysHint:"Click a day to toggle work / off. Weekends and Japanese holidays are off by default",
+    h2break:"Breakdown", sumSettings:"Settings (speed, work hours)",
+    speedWord:"speed", uHrPer:"hr/sheet", speedNote:"Use the 30-day median hr/sheet from Notion 作画_案件.",
+    lStart:"Start", lEnd:"End", uHour:"h", lDaily:"Daily cap", lBuffer:"Extra buffer", lOverhead:"Fixed per job",
+    lTarget:"Comfort line", uSlackPct:"slack %",
+    lCEasy:"簡単 coefficient", lCNormal:"普通 coefficient", lCHard:"難しい coefficient", lCExtreme:"ハード coefficient", lCGaichu:"社外 coefficient",
+    reset:"Reset to defaults", saved:"Saved", saveFail:"This browser can't save settings",
+    footNote:"Schedule coefficients come from a 13-month review of burnout episodes (2026-10-17): 簡単 0.8 / 普通 1.4 / 難しい 2.0 / ハード 2.8. 社外 cards always use the 社外 coefficient 2.0 (same as 難しい) and do not stack with difficulty; redo or poor source material adds ×1.3. The coefficients already absorb underestimation, so extra buffer defaults to 0. These defaults are one person's measured values; if you use this yourself, replace them in Settings with your own median of actual ÷ expected hours. High risk = 難しい/ハード with 9+ sheets, or 社外; at most one at a time. The full rules are in the Notion project note on the burnout rules and job-acceptance algorithm.",
+    weekdays:["Sun","Mon","Tue","Wed","Thu","Fri","Sat"],
+    calFill:"The calendar appears once you enter a deadline.", tagDl:"Due", tagOff:"Off", tagHol:"Hol",
+    dateLabel:(m,d)=>`${m}/${d}`, work:"work", off:"off",
+    calNote:(n,off)=>`${n} days in total, ${off} off. Weekends and Japanese holidays are off by default; click a day to switch it back to work.`,
+    whyNoDl:"Enter a deadline", whyPast:"The deadline is before now", whyNoQty:"Enter the sheet counts",
+    whyBad:(h,d)=>`Short by ${h}h, about ${d} days of work`,
+    whyWarn:(h,t)=>`Slack ${h}h, below the comfort line (${t}% of the new job)`,
+    whyOk:(h,w)=>`Slack ${h}h, within ${w} working days`,
+    sayHead:"Reply to your lead: ", sayOr:" or ", sayDate:(m,d)=>`「${m}月${d}日なら行けます」`,
+    alertTwo:"Only one high-risk card at a time. You already hold one, so don't take this one yet.",
+    alertRisk:"This is a high-risk card: if clean-up speed drops below 0.7× the monthly median, tell your lead the same day.",
+    alertGaichu:(h,over,need)=>`社外: work ${h}h every day from today and don't leave it for the last 3 days; warn yourself if less than a third is done after 5 days.${over?` (You actually need ${need}h a day, over 3h.)`:""}`,
+    rows:{douga:"動画",shiage:"仕上",gentore:"清書",overhead:"Fixed per job",cpx:"Schedule coefficient",buffer:"Buffer",total:"New job total",avail:"Available hours",load:"Current workload (hard cards ×2)",slack:"Slack"},
+    workdays:w=>` (${w} working days)`, sheets:"sheets"
+  }
+};
+const LANG_KEY = "toreru-lang";
+function detectLang(){
+  let pick = "auto";
+  try{ pick = localStorage.getItem(LANG_KEY) || "auto"; }catch(e){}
+  if(pick !== "auto" && I18N[pick]) return pick;
+  for(const l of (navigator.languages && navigator.languages.length ? navigator.languages : [navigator.language || ""])){
+    const c = String(l).toLowerCase();
+    if(c.startsWith("ja")) return "ja";
+    if(c.startsWith("zh")) return "zh";
+    if(c.startsWith("en")) return "en";
+  }
+  return "en";
+}
+let lang = detectLang();
+const t = key => I18N[lang][key];
+function applyLang(){
+  document.documentElement.lang = {zh:"zh-Hant", ja:"ja", en:"en"}[lang];
+  document.title = t("title");
+  document.querySelectorAll("[data-i18n]").forEach(el => { el.textContent = t(el.dataset.i18n); });
+  document.querySelectorAll("[data-i18n-aria]").forEach(el => el.setAttribute("aria-label", t(el.dataset.i18nAria)));
+}
 const DEFAULTS = {
   kDouga:0.55, kShiage:0.10, kGentore:0.59, start:10.5, end:20, daily:8, buffer:0, overhead:0.5, target:20,
   cEasy:0.8, cNormal:1.4, cHard:2.0, cExtreme:2.8, cGaichu:2.0
@@ -182,8 +307,8 @@ function loadSettings(){
   return {...DEFAULTS};
 }
 function saveSettings(s){
-  try{ localStorage.setItem(KEY, JSON.stringify(s)); $("savedNote").textContent = "已儲存"; }
-  catch(e){ $("savedNote").textContent = "這個瀏覽器無法儲存設定"; }
+  try{ localStorage.setItem(KEY, JSON.stringify(s)); $("savedNote").textContent = t("saved"); }
+  catch(e){ $("savedNote").textContent = t("saveFail"); }
 }
 function loadOff(){ try{ return JSON.parse(localStorage.getItem(OFF_KEY)) || {}; }catch(e){ return {}; } }
 function saveOff(){
@@ -232,18 +357,18 @@ function availableHours(now, deadline, s){
 function renderCal(){
   const dl = $("deadline").value ? new Date($("deadline").value) : null;
   const now = new Date();
-  if(!dl || dl <= now){ $("cal").innerHTML = ""; $("calNote").textContent = "填好締め切り後會出現日曆。"; return; }
+  if(!dl || dl <= now){ $("cal").innerHTML = ""; $("calNote").textContent = t("calFill"); return; }
   const days = daysUntil(now, dl);
-  let html = DAY_NAMES.map(n => `<span class="wd">${n}</span>`).join("");
+  let html = t("weekdays").map(n => `<span class="wd">${n}</span>`).join("");
   html += '<span class="pad"></span>'.repeat(days[0].getDay());
   for(const d of days){
     const k = ymd(d), off = isOff(d);
-    const tag = k === ymd(dl) ? "締切" : off ? "休" : JP_HOLIDAYS.has(k) ? "祝" : "";
-    html += `<button type="button" data-d="${k}" class="${off ? "off" : ""}${k === ymd(dl) ? " dl" : ""}" aria-pressed="${off}" aria-label="${d.getMonth()+1}月${d.getDate()}日 ${off ? "休" : "工作"}">${d.getMonth()+1}/${d.getDate()}<small>${tag || "&nbsp;"}</small></button>`;
+    const tag = k === ymd(dl) ? t("tagDl") : off ? t("tagOff") : JP_HOLIDAYS.has(k) ? t("tagHol") : "";
+    html += `<button type="button" data-d="${k}" class="${off ? "off" : ""}${k === ymd(dl) ? " dl" : ""}" aria-pressed="${off}" aria-label="${t("dateLabel")(d.getMonth()+1, d.getDate())} ${off ? t("off") : t("work")}">${d.getMonth()+1}/${d.getDate()}<small>${tag || "&nbsp;"}</small></button>`;
   }
   $("cal").innerHTML = html;
   const n = days.filter(isOff).length;
-  $("calNote").textContent = `共 ${days.length} 天，休 ${n} 天。土日和日本祝日預設算休，要上班就點一下改回工作。`;
+  $("calNote").textContent = t("calNote")(days.length, n);
 }
 
 const fmt = n => (Math.round(n*10)/10).toLocaleString("ja-JP",{minimumFractionDigits:1,maximumFractionDigits:1});
@@ -283,12 +408,12 @@ function render(){
   $("nSlack").textContent = (slack >= 0 ? "+" : "") + fmt(slack) + "h";
 
   let state, stamp, why;
-  if(!dl){ state="var(--muted)"; stamp="—"; why="請填締め切り"; }
-  else if(dl <= now){ state="var(--bad)"; stamp="締め切り過ぎ"; why="締め切り早於現在"; }
-  else if(!q.douga && !q.shiage && !q.gentore){ state="var(--muted)"; stamp="—"; why="請填枚数"; }
-  else if(slack < 0){ state="var(--bad)"; stamp="取れない"; why=`差 ${fmt(-slack)}h，相當於約 ${fmt(-slack/(s.daily||1))} 天的工作量`; }
-  else if(slack < need * s.target/100){ state="var(--warn)"; stamp="ギリギリ"; why=`餘裕 ${fmt(slack)}h，低於安心線（新案的 ${s.target}%）`; }
-  else { state="var(--ok)"; stamp="取れる"; why=`餘裕 ${fmt(slack)}h，${av.workdays} 個工作日內`; }
+  if(!dl){ state="var(--muted)"; stamp="—"; why=t("whyNoDl"); }
+  else if(dl <= now){ state="var(--bad)"; stamp="締め切り過ぎ"; why=t("whyPast"); }
+  else if(!q.douga && !q.shiage && !q.gentore){ state="var(--muted)"; stamp="—"; why=t("whyNoQty"); }
+  else if(slack < 0){ state="var(--bad)"; stamp="取れない"; why=t("whyBad")(fmt(-slack), fmt(-slack/(s.daily||1))); }
+  else if(slack < need * s.target/100){ state="var(--warn)"; stamp="ギリギリ"; why=t("whyWarn")(fmt(slack), s.target); }
+  else { state="var(--ok)"; stamp="取れる"; why=t("whyOk")(fmt(slack), av.workdays); }
   $("verdict").style.setProperty("--state", state);
   $("stamp").textContent = stamp; $("why").textContent = why;
 
@@ -297,20 +422,20 @@ function render(){
   if(dl && dl > now && slack < 0){
     const parts = ["「その締切だと厳しいです」"];
     const ok = earliestDate(now, dl, s, load, need);
-    if(ok) parts.push(`「${ok.getMonth()+1}月${ok.getDate()}日なら行けます」`);
+    if(ok) parts.push(t("sayDate")(ok.getMonth()+1, ok.getDate()));
     const dougaOnly = (q.douga*s.kDouga + s.overhead) * cpx * (1 + s.buffer/100);
     if(q.shiage && q.douga && av.total - load - dougaOnly >= 0) parts.push("「動画だけなら」");
-    say = "回主任：" + parts.join("、或");
+    say = t("sayHead") + parts.join(t("sayOr"));
   }
   $("say").textContent = say;
 
   const highRisk = gaichu || ((level === "hard" || level === "extreme") && q.douga >= RISK_MAIDS);
   const alerts = [];
-  if(highRisk && $("hasRisk").checked) alerts.push(["bad", "高風險卡同時最多一卡：手上已有一張，這張先別接。"]);
-  else if(highRisk) alerts.push(["", "這是高風險卡：清書做完若速度低於當月中位 0.7 倍，當天就跟主任講。"]);
+  if(highRisk && $("hasRisk").checked) alerts.push(["bad", t("alertTwo")]);
+  else if(highRisk) alerts.push(["", t("alertRisk")]);
   if(gaichu && dl && dl > now){
     const perDay = need / Math.max(av.workdays, 1);
-    alerts.push([perDay > 3 ? "bad" : "", `社外：從今天起每天做 ${fmt(Math.max(2, Math.min(3, perDay)))}h${perDay > 3 ? `（實際需要每天 ${fmt(perDay)}h，超過 3h）` : ""}，不准留到最後 3 天；5 天後進度不到三分之一要警告。`]);
+    alerts.push([perDay > 3 ? "bad" : "", t("alertGaichu")(fmt(Math.max(2, Math.min(3, perDay))), perDay > 3, fmt(perDay))]);
   }
   $("alerts").innerHTML = alerts.map(([c,t]) => `<li class="${c}">${t}</li>`).join("");
 
@@ -318,22 +443,30 @@ function render(){
   $("bLoad").style.width = (Math.min(load, scale)/scale*100) + "%";
   $("bNeed").style.width = (Math.min(need, Math.max(0, scale-load))/scale*100) + "%";
 
+  const R = t("rows");
   const rows = [
-    [`動画 ${q.douga}枚 × ${s.kDouga}`, base.douga],
-    [`仕上 ${q.shiage}枚 × ${s.kShiage}`, base.shiage],
-    [`清書 ${q.gentore}枚 × ${s.kGentore}`, base.gentore],
-    [`每案固定`, s.overhead],
-    [`排程係數 × ${fmt2(cpx)}`, (base.douga+base.shiage+base.gentore+s.overhead)*(cpx-1)],
-    [`緩衝 ${s.buffer}%`, need - raw],
-    [`新案合計`, need],
-    [`可用工時（${av.workdays} 個工作日）`, av.total],
-    [`手上剩餘（難卡 ×2 後）`, -load],
-    [`餘裕`, slack]
+    [`${R.douga} ${q.douga}${t("sheets")} × ${s.kDouga}`, base.douga],
+    [`${R.shiage} ${q.shiage}${t("sheets")} × ${s.kShiage}`, base.shiage],
+    [`${R.gentore} ${q.gentore}${t("sheets")} × ${s.kGentore}`, base.gentore],
+    [R.overhead, s.overhead],
+    [`${R.cpx} × ${fmt2(cpx)}`, (base.douga+base.shiage+base.gentore+s.overhead)*(cpx-1)],
+    [`${R.buffer} ${s.buffer}%`, need - raw],
+    [R.total, need],
+    [`${R.avail}${t("workdays")(av.workdays)}`, av.total],
+    [R.load, -load],
+    [R.slack, slack]
   ];
   $("breakdown").innerHTML = rows.map(([k,v]) => `<tr><td>${k}</td><td>${fmt(v)}h</td></tr>`).join("");
 }
 
 function init(){
+  applyLang();
+  let saved = "auto"; try{ saved = localStorage.getItem(LANG_KEY) || "auto"; }catch(e){}
+  $("lang").value = I18N[saved] ? saved : "auto";
+  $("lang").addEventListener("change", () => {
+    try{ localStorage.setItem(LANG_KEY, $("lang").value); }catch(e){}
+    lang = detectLang(); applyLang(); renderCal(); render();
+  });
   writeSettings(loadSettings());
   dayOverride = loadOff();
   // example job so the first view shows a real verdict
