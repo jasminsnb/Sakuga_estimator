@@ -215,8 +215,8 @@ const I18N = {
     calFill:"填好締め切り後會出現日曆。", tagDl:"締切", tagOff:"休", tagHol:"祝",
     dateLabel:(m,d)=>`${m}月${d}日`, work:"工作", off:"休",
     calNote:(n,off)=>`共 ${n} 天，休 ${off} 天。土日和國定假日預設算休，要上班就點一下改回工作。`,
-    lCountry:"國定假日", countryNone:"不套用", holLoading:"正在抓假日…", holOk:n=>`已載入今明兩年 ${n} 個假日`,
-    holBuiltin:n=>`用內建假日表（到 2028 年），今明兩年 ${n} 個假日`, holFailNone:"抓不到假日（可能離線），先只扣土日",
+    lCountry:"國定假日", countryNone:"不套用", holLoading:"正在抓假日…", holOk:n=>`已載入假日：今明兩年平日放假 ${n} 天`,
+    holBuiltin:n=>`用內建假日表（到 2028 年）：今明兩年平日放假 ${n} 天`, holFailNone:"抓不到假日（可能離線），先只扣土日",
     csvBtn:"下載 Notion 用的工作日 CSV", csvYearAria:"CSV 年份",
     csvNote:"一年一天一行：Name、Date、休假（國定假日和你在上面點成休的日子會打勾）。到 Notion 的工作日 DB 用「合併 CSV」匯入。",
     whyNoDl:"請填締め切り", whyPast:"締め切り早於現在", whyNoQty:"請填枚数",
@@ -250,8 +250,8 @@ const I18N = {
     calFill:"締め切りを入力するとカレンダーが表示されます。", tagDl:"締切", tagOff:"休", tagHol:"祝",
     dateLabel:(m,d)=>`${m}月${d}日`, work:"稼働", off:"休",
     calNote:(n,off)=>`全 ${n} 日、休み ${off} 日。土日と祝日は初期状態で休みです。出勤する日はクリックして稼働に戻します。`,
-    lCountry:"祝日の国", countryNone:"使わない", holLoading:"祝日を取得中…", holOk:n=>`今年と来年の祝日 ${n} 件を読み込みました`,
-    holBuiltin:n=>`内蔵の祝日表（2028 年まで）を使用：今年と来年で ${n} 件`, holFailNone:"祝日を取得できません（オフラインかも）。土日のみ休みにします",
+    lCountry:"祝日の国", countryNone:"使わない", holLoading:"祝日を取得中…", holOk:n=>`祝日を読み込みました：今年と来年で平日の休み ${n} 日`,
+    holBuiltin:n=>`内蔵の祝日表（2028 年まで）を使用：今年と来年で平日の休み ${n} 日`, holFailNone:"祝日を取得できません（オフラインかも）。土日のみ休みにします",
     csvBtn:"Notion 用の稼働日 CSV をダウンロード", csvYearAria:"CSV の年",
     csvNote:"1 年分を 1 日 1 行で出力します：Name、Date、休假（祝日と上で休みにした日にチェック）。Notion の稼働日 DB で「CSV をマージ」から取り込めます。",
     whyNoDl:"締め切りを入力してください", whyPast:"締め切りが現在より前です", whyNoQty:"枚数を入力してください",
@@ -285,8 +285,8 @@ const I18N = {
     calFill:"The calendar appears once you enter a deadline.", tagDl:"Due", tagOff:"Off", tagHol:"Hol",
     dateLabel:(m,d)=>`${m}/${d}`, work:"work", off:"off",
     calNote:(n,off)=>`${n} days in total, ${off} off. Weekends and public holidays are off by default; click a day to switch it back to work.`,
-    lCountry:"Public holidays", countryNone:"None", holLoading:"Loading holidays…", holOk:n=>`Loaded ${n} holidays for this year and next`,
-    holBuiltin:n=>`Using the built-in holiday list (through 2028): ${n} holidays this year and next`, holFailNone:"Couldn't load holidays (offline?); only weekends are off",
+    lCountry:"Public holidays", countryNone:"None", holLoading:"Loading holidays…", holOk:n=>`Holidays loaded: ${n} weekdays off this year and next`,
+    holBuiltin:n=>`Using the built-in holiday list (through 2028): ${n} weekdays off this year and next`, holFailNone:"Couldn't load holidays (offline?); only weekends are off",
     csvBtn:"Download workday CSV for Notion", csvYearAria:"CSV year",
     csvNote:"One row per day for the year: Name, Date, 休假 (checked for public holidays and days you marked off above). Import it into your Notion workday database with Merge with CSV.",
     whyNoDl:"Enter a deadline", whyPast:"The deadline is before now", whyNoQty:"Enter the sheet counts",
@@ -400,9 +400,11 @@ async function loadHolidays(){
   renderHolNote(); renderCal(); render();
 }
 function renderHolNote(){
+  // count only holidays that fall on weekdays: weekend ones and their 補假 pairs would double-count days off
+  const n = [...holidays].filter(k => { const w = new Date(k + "T00:00").getDay(); return w !== 0 && w !== 6; }).length;
   $("holNote").textContent = holState === "loading" ? t("holLoading")
-    : holState === "ok" ? t("holOk")(holidays.size)
-    : holState === "builtin" ? t("holBuiltin")(holidays.size)
+    : holState === "ok" ? t("holOk")(n)
+    : holState === "builtin" ? t("holBuiltin")(n)
     : holState === "fail" ? t("holFailNone") : "";
 }
 function renderCountries(){
