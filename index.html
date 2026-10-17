@@ -366,19 +366,21 @@ function loadCountry(){
 }
 async function fetchYear(cc, y){
   const key = `toreru-hol-${cc}-${y}`;
-  try{ const c = JSON.parse(localStorage.getItem(key)); if(Array.isArray(c)) return {list:c, src:"api"}; }catch(e){}
-  let r = null;
-  try{ r = await fetch(`https://date.nager.at/api/v3/PublicHolidays/${y}/${cc}`); }catch(e){}
-  // Nager.Date has no data for some countries (e.g. Taiwan): fall back to the built-in table
-  if(!r || !r.ok){
-    const b = builtinYear(cc, y);
-    if(b) return {list:b, src:"builtin"};
-    throw new Error(r ? r.status : "network");
+  try{ const c = JSON.parse(localStorage.getItem(key)); if(Array.isArray(c) && c.length) return {list:c, src:"api"}; }catch(e){}
+  let list = [];
+  try{
+    const r = await fetch(`https://date.nager.at/api/v3/PublicHolidays/${y}/${cc}`);
+    // regional holidays (global: false) only apply to part of the country
+    if(r.ok) list = (await r.json()).filter(h => h.global !== false).map(h => h.date);
+  }catch(e){}
+  if(list.length){
+    try{ localStorage.setItem(key, JSON.stringify(list)); }catch(e){}
+    return {list, src:"api"};
   }
-  // regional holidays (global: false) only apply to part of the country
-  const list = (await r.json()).filter(h => h.global !== false).map(h => h.date);
-  try{ localStorage.setItem(key, JSON.stringify(list)); }catch(e){}
-  return {list, src:"api"};
+  // Nager.Date answers some countries (e.g. Taiwan) with an empty 204, and fails offline: use the built-in table
+  const b = builtinYear(cc, y);
+  if(b) return {list:b, src:"builtin"};
+  throw new Error("no holiday data");
 }
 async function loadHolidays(){
   const cc = country, y = new Date().getFullYear();
