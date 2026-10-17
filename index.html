@@ -62,6 +62,13 @@ button:hover{border-color:var(--blue)}
 .cal button.off small{color:var(--red);text-decoration:none}
 .cal button.dl{border-color:var(--red)}
 .cal .pad{visibility:hidden}
+.chk{display:flex;align-items:center;gap:6px;color:var(--ink)}
+.chk input{width:auto}
+.alerts{display:grid;gap:4px;margin:0;padding:0;list-style:none;font-size:.85rem}
+.alerts li{color:var(--warn)}
+.alerts li.bad{color:var(--bad)}
+.say{font-size:.9rem;margin:0}
+.say b{font-weight:700}
 @media (prefers-reduced-motion:no-preference){.bar i{transition:width .25s ease}}
 </style>
 </head>
@@ -69,18 +76,20 @@ button:hover{border-color:var(--blue)}
 <div class="wrap">
   <header>
     <h1>取れる？計算機</h1>
-    <p class="sub">輸入新案的枚数和締め切り，用截止前的可用工時判斷接不接得下。設定只存在這個瀏覽器。</p>
+    <p class="sub">輸入新案的枚数和締め切り，用截止前的可用工時判斷接不接得下（見積 × 排程係數，每天 8h，祝日先扣）。設定只存在這個瀏覽器。</p>
   </header>
 
   <section class="sheet verdict" id="verdict" aria-live="polite">
     <div class="head"><span class="stamp" id="stamp">—</span><span class="why" id="why"></span></div>
     <div class="nums">
-      <div class="num"><b id="nNeed">0</b><span>新案所需工時（含緩衝）</span></div>
+      <div class="num"><b id="nNeed">0</b><span>新案所需工時（見積 × 係數）</span></div>
       <div class="num"><b id="nAvail">0</b><span>截止前可用工時</span></div>
       <div class="num"><b id="nSlack">0</b><span>扣掉手上工作後的餘裕</span></div>
     </div>
     <div class="bar" role="img" id="bar" aria-label="工時分配"><i id="bLoad" style="background:var(--blue)"></i><i id="bNeed" style="background:var(--red)"></i></div>
     <div class="legend"><span><em style="background:var(--blue)"></em>手上剩餘</span><span><em style="background:var(--red)"></em>新案</span><span><em style="background:var(--field);border:1px solid var(--rule)"></em>空き</span></div>
+    <p class="say" id="say"></p>
+    <ul class="alerts" id="alerts"></ul>
   </section>
 
   <section class="sheet">
@@ -88,19 +97,25 @@ button:hover{border-color:var(--blue)}
     <div class="grid">
       <label for="qDouga">動画 <span class="unit">枚</span><input id="qDouga" type="number" min="0" step="1" inputmode="numeric"></label>
       <label for="qShiage">仕上 <span class="unit">枚</span><input id="qShiage" type="number" min="0" step="1" inputmode="numeric"></label>
-      <label for="qGentore">原トレ <span class="unit">枚</span><input id="qGentore" type="number" min="0" step="1" inputmode="numeric"></label>
+      <label for="qGentore">清書 <span class="unit">枚</span><input id="qGentore" type="number" min="0" step="1" inputmode="numeric"></label>
       <label for="cpx">難度
         <select id="cpx"><option value="easy">簡単</option><option value="normal">普通</option><option value="hard">難しい</option><option value="extreme">ハード</option></select>
       </label>
     </div>
+    <div class="row">
+      <label class="chk" for="gaichu"><input id="gaichu" type="checkbox">社外（係數至少 1.5）</label>
+      <label class="chk" for="redo"><input id="redo" type="checkbox">やり直し／ゴミ素材（再 ×1.3）</label>
+      <label class="chk" for="hasRisk"><input id="hasRisk" type="checkbox">手上已有高風險卡</label>
+    </div>
     <div class="grid">
       <label for="deadline">締め切り<input id="deadline" type="datetime-local"></label>
-      <label for="load">手上剩餘工時 <span class="unit">hr</span><input id="load" type="number" min="0" step="0.5"></label>
+      <label for="load">手上剩餘（一般） <span class="unit">hr</span><input id="load" type="number" min="0" step="0.5"></label>
+      <label for="loadHard">手上剩餘（難卡，自動 ×2） <span class="unit">hr</span><input id="loadHard" type="number" min="0" step="0.5"></label>
     </div>
   </section>
 
   <section class="sheet">
-    <div class="row" style="justify-content:space-between"><h2>截止前的日子</h2><span class="note">點一下切換「工作／休」</span></div>
+    <div class="row" style="justify-content:space-between"><h2>截止前的日子</h2><span class="note">點一下切換「工作／休」；土日與祝日預設休</span></div>
     <div class="cal" id="cal"></div>
     <p class="note" id="calNote"></p>
   </section>
@@ -117,14 +132,14 @@ button:hover{border-color:var(--blue)}
         <div class="grid">
           <label for="kDouga">動画 速度 <span class="unit">hr/枚</span><input id="kDouga" type="number" min="0" step="0.01"></label>
           <label for="kShiage">仕上 速度 <span class="unit">hr/枚</span><input id="kShiage" type="number" min="0" step="0.01"></label>
-          <label for="kGentore">原トレ 速度 <span class="unit">hr/枚</span><input id="kGentore" type="number" min="0" step="0.01"></label>
+          <label for="kGentore">清書 速度 <span class="unit">hr/枚</span><input id="kGentore" type="number" min="0" step="0.01"></label>
         </div>
         <p class="note">速度建議填 Notion 作画_案件 近 30 天的 hr/枚 中位數。</p>
         <div class="grid">
           <label for="start">開工 <span class="unit">時</span><input id="start" type="number" min="0" max="24" step="0.5"></label>
           <label for="end">收工 <span class="unit">時</span><input id="end" type="number" min="0" max="24" step="0.5"></label>
           <label for="daily">每日上限 <span class="unit">hr</span><input id="daily" type="number" min="0" max="24" step="0.5"></label>
-          <label for="buffer">緩衝 <span class="unit">%</span><input id="buffer" type="number" min="0" step="1"></label>
+          <label for="buffer">額外緩衝 <span class="unit">%</span><input id="buffer" type="number" min="0" step="1"></label>
           <label for="overhead">每案固定 <span class="unit">hr</span><input id="overhead" type="number" min="0" step="0.25"></label>
           <label for="target">安心線 <span class="unit">餘裕 %</span><input id="target" type="number" min="0" step="1"></label>
         </div>
@@ -138,7 +153,7 @@ button:hover{border-color:var(--blue)}
       </div>
     </details>
   </section>
-  <p class="note">速度等預設值來自 Parameter Sets「current」（2026-10-12 時點）。休假只算你自己點選的日子，不套用任何預設假日。範例輸入：動画 18、仕上 24、原トレ 6。</p>
+  <p class="note">排程係數來自 13 個月的崩壞回溯（2026-10-17）：簡単 0.8／普通 1.4／難しい 2.0／ハード 2.8／社外 1.5，やり直し或ゴミ素材再 ×1.3。係數已含低估的部分，所以額外緩衝預設 0。高風險＝難しい／ハード 且 ≥9 枚，或社外；同時最多一卡。規則全文在 Notion 專案的「崩壞規則與接卡算法」。</p>
 </div>
 
 <script>
@@ -150,13 +165,16 @@ const JP_HOLIDAYS = new Set([
 ]);
 const DAY_NAMES = ["日","月","火","水","木","金","土"];
 const DEFAULTS = {
-  kDouga:0.55, kShiage:0.10, kGentore:0.59, start:10.5, end:20, daily:9, buffer:15, overhead:0.5, target:20,
-  cEasy:0.9, cNormal:1, cHard:1.15, cExtreme:1.3
+  kDouga:0.55, kShiage:0.10, kGentore:0.59, start:10.5, end:20, daily:8, buffer:0, overhead:0.5, target:20,
+  cEasy:0.8, cNormal:1.4, cHard:2.0, cExtreme:2.8
 };
 const SETTING_IDS = Object.keys(DEFAULTS);
-const KEY = "toreru-settings-v1", OFF_KEY = "toreru-offdays-v1";
+// v2: coefficients and daily cap changed on 2026-10-17, so old saved settings are not reused
+const KEY = "toreru-settings-v2", OFF_KEY = "toreru-offdays-v2";
+const GAICHU_MIN = 1.5, REDO_MULT = 1.3, RISK_MAIDS = 9;
 const $ = id => document.getElementById(id);
-let offDays = new Set();
+// Overrides of the default (weekends and JP holidays off): date -> true (off) / false (working)
+let dayOverride = {};
 
 function loadSettings(){
   try{ const s = JSON.parse(localStorage.getItem(KEY)); if(s) return {...DEFAULTS, ...s}; }catch(e){}
@@ -166,11 +184,17 @@ function saveSettings(s){
   try{ localStorage.setItem(KEY, JSON.stringify(s)); $("savedNote").textContent = "已儲存"; }
   catch(e){ $("savedNote").textContent = "這個瀏覽器無法儲存設定"; }
 }
-function loadOff(){ try{ return new Set(JSON.parse(localStorage.getItem(OFF_KEY)) || []); }catch(e){ return new Set(); } }
+function loadOff(){ try{ return JSON.parse(localStorage.getItem(OFF_KEY)) || {}; }catch(e){ return {}; } }
 function saveOff(){
   // keep only today and later
   const today = ymd(new Date());
-  try{ localStorage.setItem(OFF_KEY, JSON.stringify([...offDays].filter(d => d >= today))); }catch(e){}
+  const keep = Object.fromEntries(Object.entries(dayOverride).filter(([d]) => d >= today));
+  try{ localStorage.setItem(OFF_KEY, JSON.stringify(keep)); }catch(e){}
+}
+function isOff(d){
+  const k = ymd(d);
+  if(k in dayOverride) return dayOverride[k];
+  return d.getDay() === 0 || d.getDay() === 6 || JP_HOLIDAYS.has(k);
 }
 function readSettings(){
   const s = {};
@@ -194,7 +218,7 @@ function daysUntil(now, deadline){
 function availableHours(now, deadline, s){
   let total = 0, workdays = 0;
   for(const day of daysUntil(now, deadline)){
-    if(offDays.has(ymd(day))) continue;
+    if(isOff(day)) continue;
     let from = s.start, to = s.end;
     if(ymd(day) === ymd(now)) from = Math.max(from, hrs(now));
     if(ymd(day) === ymd(deadline)) to = Math.min(to, hrs(deadline));
@@ -212,24 +236,41 @@ function renderCal(){
   let html = DAY_NAMES.map(n => `<span class="wd">${n}</span>`).join("");
   html += '<span class="pad"></span>'.repeat(days[0].getDay());
   for(const d of days){
-    const k = ymd(d), off = offDays.has(k);
+    const k = ymd(d), off = isOff(d);
     const tag = k === ymd(dl) ? "締切" : off ? "休" : JP_HOLIDAYS.has(k) ? "祝" : "";
     html += `<button type="button" data-d="${k}" class="${off ? "off" : ""}${k === ymd(dl) ? " dl" : ""}" aria-pressed="${off}" aria-label="${d.getMonth()+1}月${d.getDate()}日 ${off ? "休" : "工作"}">${d.getMonth()+1}/${d.getDate()}<small>${tag || "&nbsp;"}</small></button>`;
   }
   $("cal").innerHTML = html;
-  const n = days.filter(d => offDays.has(ymd(d))).length;
-  $("calNote").textContent = `共 ${days.length} 天，休 ${n} 天。「祝」只是提示日本祝日，不會自動算成休假。`;
+  const n = days.filter(isOff).length;
+  $("calNote").textContent = `共 ${days.length} 天，休 ${n} 天。土日和日本祝日預設算休，要上班就點一下改回工作。`;
 }
 
 const fmt = n => (Math.round(n*10)/10).toLocaleString("ja-JP",{minimumFractionDigits:1,maximumFractionDigits:1});
+const fmt2 = n => (Math.round(n*100)/100).toString();
+
+// First day (up to 30 days after the deadline) whose end-of-day leaves room for the job.
+function earliestDate(now, deadline, s, load, need){
+  const d = startOfDay(deadline);
+  for(let i = 0; i < 30; i++){
+    d.setDate(d.getDate() + 1);
+    if(isOff(d)) continue;
+    const end = new Date(d); end.setHours(Math.floor(s.end), (s.end % 1) * 60);
+    if(availableHours(now, end, s).total - load - need >= 0) return new Date(d);
+  }
+  return null;
+}
 
 function render(){
   const s = readSettings();
   const q = {douga:+$("qDouga").value||0, shiage:+$("qShiage").value||0, gentore:+$("qGentore").value||0};
-  const cpx = {easy:s.cEasy, normal:s.cNormal, hard:s.cHard, extreme:s.cExtreme}[$("cpx").value];
-  const load = +$("load").value || 0;
+  const level = $("cpx").value, gaichu = $("gaichu").checked, redo = $("redo").checked;
+  let cpx = {easy:s.cEasy, normal:s.cNormal, hard:s.cHard, extreme:s.cExtreme}[level];
+  if(gaichu) cpx = Math.max(cpx, GAICHU_MIN);
+  if(redo) cpx *= REDO_MULT;
+  const loadHard = +$("loadHard").value || 0;
+  const load = (+$("load").value || 0) + loadHard * 2;
   const base = {douga:q.douga*s.kDouga, shiage:q.shiage*s.kShiage, gentore:q.gentore*s.kGentore};
-  const raw = (base.douga + base.shiage + base.gentore) * cpx + s.overhead;
+  const raw = (base.douga + base.shiage + base.gentore + s.overhead) * cpx;
   const need = raw * (1 + s.buffer/100);
   const now = new Date();
   const dl = $("deadline").value ? new Date($("deadline").value) : null;
@@ -244,11 +285,33 @@ function render(){
   if(!dl){ state="var(--muted)"; stamp="—"; why="請填締め切り"; }
   else if(dl <= now){ state="var(--bad)"; stamp="締め切り過ぎ"; why="締め切り早於現在"; }
   else if(!q.douga && !q.shiage && !q.gentore){ state="var(--muted)"; stamp="—"; why="請填枚数"; }
-  else if(slack < 0){ state="var(--bad)"; stamp="無理"; why=`差 ${fmt(-slack)}h，相當於約 ${fmt(-slack/(s.daily||1))} 天的工作量`; }
+  else if(slack < 0){ state="var(--bad)"; stamp="取れない"; why=`差 ${fmt(-slack)}h，相當於約 ${fmt(-slack/(s.daily||1))} 天的工作量`; }
   else if(slack < need * s.target/100){ state="var(--warn)"; stamp="ギリギリ"; why=`餘裕 ${fmt(slack)}h，低於安心線（新案的 ${s.target}%）`; }
   else { state="var(--ok)"; stamp="取れる"; why=`餘裕 ${fmt(slack)}h，${av.workdays} 個工作日內`; }
   $("verdict").style.setProperty("--state", state);
   $("stamp").textContent = stamp; $("why").textContent = why;
+
+  // What to tell 主任 when it does not fit
+  let say = "";
+  if(dl && dl > now && slack < 0){
+    const parts = ["「その締切だと厳しいです」"];
+    const ok = earliestDate(now, dl, s, load, need);
+    if(ok) parts.push(`「${ok.getMonth()+1}月${ok.getDate()}日なら行けます」`);
+    const dougaOnly = (q.douga*s.kDouga + s.overhead) * cpx * (1 + s.buffer/100);
+    if(q.shiage && q.douga && av.total - load - dougaOnly >= 0) parts.push("「動画だけなら」");
+    say = "回主任：" + parts.join("、或");
+  }
+  $("say").textContent = say;
+
+  const highRisk = gaichu || ((level === "hard" || level === "extreme") && q.douga >= RISK_MAIDS);
+  const alerts = [];
+  if(highRisk && $("hasRisk").checked) alerts.push(["bad", "高風險卡同時最多一卡：手上已有一張，這張先別接。"]);
+  else if(highRisk) alerts.push(["", "這是高風險卡：清書做完若速度低於當月中位 0.7 倍，當天就跟主任講。"]);
+  if(gaichu && dl && dl > now){
+    const perDay = need / Math.max(av.workdays, 1);
+    alerts.push([perDay > 3 ? "bad" : "", `社外：從今天起每天做 ${fmt(Math.max(2, Math.min(3, perDay)))}h${perDay > 3 ? `（實際需要每天 ${fmt(perDay)}h，超過 3h）` : ""}，不准留到最後 3 天；5 天後進度不到三分之一要警告。`]);
+  }
+  $("alerts").innerHTML = alerts.map(([c,t]) => `<li class="${c}">${t}</li>`).join("");
 
   const scale = Math.max(av.total, load + need, 1);
   $("bLoad").style.width = (Math.min(load, scale)/scale*100) + "%";
@@ -257,13 +320,13 @@ function render(){
   const rows = [
     [`動画 ${q.douga}枚 × ${s.kDouga}`, base.douga],
     [`仕上 ${q.shiage}枚 × ${s.kShiage}`, base.shiage],
-    [`原トレ ${q.gentore}枚 × ${s.kGentore}`, base.gentore],
-    [`難度係數 × ${cpx}`, (base.douga+base.shiage+base.gentore)*(cpx-1)],
+    [`清書 ${q.gentore}枚 × ${s.kGentore}`, base.gentore],
     [`每案固定`, s.overhead],
+    [`排程係數 × ${fmt2(cpx)}`, (base.douga+base.shiage+base.gentore+s.overhead)*(cpx-1)],
     [`緩衝 ${s.buffer}%`, need - raw],
     [`新案合計`, need],
     [`可用工時（${av.workdays} 個工作日）`, av.total],
-    [`手上剩餘`, -load],
+    [`手上剩餘（難卡 ×2 後）`, -load],
     [`餘裕`, slack]
   ];
   $("breakdown").innerHTML = rows.map(([k,v]) => `<tr><td>${k}</td><td>${fmt(v)}h</td></tr>`).join("");
@@ -271,18 +334,18 @@ function render(){
 
 function init(){
   writeSettings(loadSettings());
-  offDays = loadOff();
+  dayOverride = loadOff();
   // example job so the first view shows a real verdict
-  $("qDouga").value = 18; $("qShiage").value = 24; $("qGentore").value = 6; $("cpx").value = "normal"; $("load").value = 0;
+  $("qDouga").value = 18; $("qShiage").value = 24; $("qGentore").value = 6; $("cpx").value = "normal"; $("load").value = 0; $("loadHard").value = 0;
   const dl = new Date(); dl.setDate(dl.getDate() + 7);
   $("deadline").value = `${ymd(dl)}T16:00`;
   document.querySelectorAll("#settingsBox input").forEach(el => el.addEventListener("input", () => { saveSettings(readSettings()); render(); }));
-  ["qDouga","qShiage","qGentore","cpx","load"].forEach(id => $(id).addEventListener("input", render));
+  ["qDouga","qShiage","qGentore","cpx","load","loadHard","gaichu","redo","hasRisk"].forEach(id => $(id).addEventListener("input", render));
   $("deadline").addEventListener("input", () => { renderCal(); render(); });
   $("cal").addEventListener("click", e => {
     const b = e.target.closest("button[data-d]"); if(!b) return;
     const k = b.dataset.d;
-    offDays.has(k) ? offDays.delete(k) : offDays.add(k);
+    dayOverride[k] = !isOff(new Date(k + "T00:00"));
     saveOff(); renderCal(); render();
   });
   $("reset").addEventListener("click", () => { writeSettings({...DEFAULTS}); saveSettings(readSettings()); render(); });
