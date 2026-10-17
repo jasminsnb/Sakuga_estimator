@@ -103,7 +103,7 @@ button:hover{border-color:var(--blue)}
       </label>
     </div>
     <div class="row">
-      <label class="chk" for="gaichu"><input id="gaichu" type="checkbox">社外（係數至少 1.5）</label>
+      <label class="chk" for="gaichu"><input id="gaichu" type="checkbox">社外</label>
       <label class="chk" for="redo"><input id="redo" type="checkbox">やり直し／ゴミ素材（再 ×1.3）</label>
       <label class="chk" for="hasRisk"><input id="hasRisk" type="checkbox">手上已有高風險卡</label>
     </div>
@@ -153,7 +153,7 @@ button:hover{border-color:var(--blue)}
       </div>
     </details>
   </section>
-  <p class="note">排程係數來自 13 個月的崩壞回溯（2026-10-17）：簡単 0.8／普通 1.4／難しい 2.0／ハード 2.8／社外 1.5，やり直し或ゴミ素材再 ×1.3。係數已含低估的部分，所以額外緩衝預設 0。高風險＝難しい／ハード 且 ≥9 枚，或社外；同時最多一卡。規則全文在 Notion 專案的「崩壞規則與接卡算法」。</p>
+  <p class="note">排程係數來自 13 個月的崩壞回溯（2026-10-17）：簡単 0.8／普通 1.4／難しい 2.0／ハード 2.8，やり直し或ゴミ素材再 ×1.3；社外不另乘係數，只提醒每天做 2–3h。係數已含低估的部分，所以額外緩衝預設 0。高風險＝難しい／ハード 且 ≥9 枚，或社外；同時最多一卡。規則全文在 Notion 專案的「崩壞規則與接卡算法」。</p>
 </div>
 
 <script>
@@ -171,7 +171,7 @@ const DEFAULTS = {
 const SETTING_IDS = Object.keys(DEFAULTS);
 // v2: coefficients and daily cap changed on 2026-10-17, so old saved settings are not reused
 const KEY = "toreru-settings-v2", OFF_KEY = "toreru-offdays-v2";
-const GAICHU_MIN = 1.5, REDO_MULT = 1.3, RISK_MAIDS = 9;
+const REDO_MULT = 1.3, RISK_MAIDS = 9;
 const $ = id => document.getElementById(id);
 // Overrides of the default (weekends and JP holidays off): date -> true (off) / false (working)
 let dayOverride = {};
@@ -265,7 +265,6 @@ function render(){
   const q = {douga:+$("qDouga").value||0, shiage:+$("qShiage").value||0, gentore:+$("qGentore").value||0};
   const level = $("cpx").value, gaichu = $("gaichu").checked, redo = $("redo").checked;
   let cpx = {easy:s.cEasy, normal:s.cNormal, hard:s.cHard, extreme:s.cExtreme}[level];
-  if(gaichu) cpx = Math.max(cpx, GAICHU_MIN);
   if(redo) cpx *= REDO_MULT;
   const loadHard = +$("loadHard").value || 0;
   const load = (+$("load").value || 0) + loadHard * 2;
