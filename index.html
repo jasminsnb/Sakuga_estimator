@@ -207,7 +207,7 @@ const I18N = {
     lCountry:"國定假日", countryNone:"不套用", holLoading:"正在抓假日…", holOk:n=>`已載入今明兩年 ${n} 個假日`,
     holFail:"抓不到假日（可能離線），先用內建的日本祝日", holFailNone:"抓不到假日（可能離線），先只扣土日",
     csvBtn:"下載 Notion 用的工作日 CSV", csvYearAria:"CSV 年份",
-    csvNote:"一年一天一行：Name、Date、holiday（國定假日和你在上面點成休的日子＝1）。到 Notion 的工作日 DB 用「合併 CSV」匯入。",
+    csvNote:"一年一天一行：Name、Date、休假（國定假日和你在上面點成休的日子會打勾）。到 Notion 的工作日 DB 用「合併 CSV」匯入。",
     whyNoDl:"請填締め切り", whyPast:"締め切り早於現在", whyNoQty:"請填枚数",
     whyBad:(h,d)=>`差 ${h}h，相當於約 ${d} 天的工作量`,
     whyWarn:(h,t)=>`餘裕 ${h}h，低於安心線（新案的 ${t}%）`,
@@ -242,7 +242,7 @@ const I18N = {
     lCountry:"祝日の国", countryNone:"使わない", holLoading:"祝日を取得中…", holOk:n=>`今年と来年の祝日 ${n} 件を読み込みました`,
     holFail:"祝日を取得できません（オフラインかも）。内蔵の日本の祝日を使います", holFailNone:"祝日を取得できません（オフラインかも）。土日のみ休みにします",
     csvBtn:"Notion 用の稼働日 CSV をダウンロード", csvYearAria:"CSV の年",
-    csvNote:"1 年分を 1 日 1 行で出力します：Name、Date、holiday（祝日と上で休みにした日＝1）。Notion の稼働日 DB で「CSV をマージ」から取り込めます。",
+    csvNote:"1 年分を 1 日 1 行で出力します：Name、Date、休假（祝日と上で休みにした日にチェック）。Notion の稼働日 DB で「CSV をマージ」から取り込めます。",
     whyNoDl:"締め切りを入力してください", whyPast:"締め切りが現在より前です", whyNoQty:"枚数を入力してください",
     whyBad:(h,d)=>`${h}h 不足、約 ${d} 日分の作業量です`,
     whyWarn:(h,t)=>`余裕 ${h}h、安心ライン（新案件の ${t}%）を下回っています`,
@@ -277,7 +277,7 @@ const I18N = {
     lCountry:"Public holidays", countryNone:"None", holLoading:"Loading holidays…", holOk:n=>`Loaded ${n} holidays for this year and next`,
     holFail:"Couldn't load holidays (offline?); using the built-in Japanese holidays", holFailNone:"Couldn't load holidays (offline?); only weekends are off",
     csvBtn:"Download workday CSV for Notion", csvYearAria:"CSV year",
-    csvNote:"One row per day for the year: Name, Date, holiday (public holidays plus days you marked off above = 1). Import it into your Notion workday database with Merge with CSV.",
+    csvNote:"One row per day for the year: Name, Date, 休假 (checked for public holidays and days you marked off above). Import it into your Notion workday database with Merge with CSV.",
     whyNoDl:"Enter a deadline", whyPast:"The deadline is before now", whyNoQty:"Enter the sheet counts",
     whyBad:(h,d)=>`Short by ${h}h, about ${d} days of work`,
     whyWarn:(h,t)=>`Slack ${h}h, below the comfort line (${t}% of the new job)`,
@@ -390,13 +390,13 @@ function renderCountries(){
     + `<option value="none">${t("countryNone")}</option>`;
   $("country").value = country;
 }
-// One row per day, matching the Notion workday DB (Name, Date, holiday); weekends stay 0 there
+// One row per day, matching the Notion workday DB (Name, Date, 休假 checkbox); weekends stay unchecked there
 function downloadCsv(){
-  const yr = +$("csvYear").value, rows = ["Name,Date,holiday"];
+  const yr = +$("csvYear").value, rows = ["Name,Date,休假"];
   for(const d = new Date(yr, 0, 1); d.getFullYear() === yr; d.setDate(d.getDate() + 1)){
     const k = ymd(d), weekend = d.getDay() === 0 || d.getDay() === 6;
     const off = k in dayOverride ? dayOverride[k] && !weekend : holidays.has(k);
-    rows.push(`${k},${k},${off ? 1 : 0}`);
+    rows.push(`${k},${k},${off ? "Yes" : "No"}`);
   }
   const a = document.createElement("a");
   a.href = URL.createObjectURL(new Blob([rows.join("\n") + "\n"], {type:"text/csv"}));
