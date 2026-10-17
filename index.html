@@ -126,6 +126,15 @@ button:hover{border-color:var(--blue)}
     <div class="row" style="justify-content:space-between"><h2 data-i18n="h2days"></h2><span class="note" data-i18n="daysHint"></span></div>
     <div class="cal" id="cal"></div>
     <p class="note" id="calNote"></p>
+    <div class="row">
+      <label for="country"><span data-i18n="lCountry"></span><select id="country"></select></label>
+      <span class="note" id="holNote"></span>
+    </div>
+    <div class="row">
+      <select id="csvYear" data-i18n-aria="csvYearAria"></select>
+      <button type="button" id="csvBtn" data-i18n="csvBtn"></button>
+    </div>
+    <p class="note" data-i18n="csvNote"></p>
   </section>
 
   <section class="sheet">
@@ -194,7 +203,11 @@ const I18N = {
     weekdays:["日","月","火","水","木","金","土"],
     calFill:"填好締め切り後會出現日曆。", tagDl:"締切", tagOff:"休", tagHol:"祝",
     dateLabel:(m,d)=>`${m}月${d}日`, work:"工作", off:"休",
-    calNote:(n,off)=>`共 ${n} 天，休 ${off} 天。土日和日本祝日預設算休，要上班就點一下改回工作。`,
+    calNote:(n,off)=>`共 ${n} 天，休 ${off} 天。土日和國定假日預設算休，要上班就點一下改回工作。`,
+    lCountry:"國定假日", countryNone:"不套用", holLoading:"正在抓假日…", holOk:n=>`已載入今明兩年 ${n} 個假日`,
+    holFail:"抓不到假日（可能離線），先用內建的日本祝日", holFailNone:"抓不到假日（可能離線），先只扣土日",
+    csvBtn:"下載 Notion 用的工作日 CSV", csvYearAria:"CSV 年份",
+    csvNote:"一年一天一行：Name、Date、holiday（國定假日和你在上面點成休的日子＝1）。到 Notion 的工作日 DB 用「合併 CSV」匯入。",
     whyNoDl:"請填締め切り", whyPast:"締め切り早於現在", whyNoQty:"請填枚数",
     whyBad:(h,d)=>`差 ${h}h，相當於約 ${d} 天的工作量`,
     whyWarn:(h,t)=>`餘裕 ${h}h，低於安心線（新案的 ${t}%）`,
@@ -225,7 +238,11 @@ const I18N = {
     weekdays:["日","月","火","水","木","金","土"],
     calFill:"締め切りを入力するとカレンダーが表示されます。", tagDl:"締切", tagOff:"休", tagHol:"祝",
     dateLabel:(m,d)=>`${m}月${d}日`, work:"稼働", off:"休",
-    calNote:(n,off)=>`全 ${n} 日、休み ${off} 日。土日と日本の祝日は初期状態で休みです。出勤する日はクリックして稼働に戻します。`,
+    calNote:(n,off)=>`全 ${n} 日、休み ${off} 日。土日と祝日は初期状態で休みです。出勤する日はクリックして稼働に戻します。`,
+    lCountry:"祝日の国", countryNone:"使わない", holLoading:"祝日を取得中…", holOk:n=>`今年と来年の祝日 ${n} 件を読み込みました`,
+    holFail:"祝日を取得できません（オフラインかも）。内蔵の日本の祝日を使います", holFailNone:"祝日を取得できません（オフラインかも）。土日のみ休みにします",
+    csvBtn:"Notion 用の稼働日 CSV をダウンロード", csvYearAria:"CSV の年",
+    csvNote:"1 年分を 1 日 1 行で出力します：Name、Date、holiday（祝日と上で休みにした日＝1）。Notion の稼働日 DB で「CSV をマージ」から取り込めます。",
     whyNoDl:"締め切りを入力してください", whyPast:"締め切りが現在より前です", whyNoQty:"枚数を入力してください",
     whyBad:(h,d)=>`${h}h 不足、約 ${d} 日分の作業量です`,
     whyWarn:(h,t)=>`余裕 ${h}h、安心ライン（新案件の ${t}%）を下回っています`,
@@ -245,7 +262,7 @@ const I18N = {
     h2new:"New job", uSheet:"sheets", lCpx:"Difficulty",
     chkGaichu:"External client 社外 (use 社外 coefficient)", chkRedo:"Redo / poor source material (extra ×1.3)", chkRisk:"Already holding a high-risk card",
     lDeadline:"Deadline", lLoad:"Remaining workload (normal)", lLoadHard:"Remaining workload (hard cards, auto ×2)",
-    h2days:"Days until the deadline", daysHint:"Click a day to toggle work / off. Weekends and Japanese holidays are off by default",
+    h2days:"Days until the deadline", daysHint:"Click a day to toggle work / off. Weekends and public holidays are off by default",
     h2break:"Breakdown", sumSettings:"Settings (speed, work hours)",
     speedWord:"speed", uHrPer:"hr/sheet", speedNote:"Use the 30-day median hr/sheet from Notion 作画_案件.",
     lStart:"Start", lEnd:"End", uHour:"h", lDaily:"Daily cap", lBuffer:"Extra buffer", lOverhead:"Fixed per job",
@@ -256,7 +273,11 @@ const I18N = {
     weekdays:["Sun","Mon","Tue","Wed","Thu","Fri","Sat"],
     calFill:"The calendar appears once you enter a deadline.", tagDl:"Due", tagOff:"Off", tagHol:"Hol",
     dateLabel:(m,d)=>`${m}/${d}`, work:"work", off:"off",
-    calNote:(n,off)=>`${n} days in total, ${off} off. Weekends and Japanese holidays are off by default; click a day to switch it back to work.`,
+    calNote:(n,off)=>`${n} days in total, ${off} off. Weekends and public holidays are off by default; click a day to switch it back to work.`,
+    lCountry:"Public holidays", countryNone:"None", holLoading:"Loading holidays…", holOk:n=>`Loaded ${n} holidays for this year and next`,
+    holFail:"Couldn't load holidays (offline?); using the built-in Japanese holidays", holFailNone:"Couldn't load holidays (offline?); only weekends are off",
+    csvBtn:"Download workday CSV for Notion", csvYearAria:"CSV year",
+    csvNote:"One row per day for the year: Name, Date, holiday (public holidays plus days you marked off above = 1). Import it into your Notion workday database with Merge with CSV.",
     whyNoDl:"Enter a deadline", whyPast:"The deadline is before now", whyNoQty:"Enter the sheet counts",
     whyBad:(h,d)=>`Short by ${h}h, about ${d} days of work`,
     whyWarn:(h,t)=>`Slack ${h}h, below the comfort line (${t}% of the new job)`,
@@ -299,8 +320,12 @@ const SETTING_IDS = Object.keys(DEFAULTS);
 const KEY = "toreru-settings-v2", OFF_KEY = "toreru-offdays-v2";
 const REDO_MULT = 1.3, RISK_MAIDS = 9;
 const $ = id => document.getElementById(id);
-// Overrides of the default (weekends and JP holidays off): date -> true (off) / false (working)
+// Overrides of the default (weekends and public holidays off): date -> true (off) / false (working)
 let dayOverride = {};
+// Public holidays come from Nager.Date for the chosen country; JP_HOLIDAYS is the offline fallback
+const COUNTRY_KEY = "toreru-country";
+const COUNTRIES = ["JP","TW","HK","KR","CN","US","CA","GB","FR","DE","AU","SG","PH"];
+let country = "JP", holidays = new Set(JP_HOLIDAYS), holState = "";
 
 function loadSettings(){
   try{ const s = JSON.parse(localStorage.getItem(KEY)); if(s) return {...DEFAULTS, ...s}; }catch(e){}
@@ -320,7 +345,64 @@ function saveOff(){
 function isOff(d){
   const k = ymd(d);
   if(k in dayOverride) return dayOverride[k];
-  return d.getDay() === 0 || d.getDay() === 6 || JP_HOLIDAYS.has(k);
+  return d.getDay() === 0 || d.getDay() === 6 || holidays.has(k);
+}
+
+function loadCountry(){
+  try{ const c = localStorage.getItem(COUNTRY_KEY); if(c === "none" || COUNTRIES.includes(c)) return c; }catch(e){}
+  return "JP";
+}
+async function fetchYear(cc, y){
+  const key = `toreru-hol-${cc}-${y}`;
+  try{ const c = JSON.parse(localStorage.getItem(key)); if(Array.isArray(c)) return c; }catch(e){}
+  const r = await fetch(`https://date.nager.at/api/v3/PublicHolidays/${y}/${cc}`);
+  if(!r.ok) throw new Error(r.status);
+  // regional holidays (global: false) only apply to part of the country
+  const list = (await r.json()).filter(h => h.global !== false).map(h => h.date);
+  try{ localStorage.setItem(key, JSON.stringify(list)); }catch(e){}
+  return list;
+}
+async function loadHolidays(){
+  const cc = country, y = new Date().getFullYear();
+  if(cc === "none"){ holidays = new Set(); holState = ""; }
+  else{
+    holState = "loading"; renderHolNote();
+    try{
+      const lists = await Promise.all([y, y + 1].map(yr => fetchYear(cc, yr)));
+      if(cc !== country) return;
+      holidays = new Set(lists.flat()); holState = "ok";
+    }catch(e){
+      if(cc !== country) return;
+      holidays = cc === "JP" ? new Set(JP_HOLIDAYS) : new Set(); holState = "fail";
+    }
+  }
+  renderHolNote(); renderCal(); render();
+}
+function renderHolNote(){
+  $("holNote").textContent = holState === "loading" ? t("holLoading")
+    : holState === "ok" ? t("holOk")(holidays.size)
+    : holState === "fail" ? t(country === "JP" ? "holFail" : "holFailNone") : "";
+}
+function renderCountries(){
+  let names = null;
+  try{ names = new Intl.DisplayNames([{zh:"zh-Hant", ja:"ja", en:"en"}[lang]], {type:"region"}); }catch(e){}
+  $("country").innerHTML = COUNTRIES.map(c => `<option value="${c}">${names ? names.of(c) : c}</option>`).join("")
+    + `<option value="none">${t("countryNone")}</option>`;
+  $("country").value = country;
+}
+// One row per day, matching the Notion workday DB (Name, Date, holiday); weekends stay 0 there
+function downloadCsv(){
+  const yr = +$("csvYear").value, rows = ["Name,Date,holiday"];
+  for(const d = new Date(yr, 0, 1); d.getFullYear() === yr; d.setDate(d.getDate() + 1)){
+    const k = ymd(d), weekend = d.getDay() === 0 || d.getDay() === 6;
+    const off = k in dayOverride ? dayOverride[k] && !weekend : holidays.has(k);
+    rows.push(`${k},${k},${off ? 1 : 0}`);
+  }
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([rows.join("\n") + "\n"], {type:"text/csv"}));
+  a.download = `workdays_${yr}_${country}.csv`;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
 }
 function readSettings(){
   const s = {};
@@ -363,7 +445,7 @@ function renderCal(){
   html += '<span class="pad"></span>'.repeat(days[0].getDay());
   for(const d of days){
     const k = ymd(d), off = isOff(d);
-    const tag = k === ymd(dl) ? t("tagDl") : off ? t("tagOff") : JP_HOLIDAYS.has(k) ? t("tagHol") : "";
+    const tag = k === ymd(dl) ? t("tagDl") : off ? t("tagOff") : holidays.has(k) ? t("tagHol") : "";
     html += `<button type="button" data-d="${k}" class="${off ? "off" : ""}${k === ymd(dl) ? " dl" : ""}" aria-pressed="${off}" aria-label="${t("dateLabel")(d.getMonth()+1, d.getDate())} ${off ? t("off") : t("work")}">${d.getMonth()+1}/${d.getDate()}<small>${tag || "&nbsp;"}</small></button>`;
   }
   $("cal").innerHTML = html;
@@ -465,7 +547,7 @@ function init(){
   $("lang").value = I18N[saved] ? saved : "auto";
   $("lang").addEventListener("change", () => {
     try{ localStorage.setItem(LANG_KEY, $("lang").value); }catch(e){}
-    lang = detectLang(); applyLang(); renderCal(); render();
+    lang = detectLang(); applyLang(); renderCountries(); renderHolNote(); renderCal(); render();
   });
   writeSettings(loadSettings());
   dayOverride = loadOff();
@@ -483,7 +565,17 @@ function init(){
     saveOff(); renderCal(); render();
   });
   $("reset").addEventListener("click", () => { writeSettings({...DEFAULTS}); saveSettings(readSettings()); render(); });
+  country = loadCountry(); renderCountries();
+  $("country").addEventListener("change", () => {
+    country = $("country").value;
+    try{ localStorage.setItem(COUNTRY_KEY, country); }catch(e){}
+    loadHolidays();
+  });
+  const y = new Date().getFullYear();
+  $("csvYear").innerHTML = [y, y + 1].map(v => `<option value="${v}">${v}</option>`).join("");
+  $("csvBtn").addEventListener("click", downloadCsv);
   renderCal(); render();
+  loadHolidays();
 }
 init();
 </script>
