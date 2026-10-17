@@ -175,12 +175,23 @@ button:hover{border-color:var(--blue)}
 </div>
 
 <script>
-const JP_HOLIDAYS = new Set([
-  "2026-01-01","2026-01-12","2026-02-11","2026-02-23","2026-03-20","2026-04-29","2026-05-03","2026-05-04","2026-05-05","2026-05-06",
-  "2026-07-20","2026-08-11","2026-09-21","2026-09-22","2026-09-23","2026-10-12","2026-11-03","2026-11-23",
-  "2027-01-01","2027-01-11","2027-02-11","2027-02-23","2027-03-22","2027-04-29","2027-05-03","2027-05-04","2027-05-05",
-  "2027-07-19","2027-08-11","2027-09-20","2027-09-23","2027-10-11","2027-11-03","2027-11-23"
-]);
+// Built-in national holidays 2026–2028 (from the python-holidays package), used when the API has no data for a country/year
+const BUILTIN_HOLIDAYS = {
+  JP:{2026:"0101 0112 0211 0223 0320 0429 0503 0504 0505 0506 0720 0811 0921 0922 0923 1012 1103 1123",2027:"0101 0111 0211 0223 0321 0322 0429 0503 0504 0505 0719 0811 0920 0923 1011 1103 1123",2028:"0101 0110 0211 0223 0320 0429 0503 0504 0505 0717 0811 0918 0922 1009 1103 1123"},
+  TW:{2026:"0101 0215 0216 0217 0218 0219 0220 0227 0228 0403 0404 0405 0406 0501 0619 0925 0928 1009 1010 1025 1026 1225",2027:"0101 0204 0205 0206 0207 0208 0209 0210 0228 0301 0404 0405 0406 0430 0501 0609 0915 0928 1010 1011 1025 1224 1225 1231",2028:"0101 0124 0125 0126 0127 0128 0228 0403 0404 0501 0528 0529 0928 1003 1010 1025 1225"},
+  HK:{2026:"0101 0217 0218 0219 0405 0406 0407 0501 0524 0525 0619 0701 0926 1001 1018 1019 1225 1226",2027:"0101 0206 0208 0209 0329 0405 0501 0513 0609 0701 0916 1001 1008 1225 1226 1227",2028:"0101 0126 0127 0128 0404 0414 0417 0501 0502 0528 0529 0701 1001 1002 1004 1026 1225 1226"},
+  KR:{2026:"0101 0216 0217 0218 0301 0302 0501 0505 0524 0525 0603 0606 0717 0815 0817 0924 0925 0926 1003 1005 1009 1225",2027:"0101 0206 0207 0208 0209 0301 0501 0503 0505 0513 0606 0717 0719 0815 0816 0914 0915 0916 1003 1004 1009 1011 1225 1227",2028:"0101 0126 0127 0128 0301 0412 0501 0502 0505 0606 0717 0815 1002 1003 1004 1005 1009 1225"},
+  CN:{2026:"0101 0102 0216 0217 0218 0219 0220 0223 0405 0406 0501 0502 0504 0505 0619 0925 1001 1002 1003 1005 1006 1007",2027:"0101 0205 0206 0207 0208 0209 0210 0405 0501 0502 0503 0504 0609 0915 1001 1002 1003 1004 1005",2028:"0101 0103 0125 0126 0127 0128 0404 0501 0502 0528 0529 1001 1002 1003 1004"},
+  US:{2026:"0101 0119 0216 0525 0619 0703 0704 0907 1012 1111 1126 1225",2027:"0101 0118 0215 0531 0618 0619 0704 0705 0906 1011 1111 1125 1224 1225 1231",2028:"0101 0117 0221 0529 0619 0704 0904 1009 1110 1111 1123 1225"},
+  CA:{2026:"0101 0403 0701 0907 1225",2027:"0101 0326 0701 0906 1225 1227",2028:"0101 0103 0414 0701 0904 1225"},
+  GB:{2026:"0101 0403 0504 0525 1225 1226 1228",2027:"0101 0326 0503 0531 1225 1226 1227 1228",2028:"0101 0103 0414 0501 0529 1225 1226"},
+  FR:{2026:"0101 0406 0501 0508 0514 0525 0714 0815 1101 1111 1225",2027:"0101 0329 0501 0506 0508 0517 0714 0815 1101 1111 1225",2028:"0101 0417 0501 0508 0525 0605 0714 0815 1101 1111 1225"},
+  DE:{2026:"0101 0403 0406 0501 0514 0525 1003 1225 1226",2027:"0101 0326 0329 0501 0506 0517 1003 1225 1226",2028:"0101 0414 0417 0501 0525 0605 1003 1225 1226"},
+  AU:{2026:"0101 0126 0403 0406 0425 1225 1226",2027:"0101 0126 0326 0329 0425 1225 1226",2028:"0101 0126 0414 0417 0425 1225 1226"},
+  SG:{2026:"0101 0217 0218 0321 0403 0501 0527 0531 0601 0809 0810 1108 1109 1225",2027:"0101 0206 0207 0208 0310 0326 0501 0517 0520 0809 1028 1225",2028:"0101 0126 0127 0227 0228 0414 0501 0505 0509 0809 1115 1225"},
+  PH:{2026:"0101 0217 0320 0402 0403 0404 0409 0501 0527 0612 0821 0831 1101 1102 1130 1208 1224 1225 1230 1231",2027:"0101 0206 0309 0325 0326 0327 0409 0501 0516 0612 0821 0830 1101 1102 1130 1208 1224 1225 1230 1231",2028:"0101 0126 0226 0409 0413 0414 0415 0501 0505 0612 0821 0828 1101 1130 1208 1225 1230 1231"}
+};
+const BUILTIN_YEARS = [2026, 2027, 2028];
 
 // UI strings. Industry terms (動画/仕上/清書/難しい/社外 and the phrases said to 主任) stay Japanese in every language.
 const I18N = {
@@ -205,7 +216,7 @@ const I18N = {
     dateLabel:(m,d)=>`${m}月${d}日`, work:"工作", off:"休",
     calNote:(n,off)=>`共 ${n} 天，休 ${off} 天。土日和國定假日預設算休，要上班就點一下改回工作。`,
     lCountry:"國定假日", countryNone:"不套用", holLoading:"正在抓假日…", holOk:n=>`已載入今明兩年 ${n} 個假日`,
-    holFail:"抓不到假日（可能離線），先用內建的日本祝日", holFailNone:"抓不到假日（可能離線），先只扣土日",
+    holBuiltin:n=>`用內建假日表（到 2028 年），今明兩年 ${n} 個假日`, holFailNone:"抓不到假日（可能離線），先只扣土日",
     csvBtn:"下載 Notion 用的工作日 CSV", csvYearAria:"CSV 年份",
     csvNote:"一年一天一行：Name、Date、休假（國定假日和你在上面點成休的日子會打勾）。到 Notion 的工作日 DB 用「合併 CSV」匯入。",
     whyNoDl:"請填締め切り", whyPast:"締め切り早於現在", whyNoQty:"請填枚数",
@@ -240,7 +251,7 @@ const I18N = {
     dateLabel:(m,d)=>`${m}月${d}日`, work:"稼働", off:"休",
     calNote:(n,off)=>`全 ${n} 日、休み ${off} 日。土日と祝日は初期状態で休みです。出勤する日はクリックして稼働に戻します。`,
     lCountry:"祝日の国", countryNone:"使わない", holLoading:"祝日を取得中…", holOk:n=>`今年と来年の祝日 ${n} 件を読み込みました`,
-    holFail:"祝日を取得できません（オフラインかも）。内蔵の日本の祝日を使います", holFailNone:"祝日を取得できません（オフラインかも）。土日のみ休みにします",
+    holBuiltin:n=>`内蔵の祝日表（2028 年まで）を使用：今年と来年で ${n} 件`, holFailNone:"祝日を取得できません（オフラインかも）。土日のみ休みにします",
     csvBtn:"Notion 用の稼働日 CSV をダウンロード", csvYearAria:"CSV の年",
     csvNote:"1 年分を 1 日 1 行で出力します：Name、Date、休假（祝日と上で休みにした日にチェック）。Notion の稼働日 DB で「CSV をマージ」から取り込めます。",
     whyNoDl:"締め切りを入力してください", whyPast:"締め切りが現在より前です", whyNoQty:"枚数を入力してください",
@@ -275,7 +286,7 @@ const I18N = {
     dateLabel:(m,d)=>`${m}/${d}`, work:"work", off:"off",
     calNote:(n,off)=>`${n} days in total, ${off} off. Weekends and public holidays are off by default; click a day to switch it back to work.`,
     lCountry:"Public holidays", countryNone:"None", holLoading:"Loading holidays…", holOk:n=>`Loaded ${n} holidays for this year and next`,
-    holFail:"Couldn't load holidays (offline?); using the built-in Japanese holidays", holFailNone:"Couldn't load holidays (offline?); only weekends are off",
+    holBuiltin:n=>`Using the built-in holiday list (through 2028): ${n} holidays this year and next`, holFailNone:"Couldn't load holidays (offline?); only weekends are off",
     csvBtn:"Download workday CSV for Notion", csvYearAria:"CSV year",
     csvNote:"One row per day for the year: Name, Date, 休假 (checked for public holidays and days you marked off above). Import it into your Notion workday database with Merge with CSV.",
     whyNoDl:"Enter a deadline", whyPast:"The deadline is before now", whyNoQty:"Enter the sheet counts",
@@ -322,10 +333,11 @@ const REDO_MULT = 1.3, RISK_MAIDS = 9;
 const $ = id => document.getElementById(id);
 // Overrides of the default (weekends and public holidays off): date -> true (off) / false (working)
 let dayOverride = {};
-// Public holidays come from Nager.Date for the chosen country; JP_HOLIDAYS is the offline fallback
+// Public holidays come from Nager.Date for the chosen country; BUILTIN_HOLIDAYS covers countries and years it can't serve
 const COUNTRY_KEY = "toreru-country";
 const COUNTRIES = ["JP","TW","HK","KR","CN","US","CA","GB","FR","DE","AU","SG","PH"];
-let country = "JP", holidays = new Set(JP_HOLIDAYS), holState = "";
+const builtinYear = (cc, y) => BUILTIN_HOLIDAYS[cc] && BUILTIN_HOLIDAYS[cc][y] ? BUILTIN_HOLIDAYS[cc][y].split(" ").map(md => `${y}-${md.slice(0,2)}-${md.slice(2)}`) : null;
+let country = "JP", holidays = new Set(BUILTIN_YEARS.flatMap(y => builtinYear("JP", y))), holState = "";
 
 function loadSettings(){
   try{ const s = JSON.parse(localStorage.getItem(KEY)); if(s) return {...DEFAULTS, ...s}; }catch(e){}
@@ -354,13 +366,19 @@ function loadCountry(){
 }
 async function fetchYear(cc, y){
   const key = `toreru-hol-${cc}-${y}`;
-  try{ const c = JSON.parse(localStorage.getItem(key)); if(Array.isArray(c)) return c; }catch(e){}
-  const r = await fetch(`https://date.nager.at/api/v3/PublicHolidays/${y}/${cc}`);
-  if(!r.ok) throw new Error(r.status);
+  try{ const c = JSON.parse(localStorage.getItem(key)); if(Array.isArray(c)) return {list:c, src:"api"}; }catch(e){}
+  let r = null;
+  try{ r = await fetch(`https://date.nager.at/api/v3/PublicHolidays/${y}/${cc}`); }catch(e){}
+  // Nager.Date has no data for some countries (e.g. Taiwan): fall back to the built-in table
+  if(!r || !r.ok){
+    const b = builtinYear(cc, y);
+    if(b) return {list:b, src:"builtin"};
+    throw new Error(r ? r.status : "network");
+  }
   // regional holidays (global: false) only apply to part of the country
   const list = (await r.json()).filter(h => h.global !== false).map(h => h.date);
   try{ localStorage.setItem(key, JSON.stringify(list)); }catch(e){}
-  return list;
+  return {list, src:"api"};
 }
 async function loadHolidays(){
   const cc = country, y = new Date().getFullYear();
@@ -370,10 +388,11 @@ async function loadHolidays(){
     try{
       const lists = await Promise.all([y, y + 1].map(yr => fetchYear(cc, yr)));
       if(cc !== country) return;
-      holidays = new Set(lists.flat()); holState = "ok";
+      holidays = new Set(lists.flatMap(l => l.list));
+      holState = lists.some(l => l.src === "builtin") ? "builtin" : "ok";
     }catch(e){
       if(cc !== country) return;
-      holidays = cc === "JP" ? new Set(JP_HOLIDAYS) : new Set(); holState = "fail";
+      holidays = new Set(); holState = "fail";
     }
   }
   renderHolNote(); renderCal(); render();
@@ -381,7 +400,8 @@ async function loadHolidays(){
 function renderHolNote(){
   $("holNote").textContent = holState === "loading" ? t("holLoading")
     : holState === "ok" ? t("holOk")(holidays.size)
-    : holState === "fail" ? t(country === "JP" ? "holFail" : "holFailNone") : "";
+    : holState === "builtin" ? t("holBuiltin")(holidays.size)
+    : holState === "fail" ? t("holFailNone") : "";
 }
 function renderCountries(){
   let names = null;
