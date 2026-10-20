@@ -659,10 +659,10 @@ function init(){
   });
   writeSettings(loadSettings());
   dayOverride = loadOff();
-  // example job so the first view shows a real verdict
-  $("qDouga").value = 18; $("qShiage").value = 24; $("qGentore").value = 6; $("cpx").value = "normal"; $("load").value = 0; $("loadHard").value = 0;
-  const dl = new Date(); dl.setDate(dl.getDate() + 7);
-  $("deadline").value = `${ymd(dl)}T16:00`;
+  // start empty; deadline defaults to 12:00 three days from today
+  $("cpx").value = "normal"; $("load").value = 0; $("loadHard").value = 0;
+  const dl = new Date(); dl.setDate(dl.getDate() + 3);
+  $("deadline").value = `${ymd(dl)}T12:00`;
   document.querySelectorAll("#settingsBox input").forEach(el => el.addEventListener("input", () => { saveSettings(readSettings()); render(); }));
   ["qDouga","qShiage","qGentore","cpx","load","loadHard","gaichu","redo","hasRisk"].forEach(id => $(id).addEventListener("input", render));
   $("deadline").addEventListener("input", () => { renderCal(); render(); });
