@@ -441,7 +441,7 @@ async function loadHolidays(){
       holidays = new Set(); holState = "fail";
     }
   }
-  renderHolNote(); renderCal(); render();
+  setDefaultDeadline(); renderHolNote(); renderCal(); render();
 }
 function renderHolNote(){
   // count only holidays that fall on weekdays: weekend ones and their 補假 pairs would double-count days off
@@ -648,6 +648,18 @@ function initFolds(){
   });
 }
 
+// Default deadline skips weekends, holidays and days marked off; it follows holiday changes until the user edits it
+let deadlineTouched = false;
+function setDefaultDeadline(){
+  if(deadlineTouched) return;
+  const d = startOfDay(new Date());
+  for(let n = 0, i = 0; n < 3 && i < 60; i++){
+    d.setDate(d.getDate() + 1);
+    if(!isOff(d)) n++;
+  }
+  $("deadline").value = `${ymd(d)}T12:00`;
+}
+
 function init(){
   applyLang();
   initFolds();
@@ -659,13 +671,12 @@ function init(){
   });
   writeSettings(loadSettings());
   dayOverride = loadOff();
-  // start empty; deadline defaults to 12:00 three days from today
+  // start empty; deadline defaults to 12:00 on the third working day from today
   $("cpx").value = "normal"; $("load").value = 0; $("loadHard").value = 0;
-  const dl = new Date(); dl.setDate(dl.getDate() + 3);
-  $("deadline").value = `${ymd(dl)}T12:00`;
+  setDefaultDeadline();
   document.querySelectorAll("#settingsBox input").forEach(el => el.addEventListener("input", () => { saveSettings(readSettings()); render(); }));
   ["qDouga","qShiage","qGentore","cpx","load","loadHard","gaichu","redo","hasRisk"].forEach(id => $(id).addEventListener("input", render));
-  $("deadline").addEventListener("input", () => { renderCal(); render(); });
+  $("deadline").addEventListener("input", () => { deadlineTouched = true; renderCal(); render(); });
   $("cal").addEventListener("click", e => {
     const b = e.target.closest("button[data-d]"); if(!b) return;
     const k = b.dataset.d;
