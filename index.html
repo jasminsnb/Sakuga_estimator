@@ -241,8 +241,8 @@ const I18N = {
     nNeedL:"新案所需工時（見積 × 係數）", nAvailL:"截止前可用工時", nSlackL:"扣掉手上工作後的餘裕",
     barAria:"工時分配", legLoad:"手上剩餘", legNew:"新案",
     h2new:"新案", uSheet:"枚", h2quick:"還能接多少", qhDue:"截止", qhFree:"空き",
-    quickNote:(c,l)=>`以手上剩餘 ${l}h、目前的難度係數 ×${c} 計算；每格是「只接這一種工序」時最多幾枚，收工時間算到當天結束。`,
-    quickDay:n=>`${n} 個工作日後`, lCpx:"難度",
+    quickNote:(c,l)=>`以手上剩餘 ${l}h、目前的難度係數 ×${c} 計算；每格是「只接這一種工序」時最多幾枚，截止算到當天收工；標「休」的日子本身不算工時。`,
+    quickDay:n=>n === 0 ? "今天" : n <= 3 ? `${n} 天後（中${n}）` : `${n} 天後`, lCpx:"難度",
     chkGaichu:"社外（用社外係數）", chkRedo:"やり直し／ゴミ素材（再 ×1.3）", chkRisk:"手上已有高風險卡",
     lDeadline:"締め切り", lLoad:"手上剩餘（一般）", lLoadHard:"手上剩餘（難卡，自動 ×2）",
     h2days:"截止前的日子", daysHint:"點一下切換「工作／休」；土日與祝日預設休",
@@ -265,7 +265,7 @@ const I18N = {
     whyBad:(h,d)=>`差 ${h}h，相當於約 ${d} 天的工作量`,
     whyWarn:(h,t)=>`餘裕 ${h}h，低於安心線（新案的 ${t}%）`,
     whyOk:(h,w)=>`餘裕 ${h}h，${w} 個工作日內`,
-    sayHead:"回主任：", sayOr:"、或", sayDate:(m,d)=>`「${m}月${d}日なら行けます」`,
+    sayHead:"回覆：", sayOr:"、或", sayDate:(m,d)=>`「${m}月${d}日なら行けます」`,
     alertTwo:"高風險卡同時最多一卡：手上已有一張，這張先別接。",
     alertRisk:"這是高風險卡：清書做完若速度低於當月中位 0.7 倍，當天就跟主任講。",
     alertGaichu:(h,over,need)=>`社外：從今天起每天做 ${h}h${over?`（實際需要每天 ${need}h，超過 3h）`:""}，不准留到最後 3 天；5 天後進度不到三分之一要警告。`,
@@ -278,8 +278,8 @@ const I18N = {
     nNeedL:"新案件の所要工数（見積 × 係数）", nAvailL:"締切までの稼働可能時間", nSlackL:"手持ち作業を引いた余裕",
     barAria:"工数の配分", legLoad:"手持ち残り", legNew:"新案件",
     h2new:"新案件", uSheet:"枚", h2quick:"あとどれだけ受けられる？", qhDue:"締切", qhFree:"空き",
-    quickNote:(c,l)=>`手持ち残り ${l}h、現在の難易度係数 ×${c} で計算。各マスは「その工程だけ受ける場合」の最大枚数で、その日の終業時刻までを数えます。`,
-    quickDay:n=>`${n} 稼働日後`, lCpx:"難易度",
+    quickNote:(c,l)=>`手持ち残り ${l}h、現在の難易度係数 ×${c} で計算。各マスは「その工程だけ受ける場合」の最大枚数で、その日の終業時刻までを数えます。「休」の日はその日の分を数えません。`,
+    quickDay:n=>n === 0 ? "今日" : n <= 3 ? `${n}日後（中${n}）` : `${n}日後`, lCpx:"難易度",
     chkGaichu:"社外（社外係数を使う）", chkRedo:"やり直し／ゴミ素材（さらに ×1.3）", chkRisk:"手持ちに高リスクカードあり",
     lDeadline:"締め切り", lLoad:"手持ち残り（通常）", lLoadHard:"手持ち残り（難カード、自動 ×2）",
     h2days:"締切までの日", daysHint:"クリックで「稼働／休」を切替。土日と祝日は初期状態で休み",
@@ -302,7 +302,7 @@ const I18N = {
     whyBad:(h,d)=>`${h}h 不足、約 ${d} 日分の作業量です`,
     whyWarn:(h,t)=>`余裕 ${h}h、安心ライン（新案件の ${t}%）を下回っています`,
     whyOk:(h,w)=>`余裕 ${h}h、${w} 稼働日以内`,
-    sayHead:"主任への返事：", sayOr:"、または", sayDate:(m,d)=>`「${m}月${d}日なら行けます」`,
+    sayHead:"返事：", sayOr:"、または", sayDate:(m,d)=>`「${m}月${d}日なら行けます」`,
     alertTwo:"高リスクカードは同時に 1 枚まで。すでに 1 枚あるので、これは受けないでください。",
     alertRisk:"高リスクカードです。清書が終わった時点で速度が当月中央値の 0.7 倍未満なら、その日のうちに主任へ伝えてください。",
     alertGaichu:(h,over,need)=>`社外：今日から毎日 ${h}h 作業。最後の 3 日に回さないでください。5 日経って進捗が 3 分の 1 未満なら警告です。${over?`（実際には毎日 ${need}h 必要で、3h を超えています）`:""}`,
@@ -315,8 +315,8 @@ const I18N = {
     nNeedL:"Hours the new job needs (estimate × coefficient)", nAvailL:"Hours available before the deadline", nSlackL:"Slack after current workload",
     barAria:"Hours allocation", legLoad:"Current workload", legNew:"New job",
     h2new:"New job", uSheet:"sheets", h2quick:"How much more can I take?", qhDue:"Due", qhFree:"Free",
-    quickNote:(c,l)=>`Based on ${l}h of current workload and the current difficulty coefficient ×${c}. Each cell is the most sheets you could take of that one process alone, counting through the end of that working day.`,
-    quickDay:n=>`in ${n} working days`, lCpx:"Difficulty",
+    quickNote:(c,l)=>`Based on ${l}h of current workload and the current difficulty coefficient ×${c}. Each cell is the most sheets you could take of that one process alone, counting through the end of that day. Days marked Off add no hours themselves.`,
+    quickDay:n=>n === 0 ? "today" : n === 1 ? "in 1 day" : `in ${n} days`, lCpx:"Difficulty",
     chkGaichu:"External client 社外 (use 社外 coefficient)", chkRedo:"Redo / poor source material (extra ×1.3)", chkRisk:"Already holding a high-risk card",
     lDeadline:"Deadline", lLoad:"Remaining workload (normal)", lLoadHard:"Remaining workload (hard cards, auto ×2)",
     h2days:"Days until the deadline", daysHint:"Click a day to toggle work / off. Weekends and public holidays are off by default",
@@ -339,7 +339,7 @@ const I18N = {
     whyBad:(h,d)=>`Short by ${h}h, about ${d} days of work`,
     whyWarn:(h,t)=>`Slack ${h}h, below the comfort line (${t}% of the new job)`,
     whyOk:(h,w)=>`Slack ${h}h, within ${w} working days`,
-    sayHead:"Reply to your lead: ", sayOr:" or ", sayDate:(m,d)=>`「${m}月${d}日なら行けます」`,
+    sayHead:"Reply: ", sayOr:" or ", sayDate:(m,d)=>`「${m}月${d}日なら行けます」`,
     alertTwo:"Only one high-risk card at a time. You already hold one, so don't take this one yet.",
     alertRisk:"This is a high-risk card: if clean-up speed drops below 0.7× the monthly median, tell your lead the same day.",
     alertGaichu:(h,over,need)=>`社外: work ${h}h every day from today and don't leave it for the last 3 days; warn yourself if less than a third is done after 5 days.${over?` (You actually need ${need}h a day, over 3h.)`:""}`,
@@ -538,24 +538,18 @@ function earliestDate(now, deadline, s, load, need){
   return null;
 }
 
-// Quick lookup: for a few horizons, how many sheets of a single process still fit after the current workload
-const QUICK_DAYS = [1, 3, 5, 10, 15];
+// Quick lookup: for a few calendar-day horizons, how many sheets of a single process still fit after the current workload
+const QUICK_DAYS = [0, 1, 2, 3, 7, 14];
 function renderQuick(now, s, cpx, load){
   const mult = cpx * (1 + s.buffer/100);
   const rows = [];
-  const d = startOfDay(now);
-  let n = 0;
-  for(let i = 0; i < 60 && rows.length < QUICK_DAYS.length; i++){
-    if(i > 0) d.setDate(d.getDate() + 1);
-    if(isOff(d)) continue;
-    // today only counts if there is still working time left
+  for(const n of QUICK_DAYS){
+    const d = startOfDay(now); d.setDate(d.getDate() + n);
     const end = new Date(d); end.setHours(Math.floor(s.end), (s.end % 1) * 60);
-    if(end <= now) continue;
-    n++;
-    if(!QUICK_DAYS.includes(n)) continue;
-    const free = availableHours(now, end, s).total - load;
+    const free = end > now ? availableHours(now, end, s).total - load : -load;
     const fit = k => free <= 0 || k <= 0 || !mult ? 0 : Math.max(0, Math.floor((free / mult - s.overhead) / k));
-    rows.push(`<tr><td>${d.getMonth()+1}/${d.getDate()} <small>${t("quickDay")(n)}</small></td><td>${fmt(free)}h</td><td>${fit(s.kGentore)}</td><td>${fit(s.kDouga)}</td><td>${fit(s.kShiage)}</td></tr>`);
+    const off = isOff(d) ? ` ${t("tagOff")}` : "";
+    rows.push(`<tr><td>${d.getMonth()+1}/${d.getDate()} <small>${t("quickDay")(n)}${off}</small></td><td>${fmt(free)}h</td><td>${fit(s.kGentore)}</td><td>${fit(s.kDouga)}</td><td>${fit(s.kShiage)}</td></tr>`);
   }
   $("quick").innerHTML = rows.join("");
   $("quickNote").textContent = t("quickNote")(fmt2(cpx), fmt(load));
