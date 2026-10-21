@@ -119,7 +119,7 @@ button:hover{border-color:var(--blue)}
     <details class="fold" data-fold="quick" open>
       <summary><h2 data-i18n="h2quick"></h2></summary>
       <div class="fold-body">
-        <table class="quick"><thead><tr><th data-i18n="qhDue"></th><th data-i18n="qhFree"></th><th>清書</th><th>動画</th><th>仕上</th></tr></thead><tbody id="quick"></tbody></table>
+        <table class="quick"><thead><tr><th data-i18n="qhDue"></th><th data-i18n="qhFree"></th><th data-i18n="qhSheet"></th><th data-i18n="qhCut"></th></tr></thead><tbody id="quick"></tbody></table>
         <p class="note" id="quickNote"></p>
       </div>
     </details>
@@ -188,6 +188,7 @@ button:hover{border-color:var(--blue)}
           <label for="kGentore">清書 <span data-i18n="speedWord"></span> <span class="unit" data-i18n="uHrPer"></span><input id="kGentore" type="number" min="0" step="0.01"></label>
           <label for="kDouga">動画 <span data-i18n="speedWord"></span> <span class="unit" data-i18n="uHrPer"></span><input id="kDouga" type="number" min="0" step="0.01"></label>
           <label for="kShiage">仕上 <span data-i18n="speedWord"></span> <span class="unit" data-i18n="uHrPer"></span><input id="kShiage" type="number" min="0" step="0.01"></label>
+          <label for="kNigen">二原 <span data-i18n="speedWord"></span> <span class="unit" data-i18n="uHrPerCut"></span><input id="kNigen" type="number" min="0" step="0.1"></label>
         </div>
         <p class="note" data-i18n="speedNote"></p>
         <div class="grid">
@@ -240,14 +241,14 @@ const I18N = {
     sub:"輸入新案的枚数和締め切り，用截止前的可用工時判斷接不接得下（見積 × 排程係數，每天 8h，祝日先扣）。設定只存在這個瀏覽器。",
     nNeedL:"新案所需工時（見積 × 係數）", nAvailL:"截止前可用工時", nSlackL:"扣掉手上工作後的餘裕",
     barAria:"工時分配", legLoad:"手上剩餘", legNew:"新案",
-    h2new:"新案", uSheet:"枚", h2quick:"還能接多少", qhDue:"截止", qhFree:"空き",
-    quickNote:(c,l)=>`以手上剩餘 ${l}h、目前的難度係數 ×${c} 計算；每格是「只接這一種工序」時最多幾枚，截止算到當天收工；標「休」的日子本身不算工時。`,
+    h2new:"新案", uSheet:"枚", h2quick:"還能接多少", qhDue:"截止", qhFree:"空き", qhSheet:"枚（動仕）", qhCut:"カット（二原）",
+    quickNote:(c,l)=>`以手上剩餘 ${l}h、目前的難度係數 ×${c} 計算；1 枚＝動画＋仕上，カット看二原速度；兩欄各是「只接這一種」時最多幾枚／幾カット，截止算到當天收工；標「休」的日子本身不算工時。`,
     quickDay:n=>n === 0 ? "今天" : n <= 3 ? `${n} 天後（中${n}）` : `${n} 天後`, lCpx:"難度",
     chkGaichu:"社外（用社外係數）", chkRedo:"やり直し／ゴミ素材（再 ×1.3）", chkRisk:"手上已有高風險卡",
     lDeadline:"締め切り", lLoad:"手上剩餘（一般）", lLoadHard:"手上剩餘（難卡，自動 ×2）",
     h2days:"截止前的日子", daysHint:"點一下切換「工作／休」；土日與祝日預設休",
     h2break:"內訳", sumSettings:"設定（速度、工作時段）",
-    speedWord:"速度", uHrPer:"hr/枚", speedNote:"速度建議填 Notion 作画_案件 近 30 天的 hr/枚 中位數。",
+    speedWord:"速度", uHrPer:"hr/枚", uHrPerCut:"hr/カット", speedNote:"速度建議填 Notion 作画_案件 近 30 天的 hr/枚 中位數。",
     lStart:"開工", lEnd:"收工", uHour:"時", lDaily:"每日上限", lBuffer:"額外緩衝", lOverhead:"每案固定",
     lTarget:"安心線", uSlackPct:"餘裕 %", lDlDays:"預設截止：幾個工作日後", lDlHour:"預設截止時刻", uWorkdays:"工作日",
     lCEasy:"簡単 係數", lCNormal:"普通 係數", lCHard:"難しい 係數", lCExtreme:"ハード 係數", lCGaichu:"社外 係數",
@@ -277,14 +278,14 @@ const I18N = {
     sub:"新案件の枚数と締め切りを入力すると、締切までの稼働可能時間で受けられるかを判定します（見積 × 排程係数、1日8h、祝日は先に除外）。設定はこのブラウザにだけ保存されます。",
     nNeedL:"新案件の所要工数（見積 × 係数）", nAvailL:"締切までの稼働可能時間", nSlackL:"手持ち作業を引いた余裕",
     barAria:"工数の配分", legLoad:"手持ち残り", legNew:"新案件",
-    h2new:"新案件", uSheet:"枚", h2quick:"あとどれだけ受けられる？", qhDue:"締切", qhFree:"空き",
-    quickNote:(c,l)=>`手持ち残り ${l}h、現在の難易度係数 ×${c} で計算。各マスは「その工程だけ受ける場合」の最大枚数で、その日の終業時刻までを数えます。「休」の日はその日の分を数えません。`,
+    h2new:"新案件", uSheet:"枚", h2quick:"あとどれだけ受けられる？", qhDue:"締切", qhFree:"空き", qhSheet:"枚（動仕）", qhCut:"カット（二原）",
+    quickNote:(c,l)=>`手持ち残り ${l}h、現在の難易度係数 ×${c} で計算。1枚＝動画＋仕上、カットは二原の速度で計算。各マスは「それだけ受ける場合」の最大枚数／カット数で、その日の終業時刻までを数えます。「休」の日はその日の分を数えません。`,
     quickDay:n=>n === 0 ? "今日" : n <= 3 ? `${n}日後（中${n}）` : `${n}日後`, lCpx:"難易度",
     chkGaichu:"社外（社外係数を使う）", chkRedo:"やり直し／ゴミ素材（さらに ×1.3）", chkRisk:"手持ちに高リスクカードあり",
     lDeadline:"締め切り", lLoad:"手持ち残り（通常）", lLoadHard:"手持ち残り（難カード、自動 ×2）",
     h2days:"締切までの日", daysHint:"クリックで「稼働／休」を切替。土日と祝日は初期状態で休み",
     h2break:"内訳", sumSettings:"設定（速度・作業時間帯）",
-    speedWord:"速度", uHrPer:"hr/枚", speedNote:"速度は Notion 作画_案件 の直近30日の hr/枚 の中央値を入れるのがおすすめです。",
+    speedWord:"速度", uHrPer:"hr/枚", uHrPerCut:"hr/カット", speedNote:"速度は Notion 作画_案件 の直近30日の hr/枚 の中央値を入れるのがおすすめです。",
     lStart:"開始", lEnd:"終了", uHour:"時", lDaily:"1日の上限", lBuffer:"追加バッファ", lOverhead:"案件ごとの固定",
     lTarget:"安心ライン", uSlackPct:"余裕 %", lDlDays:"締切の初期値：何稼働日後", lDlHour:"締切の初期時刻", uWorkdays:"稼働日",
     lCEasy:"簡単 係数", lCNormal:"普通 係数", lCHard:"難しい 係数", lCExtreme:"ハード 係数", lCGaichu:"社外 係数",
@@ -314,14 +315,14 @@ const I18N = {
     sub:"Enter the new job's sheet counts and deadline to check whether it fits in the working hours before the deadline (estimate × schedule coefficient, 8h/day, holidays excluded first). Settings are saved only in this browser.",
     nNeedL:"Hours the new job needs (estimate × coefficient)", nAvailL:"Hours available before the deadline", nSlackL:"Slack after current workload",
     barAria:"Hours allocation", legLoad:"Current workload", legNew:"New job",
-    h2new:"New job", uSheet:"sheets", h2quick:"How much more can I take?", qhDue:"Due", qhFree:"Free",
-    quickNote:(c,l)=>`Based on ${l}h of current workload and the current difficulty coefficient ×${c}. Each cell is the most sheets you could take of that one process alone, counting through the end of that day. Days marked Off add no hours themselves.`,
+    h2new:"New job", uSheet:"sheets", h2quick:"How much more can I take?", qhDue:"Due", qhFree:"Free", qhSheet:"Sheets (in-between + paint)", qhCut:"Cuts (2nd key)",
+    quickNote:(c,l)=>`Based on ${l}h of current workload and the current difficulty coefficient ×${c}. One sheet = in-between + paint; cuts use the 2nd-key speed. Each cell is the most you could take of that one kind alone, counting through the end of that day. Days marked Off add no hours themselves.`,
     quickDay:n=>n === 0 ? "today" : n === 1 ? "in 1 day" : `in ${n} days`, lCpx:"Difficulty",
     chkGaichu:"External client 社外 (use 社外 coefficient)", chkRedo:"Redo / poor source material (extra ×1.3)", chkRisk:"Already holding a high-risk card",
     lDeadline:"Deadline", lLoad:"Remaining workload (normal)", lLoadHard:"Remaining workload (hard cards, auto ×2)",
     h2days:"Days until the deadline", daysHint:"Click a day to toggle work / off. Weekends and public holidays are off by default",
     h2break:"Breakdown", sumSettings:"Settings (speed, work hours)",
-    speedWord:"speed", uHrPer:"hr/sheet", speedNote:"Use the 30-day median hr/sheet from Notion 作画_案件.",
+    speedWord:"speed", uHrPer:"hr/sheet", uHrPerCut:"hr/cut", speedNote:"Use the 30-day median hr/sheet from Notion 作画_案件.",
     lStart:"Start", lEnd:"End", uHour:"h", lDaily:"Daily cap", lBuffer:"Extra buffer", lOverhead:"Fixed per job",
     lTarget:"Comfort line", uSlackPct:"slack %", lDlDays:"Default deadline: working days ahead", lDlHour:"Default deadline time", uWorkdays:"working days",
     lCEasy:"簡単 coefficient", lCNormal:"普通 coefficient", lCHard:"難しい coefficient", lCExtreme:"ハード coefficient", lCGaichu:"社外 coefficient",
@@ -369,7 +370,7 @@ function applyLang(){
   document.querySelectorAll("[data-i18n-aria]").forEach(el => el.setAttribute("aria-label", t(el.dataset.i18nAria)));
 }
 const DEFAULTS = {
-  kDouga:0.55, kShiage:0.10, kGentore:0.59, start:10.5, end:20, daily:8, buffer:0, overhead:0.5, target:20, dlDays:3, dlHour:12,
+  kDouga:0.55, kShiage:0.10, kGentore:0.59, kNigen:2.0, start:10.5, end:20, daily:8, buffer:0, overhead:0.5, target:20, dlDays:3, dlHour:12,
   cEasy:0.8, cNormal:1.4, cHard:2.0, cExtreme:2.8, cGaichu:2.0
 };
 const SETTING_IDS = Object.keys(DEFAULTS);
@@ -538,7 +539,7 @@ function earliestDate(now, deadline, s, load, need){
   return null;
 }
 
-// Quick lookup: for a few calendar-day horizons, how many sheets of a single process still fit after the current workload
+// Quick lookup: for a few calendar-day horizons, how many 動仕 sheets (動画+仕上) or 二原 cuts still fit after the current workload
 const QUICK_DAYS = [0, 1, 2, 3, 7, 14];
 function renderQuick(now, s, cpx, load){
   const mult = cpx * (1 + s.buffer/100);
@@ -549,7 +550,7 @@ function renderQuick(now, s, cpx, load){
     const free = end > now ? availableHours(now, end, s).total - load : -load;
     const fit = k => free <= 0 || k <= 0 || !mult ? 0 : Math.max(0, Math.floor((free / mult - s.overhead) / k));
     const off = isOff(d) ? ` ${t("tagOff")}` : "";
-    rows.push(`<tr><td>${d.getMonth()+1}/${d.getDate()} <small>${t("quickDay")(n)}${off}</small></td><td>${fmt(free)}h</td><td>${fit(s.kGentore)}</td><td>${fit(s.kDouga)}</td><td>${fit(s.kShiage)}</td></tr>`);
+    rows.push(`<tr><td>${d.getMonth()+1}/${d.getDate()} <small>${t("quickDay")(n)}${off}</small></td><td>${fmt(free)}h</td><td>${fit(s.kDouga + s.kShiage)}</td><td>${fit(s.kNigen)}</td></tr>`);
   }
   $("quick").innerHTML = rows.join("");
   $("quickNote").textContent = t("quickNote")(fmt2(cpx), fmt(load));
