@@ -197,6 +197,7 @@ button:hover{border-color:var(--blue)}
           <label for="kNigenMai">二原 <span data-i18n="speedWord"></span> <span class="unit" data-i18n="uHrPer"></span><input id="kNigenMai" type="number" min="0" step="0.01"></label>
         </div>
         <p class="note" data-i18n="speedNote"></p>
+        <label for="linkPaste"><span data-i18n="lLinkPaste"></span><input id="linkPaste" type="url" inputmode="url" autocomplete="off"></label>
         <div class="grid">
           <label for="start"><span data-i18n="lStart"></span> <span class="unit" data-i18n="uHour"></span><input id="start" type="number" min="0" max="24" step="0.5"></label>
           <label for="end"><span data-i18n="lEnd"></span> <span class="unit" data-i18n="uHour"></span><input id="end" type="number" min="0" max="24" step="0.5"></label>
@@ -254,7 +255,7 @@ const I18N = {
     lDeadline:"締め切り", lLoad:"手上剩餘（一般）", lLoadHard:"手上剩餘（難卡，自動 ×2）",
     h2days:"截止前的日子", daysHint:"點一下切換「工作／休」；土日與祝日預設休",
     h2break:"內訳", sumSettings:"設定（速度、工作時段）",
-    speedWord:"速度", uHrPer:"hr/枚", uHrPerCut:"hr/カット", speedNote:"速度建議填 Notion 作画_案件 近 6 個月的 hr/枚 中位數（基本設定的「計算機速度連結」點一下就會自動帶入）。",
+    speedWord:"速度", uHrPer:"hr/枚", uHrPerCut:"hr/カット", speedNote:"速度建議填 Notion 作画_案件 近 6 個月的 hr/枚 中位數。點基本設定的「計算機速度連結」會自動帶入；在 Notion 頁面裡用的話，複製那個連結貼到下面。", lLinkPaste:"貼上「計算機速度連結」", noLink:"這個連結裡沒有速度",
     lStart:"開工", lEnd:"收工", uHour:"時", lDaily:"每日上限", lBuffer:"額外緩衝", lOverhead:"每案固定",
     lTarget:"安心線", uSlackPct:"餘裕 %", lDlDays:"預設截止：幾個工作日後", lDlHour:"預設截止時刻", uWorkdays:"工作日",
     lCEasy:"簡単 係數", lCNormal:"普通 係數", lCHard:"難しい 係數", lCExtreme:"ハード 係數", lCGaichu:"社外 係數",
@@ -291,7 +292,7 @@ const I18N = {
     lDeadline:"締め切り", lLoad:"手持ち残り（通常）", lLoadHard:"手持ち残り（難カード、自動 ×2）",
     h2days:"締切までの日", daysHint:"クリックで「稼働／休」を切替。土日と祝日は初期状態で休み",
     h2break:"内訳", sumSettings:"設定（速度・作業時間帯）",
-    speedWord:"速度", uHrPer:"hr/枚", uHrPerCut:"hr/カット", speedNote:"速度は Notion 作画_案件 の直近6か月の hr/枚 の中央値がおすすめです（基本設定の「計算機速度連結」を押すと自動で入ります）。",
+    speedWord:"速度", uHrPer:"hr/枚", uHrPerCut:"hr/カット", speedNote:"速度は Notion 作画_案件 の直近6か月の hr/枚 の中央値がおすすめです。基本設定の「計算機速度連結」を押すと自動で入ります。Notion のページ内で使う場合は、そのリンクをコピーして下に貼ってください。", lLinkPaste:"「計算機速度連結」を貼り付け", noLink:"このリンクに速度が入っていません",
     lStart:"開始", lEnd:"終了", uHour:"時", lDaily:"1日の上限", lBuffer:"追加バッファ", lOverhead:"案件ごとの固定",
     lTarget:"安心ライン", uSlackPct:"余裕 %", lDlDays:"締切の初期値：何稼働日後", lDlHour:"締切の初期時刻", uWorkdays:"稼働日",
     lCEasy:"簡単 係数", lCNormal:"普通 係数", lCHard:"難しい 係数", lCExtreme:"ハード 係数", lCGaichu:"社外 係数",
@@ -328,7 +329,7 @@ const I18N = {
     lDeadline:"Deadline", lLoad:"Remaining workload (normal)", lLoadHard:"Remaining workload (hard cards, auto ×2)",
     h2days:"Days until the deadline", daysHint:"Click a day to toggle work / off. Weekends and public holidays are off by default",
     h2break:"Breakdown", sumSettings:"Settings (speed, work hours)",
-    speedWord:"speed", uHrPer:"hr/sheet", uHrPerCut:"hr/cut", speedNote:"Use the 6-month median hr/sheet from Notion 作画_案件 (the settings link 計算機速度連結 fills them in for you).",
+    speedWord:"speed", uHrPer:"hr/sheet", uHrPerCut:"hr/cut", speedNote:"Use the 6-month median hr/sheet from Notion 作画_案件. Opening the settings link 計算機速度連結 fills them in; inside a Notion page, copy that link and paste it below.", lLinkPaste:"Paste the 計算機速度連結 link", noLink:"No speeds found in this link",
     lStart:"Start", lEnd:"End", uHour:"h", lDaily:"Daily cap", lBuffer:"Extra buffer", lOverhead:"Fixed per job",
     lTarget:"Comfort line", uSlackPct:"slack %", lDlDays:"Default deadline: working days ahead", lDlHour:"Default deadline time", uWorkdays:"working days",
     lCEasy:"簡単 coefficient", lCNormal:"普通 coefficient", lCHard:"難しい coefficient", lCExtreme:"ハード coefficient", lCGaichu:"社外 coefficient",
@@ -489,13 +490,18 @@ function readSettings(){
 // A Notion formula builds a link like ?kDouga=0.5&kNigenMai=0.8 from the user's 6-month medians.
 // Only speeds that came with the link are replaced and saved; the rest stay as set by hand.
 const LINK_KEYS = ["kGentore","kDouga","kShiage","kLoMai","kNigenMai"];
-function applyLinkSpeeds(s){
-  let p; try{ p = new URLSearchParams(location.search); }catch(e){ return s; }
+// Returns how many speeds were taken from the query string into s
+function takeLinkSpeeds(query, s){
+  let p; try{ p = new URLSearchParams(query); }catch(e){ return 0; }
   const got = LINK_KEYS.filter(k => p.has(k) && parseFloat(p.get(k)) > 0);
-  if(!got.length) return s;
   got.forEach(k => { s[k] = parseFloat(p.get(k)); });
+  return got.length;
+}
+function applyLinkSpeeds(s){
+  const n = takeLinkSpeeds(location.search, s);
+  if(!n) return s;
   try{ localStorage.setItem(KEY, JSON.stringify(s)); }catch(e){}
-  linkNote = t("fromLink")(got.length);
+  linkNote = t("fromLink")(n);
   // drop the parameters so a reload doesn't overwrite later manual edits
   try{ history.replaceState(null, "", location.pathname + location.hash); }catch(e){}
   return s;
@@ -715,7 +721,7 @@ function init(){
   // start empty; deadline defaults to 12:00 on the third working day from today
   $("cpx").value = "normal"; $("load").value = 0; $("loadHard").value = 0;
   setDefaultDeadline();
-  document.querySelectorAll("#settingsBox input").forEach(el => el.addEventListener("input", () => { saveSettings(readSettings()); setDefaultDeadline(); renderCal(); render(); }));
+  document.querySelectorAll("#settingsBox input:not(#linkPaste)").forEach(el => el.addEventListener("input", () => { saveSettings(readSettings()); setDefaultDeadline(); renderCal(); render(); }));
   ["qDouga","qShiage","qGentore","qGen","jobType","cpx","load","loadHard","gaichu","redo","hasRisk"].forEach(id => $(id).addEventListener("input", render));
   $("deadline").addEventListener("input", () => { deadlineTouched = true; renderCal(); render(); });
   $("cal").addEventListener("click", e => {
@@ -723,6 +729,14 @@ function init(){
     const k = b.dataset.d;
     dayOverride[k] = !isOff(new Date(k + "T00:00"));
     saveOff(); renderCal(); render();
+  });
+  // Inside a Notion embed, clicking the link opens a separate tab with its own storage, so the link can be pasted here instead
+  $("linkPaste").addEventListener("input", () => {
+    const v = $("linkPaste").value.trim(); if(!v) return;
+    const s = readSettings(), n = takeLinkSpeeds(v.includes("?") ? v.slice(v.indexOf("?")) : v, s);
+    if(!n){ $("savedNote").textContent = t("noLink"); return; }
+    writeSettings(s); saveSettings(s); $("savedNote").textContent = t("fromLink")(n); $("linkPaste").value = "";
+    setDefaultDeadline(); renderCal(); render();
   });
   $("reset").addEventListener("click", () => { writeSettings({...DEFAULTS}); saveSettings(readSettings()); render(); });
   country = loadCountry(); renderCountries();
