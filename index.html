@@ -45,6 +45,7 @@ h1{font-size:1.35rem;margin:0;text-wrap:balance;letter-spacing:.02em}
 .sheet h2{font-size:.78rem;letter-spacing:.12em;color:var(--blue);margin:0;font-weight:700}
 .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
 label{display:grid;gap:4px;font-size:.85rem;color:var(--muted);min-width:0}
+label[hidden]{display:none}
 input,select{font:inherit;font-family:var(--f-num);font-size:.95rem;color:var(--ink);background:var(--field);border:1px solid var(--rule);border-radius:4px;padding:7px 9px;width:100%;min-width:0}
 input:focus-visible,select:focus-visible,button:focus-visible,summary:focus-visible{outline:2px solid var(--blue);outline-offset:1px}
 .unit{font-family:var(--f-num);font-size:.75rem;color:var(--muted)}
@@ -119,7 +120,7 @@ button:hover{border-color:var(--blue)}
     <details class="fold" data-fold="quick" open>
       <summary><h2 data-i18n="h2quick"></h2></summary>
       <div class="fold-body">
-        <table class="quick"><thead><tr><th data-i18n="qhDue"></th><th data-i18n="qhFree"></th><th data-i18n="qhSheet"></th><th data-i18n="qhCut"></th></tr></thead><tbody id="quick"></tbody></table>
+        <table class="quick"><thead><tr><th data-i18n="qhDue"></th><th data-i18n="qhFree"></th><th id="qhSheet"></th></tr></thead><tbody id="quick"></tbody></table>
         <p class="note" id="quickNote"></p>
       </div>
     </details>
@@ -131,13 +132,13 @@ button:hover{border-color:var(--blue)}
       <summary><h2 data-i18n="h2new"></h2></summary>
       <div class="fold-body">
     <div class="grid">
-      <label for="qGentore">清書 <span class="unit" data-i18n="uSheet"></span><input id="qGentore" type="number" min="0" step="1" inputmode="numeric"></label>
-      <label for="qDouga">動画 <span class="unit" data-i18n="uSheet"></span><input id="qDouga" type="number" min="0" step="1" inputmode="numeric"></label>
-      <label for="qShiage">仕上 <span class="unit" data-i18n="uSheet"></span><input id="qShiage" type="number" min="0" step="1" inputmode="numeric"></label>
-      <label for="qCut"><span data-i18n="lCut"></span> <span class="unit">カット</span><input id="qCut" type="number" min="0" step="1" inputmode="numeric"></label>
-      <label for="cutKind"><span data-i18n="lCutKind"></span>
-        <select id="cutKind"><option value="lo">LO（一原）</option><option value="nigen">二原</option></select>
+      <label for="jobType"><span data-i18n="lJobType"></span>
+        <select id="jobType"><option value="doushi">動仕</option><option value="lo">LO（一原）</option><option value="nigen">二原</option></select>
       </label>
+      <label for="qGentore" data-job="doushi">清書 <span class="unit" data-i18n="uSheet"></span><input id="qGentore" type="number" min="0" step="1" inputmode="numeric"></label>
+      <label for="qDouga" data-job="doushi">動画（合わせ） <span class="unit" data-i18n="uSheet"></span><input id="qDouga" type="number" min="0" step="1" inputmode="numeric"></label>
+      <label for="qShiage" data-job="doushi">仕上 <span class="unit" data-i18n="uSheet"></span><input id="qShiage" type="number" min="0" step="1" inputmode="numeric"></label>
+      <label for="qGen" data-job="genga"><span data-i18n="lGen"></span> <span class="unit" data-i18n="uSheet"></span><input id="qGen" type="number" min="0" step="1" inputmode="numeric"></label>
       <label for="cpx"><span data-i18n="lCpx"></span>
         <select id="cpx"><option value="easy">簡単</option><option value="normal">普通</option><option value="hard">難しい</option><option value="extreme">ハード</option></select>
       </label>
@@ -190,10 +191,10 @@ button:hover{border-color:var(--blue)}
       <div style="display:grid;gap:14px">
         <div class="grid">
           <label for="kGentore">清書 <span data-i18n="speedWord"></span> <span class="unit" data-i18n="uHrPer"></span><input id="kGentore" type="number" min="0" step="0.01"></label>
-          <label for="kDouga">動画 <span data-i18n="speedWord"></span> <span class="unit" data-i18n="uHrPer"></span><input id="kDouga" type="number" min="0" step="0.01"></label>
+          <label for="kDouga">動画（合わせ） <span data-i18n="speedWord"></span> <span class="unit" data-i18n="uHrPer"></span><input id="kDouga" type="number" min="0" step="0.01"></label>
           <label for="kShiage">仕上 <span data-i18n="speedWord"></span> <span class="unit" data-i18n="uHrPer"></span><input id="kShiage" type="number" min="0" step="0.01"></label>
-          <label for="kLo">LO（一原） <span data-i18n="speedWord"></span> <span class="unit" data-i18n="uHrPerCut"></span><input id="kLo" type="number" min="0" step="0.1"></label>
-          <label for="kNigen">二原 <span data-i18n="speedWord"></span> <span class="unit" data-i18n="uHrPerCut"></span><input id="kNigen" type="number" min="0" step="0.1"></label>
+          <label for="kLoMai">LO（一原） <span data-i18n="speedWord"></span> <span class="unit" data-i18n="uHrPer"></span><input id="kLoMai" type="number" min="0" step="0.01"></label>
+          <label for="kNigenMai">二原 <span data-i18n="speedWord"></span> <span class="unit" data-i18n="uHrPer"></span><input id="kNigenMai" type="number" min="0" step="0.01"></label>
         </div>
         <p class="note" data-i18n="speedNote"></p>
         <div class="grid">
@@ -246,14 +247,14 @@ const I18N = {
     sub:"輸入新案的枚数和締め切り，用截止前的可用工時判斷接不接得下（見積 × 排程係數，每天 8h，祝日先扣）。設定只存在這個瀏覽器。",
     nNeedL:"新案所需工時（見積 × 係數）", nAvailL:"截止前可用工時", nSlackL:"扣掉手上工作後的餘裕",
     barAria:"工時分配", legLoad:"手上剩餘", legNew:"新案",
-    h2new:"新案", uSheet:"枚", h2quick:"還能接多少", qhDue:"截止", qhFree:"空き", qhSheet:"枚（動仕）", qhCut:"カット（二原）",
-    quickNote:(c,l)=>`以手上剩餘 ${l}h、目前的難度係數 ×${c} 計算；1 枚＝動画＋仕上，カット看二原速度；兩欄各是「只接這一種」時最多幾枚／幾カット，截止算到當天收工；中1～中3 跳過休假日，7／14 天後若遇休假日順延到下個工作日。`,
-    quickDay:(n,c)=>n === 0 ? "今天" : n <= 3 ? `中${n}（${c} 天後）` : `${c} 天後`, lCpx:"難度", lCut:"原画", lCutKind:"原画工種",
+    h2new:"新案", uSheet:"枚", h2quick:"還能接多少", qhDue:"截止", qhFree:"空き", qhSheet:j=>`枚（${j}）`,
+    quickNote:(c,l)=>`以手上剩餘 ${l}h、目前的難度係數 ×${c}、上面選的工種計算（動仕的 1 枚＝動画＋仕上）；截止算到當天收工；中1～中3 跳過休假日，7／14 天後若遇休假日順延到下個工作日。`,
+    quickDay:(n,c)=>n === 0 ? "今天" : n <= 3 ? `中${n}（${c} 天後）` : `${c} 天後`, lCpx:"難度", lJobType:"工種", lGen:"原画",
     chkGaichu:"社外（用社外係數）", chkRedo:"やり直し／ゴミ素材（再 ×1.3）", chkRisk:"手上已有高風險卡",
     lDeadline:"締め切り", lLoad:"手上剩餘（一般）", lLoadHard:"手上剩餘（難卡，自動 ×2）",
     h2days:"截止前的日子", daysHint:"點一下切換「工作／休」；土日與祝日預設休",
     h2break:"內訳", sumSettings:"設定（速度、工作時段）",
-    speedWord:"速度", uHrPer:"hr/枚", uHrPerCut:"hr/カット", speedNote:"速度建議填 Notion 作画_案件 近 30 天的 hr/枚、hr/カット 中位數。",
+    speedWord:"速度", uHrPer:"hr/枚", uHrPerCut:"hr/カット", speedNote:"速度建議填 Notion 作画_案件 近 6 個月的 hr/枚 中位數（基本設定的「計算機速度連結」點一下就會自動帶入）。",
     lStart:"開工", lEnd:"收工", uHour:"時", lDaily:"每日上限", lBuffer:"額外緩衝", lOverhead:"每案固定",
     lTarget:"安心線", uSlackPct:"餘裕 %", lDlDays:"預設截止：幾個工作日後", lDlHour:"預設截止時刻", uWorkdays:"工作日",
     lCEasy:"簡単 係數", lCNormal:"普通 係數", lCHard:"難しい 係數", lCExtreme:"ハード 係數", lCGaichu:"社外 係數",
@@ -267,7 +268,7 @@ const I18N = {
     holBuiltin:n=>`用內建假日表（到 2028 年）：今明兩年平日放假 ${n} 天`, holFailNone:"抓不到假日（可能離線），先只扣土日",
     csvBtn:"下載 Notion 用的工作日 CSV", csvYearAria:"CSV 年份",
     csvNote:"一年一天一行：Name、Date、休假（國定假日和你在上面點成休的日子會打勾）。到 Notion 的工作日 DB 用「合併 CSV」匯入。",
-    whyNoDl:"請填締め切り", whyPast:"締め切り早於現在", whyNoQty:"請填枚数或カット数",
+    whyNoDl:"請填締め切り", whyPast:"締め切り早於現在", whyNoQty:"請填枚数",
     whyBad:(h,d)=>`差 ${h}h，相當於約 ${d} 天的工作量`,
     whyWarn:(h,t)=>`餘裕 ${h}h，低於安心線（新案的 ${t}%）`,
     whyOk:(h,w)=>`餘裕 ${h}h，${w} 個工作日內`,
@@ -275,22 +276,22 @@ const I18N = {
     alertTwo:"高風險卡同時最多一卡：手上已有一張，這張先別接。",
     alertRisk:"這是高風險卡：清書做完若速度低於當月中位 0.7 倍，當天就跟主任講。",
     alertGaichu:(h,over,need)=>`社外：從今天起每天做 ${h}h${over?`（實際需要每天 ${need}h，超過 3h）`:""}，不准留到最後 3 天；5 天後進度不到三分之一要警告。`,
-    rows:{douga:"動画",shiage:"仕上",gentore:"清書",lo:"LO（一原）",nigen:"二原",overhead:"每案固定",cpx:"排程係數",buffer:"緩衝",total:"新案合計",avail:"可用工時",load:"手上剩餘（難卡 ×2 後）",slack:"餘裕"},
-    workdays:w=>`（${w} 個工作日）`, sheets:"枚", cuts:"カット"
+    rows:{douga:"動画（合わせ）",shiage:"仕上",gentore:"清書",overhead:"每案固定",cpx:"排程係數",buffer:"緩衝",total:"新案合計",avail:"可用工時",load:"手上剩餘（難卡 ×2 後）",slack:"餘裕"},
+    workdays:w=>`（${w} 個工作日）`, sheets:"枚"
   },
   ja: {
     title:"取れる？計算機", langLabel:"言語",
     sub:"新案件の枚数と締め切りを入力すると、締切までの稼働可能時間で受けられるかを判定します（見積 × 排程係数、1日8h、祝日は先に除外）。設定はこのブラウザにだけ保存されます。",
     nNeedL:"新案件の所要工数（見積 × 係数）", nAvailL:"締切までの稼働可能時間", nSlackL:"手持ち作業を引いた余裕",
     barAria:"工数の配分", legLoad:"手持ち残り", legNew:"新案件",
-    h2new:"新案件", uSheet:"枚", h2quick:"あとどれだけ受けられる？", qhDue:"締切", qhFree:"空き", qhSheet:"枚（動仕）", qhCut:"カット（二原）",
-    quickNote:(c,l)=>`手持ち残り ${l}h、現在の難易度係数 ×${c} で計算。1枚＝動画＋仕上、カットは二原の速度で計算。各マスは「それだけ受ける場合」の最大枚数／カット数で、その日の終業時刻までを数えます。中1～中3 は休日を飛ばし、7日後・14日後が休日なら次の稼働日にずらします。`,
-    quickDay:(n,c)=>n === 0 ? "今日" : n <= 3 ? `中${n}（${c}日後）` : `${c}日後`, lCpx:"難易度", lCut:"原画", lCutKind:"原画の種類",
+    h2new:"新案件", uSheet:"枚", h2quick:"あとどれだけ受けられる？", qhDue:"締切", qhFree:"空き", qhSheet:j=>`枚（${j}）`,
+    quickNote:(c,l)=>`手持ち残り ${l}h、現在の難易度係数 ×${c}、上で選んだ工種で計算します（動仕の 1枚＝動画＋仕上）。その日の終業時刻までを数えます。中1～中3 は休日を飛ばし、7日後・14日後が休日なら次の稼働日にずらします。`,
+    quickDay:(n,c)=>n === 0 ? "今日" : n <= 3 ? `中${n}（${c}日後）` : `${c}日後`, lCpx:"難易度", lJobType:"工種", lGen:"原画",
     chkGaichu:"社外（社外係数を使う）", chkRedo:"やり直し／ゴミ素材（さらに ×1.3）", chkRisk:"手持ちに高リスクカードあり",
     lDeadline:"締め切り", lLoad:"手持ち残り（通常）", lLoadHard:"手持ち残り（難カード、自動 ×2）",
     h2days:"締切までの日", daysHint:"クリックで「稼働／休」を切替。土日と祝日は初期状態で休み",
     h2break:"内訳", sumSettings:"設定（速度・作業時間帯）",
-    speedWord:"速度", uHrPer:"hr/枚", uHrPerCut:"hr/カット", speedNote:"速度は Notion 作画_案件 の直近30日の hr/枚・hr/カット の中央値を入れるのがおすすめです。",
+    speedWord:"速度", uHrPer:"hr/枚", uHrPerCut:"hr/カット", speedNote:"速度は Notion 作画_案件 の直近6か月の hr/枚 の中央値がおすすめです（基本設定の「計算機速度連結」を押すと自動で入ります）。",
     lStart:"開始", lEnd:"終了", uHour:"時", lDaily:"1日の上限", lBuffer:"追加バッファ", lOverhead:"案件ごとの固定",
     lTarget:"安心ライン", uSlackPct:"余裕 %", lDlDays:"締切の初期値：何稼働日後", lDlHour:"締切の初期時刻", uWorkdays:"稼働日",
     lCEasy:"簡単 係数", lCNormal:"普通 係数", lCHard:"難しい 係数", lCExtreme:"ハード 係数", lCGaichu:"社外 係数",
@@ -304,7 +305,7 @@ const I18N = {
     holBuiltin:n=>`内蔵の祝日表（2028 年まで）を使用：今年と来年で平日の休み ${n} 日`, holFailNone:"祝日を取得できません（オフラインかも）。土日のみ休みにします",
     csvBtn:"Notion 用の稼働日 CSV をダウンロード", csvYearAria:"CSV の年",
     csvNote:"1 年分を 1 日 1 行で出力します：Name、Date、休假（祝日と上で休みにした日にチェック）。Notion の稼働日 DB で「CSV をマージ」から取り込めます。",
-    whyNoDl:"締め切りを入力してください", whyPast:"締め切りが現在より前です", whyNoQty:"枚数かカット数を入力してください",
+    whyNoDl:"締め切りを入力してください", whyPast:"締め切りが現在より前です", whyNoQty:"枚数を入力してください",
     whyBad:(h,d)=>`${h}h 不足、約 ${d} 日分の作業量です`,
     whyWarn:(h,t)=>`余裕 ${h}h、安心ライン（新案件の ${t}%）を下回っています`,
     whyOk:(h,w)=>`余裕 ${h}h、${w} 稼働日以内`,
@@ -312,22 +313,22 @@ const I18N = {
     alertTwo:"高リスクカードは同時に 1 枚まで。すでに 1 枚あるので、これは受けないでください。",
     alertRisk:"高リスクカードです。清書が終わった時点で速度が当月中央値の 0.7 倍未満なら、その日のうちに主任へ伝えてください。",
     alertGaichu:(h,over,need)=>`社外：今日から毎日 ${h}h 作業。最後の 3 日に回さないでください。5 日経って進捗が 3 分の 1 未満なら警告です。${over?`（実際には毎日 ${need}h 必要で、3h を超えています）`:""}`,
-    rows:{douga:"動画",shiage:"仕上",gentore:"清書",lo:"LO（一原）",nigen:"二原",overhead:"案件ごとの固定",cpx:"排程係数",buffer:"バッファ",total:"新案件 合計",avail:"稼働可能時間",load:"手持ち残り（難カード ×2 後）",slack:"余裕"},
-    workdays:w=>`（${w} 稼働日）`, sheets:"枚", cuts:"カット"
+    rows:{douga:"動画（合わせ）",shiage:"仕上",gentore:"清書",overhead:"案件ごとの固定",cpx:"排程係数",buffer:"バッファ",total:"新案件 合計",avail:"稼働可能時間",load:"手持ち残り（難カード ×2 後）",slack:"余裕"},
+    workdays:w=>`（${w} 稼働日）`, sheets:"枚"
   },
   en: {
     title:"Can I Take It? Calculator", langLabel:"Language",
     sub:"Enter the new job's sheet counts and deadline to check whether it fits in the working hours before the deadline (estimate × schedule coefficient, 8h/day, holidays excluded first). Settings are saved only in this browser.",
     nNeedL:"Hours the new job needs (estimate × coefficient)", nAvailL:"Hours available before the deadline", nSlackL:"Slack after current workload",
     barAria:"Hours allocation", legLoad:"Current workload", legNew:"New job",
-    h2new:"New job", uSheet:"sheets", h2quick:"How much more can I take?", qhDue:"Due", qhFree:"Free", qhSheet:"Sheets (in-between + paint)", qhCut:"Cuts (2nd key)",
-    quickNote:(c,l)=>`Based on ${l}h of current workload and the current difficulty coefficient ×${c}. One sheet = in-between + paint; cuts use the 2nd-key speed. Each cell is the most you could take of that one kind alone, counting through the end of that day. 1–3 workdays skip days off; 7 and 14 days move to the next working day if they land on a day off.`,
-    quickDay:(n,c)=>n === 0 ? "today" : n <= 3 ? `${n} workday${n > 1 ? "s" : ""} (in ${c} day${c > 1 ? "s" : ""})` : `in ${c} days`, lCpx:"Difficulty", lCut:"Key animation", lCutKind:"Key animation type",
+    h2new:"New job", uSheet:"sheets", h2quick:"How much more can I take?", qhDue:"Due", qhFree:"Free", qhSheet:j=>`Sheets (${j})`,
+    quickNote:(c,l)=>`Based on ${l}h of current workload, the current difficulty coefficient ×${c} and the job type chosen above (for 動仕, one sheet = in-between + paint), counting through the end of that day. 1–3 workdays skip days off; 7 and 14 days move to the next working day if they land on a day off.`,
+    quickDay:(n,c)=>n === 0 ? "today" : n <= 3 ? `${n} workday${n > 1 ? "s" : ""} (in ${c} day${c > 1 ? "s" : ""})` : `in ${c} days`, lCpx:"Difficulty", lJobType:"Job type", lGen:"Key animation",
     chkGaichu:"External client 社外 (use 社外 coefficient)", chkRedo:"Redo / poor source material (extra ×1.3)", chkRisk:"Already holding a high-risk card",
     lDeadline:"Deadline", lLoad:"Remaining workload (normal)", lLoadHard:"Remaining workload (hard cards, auto ×2)",
     h2days:"Days until the deadline", daysHint:"Click a day to toggle work / off. Weekends and public holidays are off by default",
     h2break:"Breakdown", sumSettings:"Settings (speed, work hours)",
-    speedWord:"speed", uHrPer:"hr/sheet", uHrPerCut:"hr/cut", speedNote:"Use the 30-day median hr/sheet and hr/cut from Notion 作画_案件.",
+    speedWord:"speed", uHrPer:"hr/sheet", uHrPerCut:"hr/cut", speedNote:"Use the 6-month median hr/sheet from Notion 作画_案件 (the settings link 計算機速度連結 fills them in for you).",
     lStart:"Start", lEnd:"End", uHour:"h", lDaily:"Daily cap", lBuffer:"Extra buffer", lOverhead:"Fixed per job",
     lTarget:"Comfort line", uSlackPct:"slack %", lDlDays:"Default deadline: working days ahead", lDlHour:"Default deadline time", uWorkdays:"working days",
     lCEasy:"簡単 coefficient", lCNormal:"普通 coefficient", lCHard:"難しい coefficient", lCExtreme:"ハード coefficient", lCGaichu:"社外 coefficient",
@@ -341,7 +342,7 @@ const I18N = {
     holBuiltin:n=>`Using the built-in holiday list (through 2028): ${n} weekdays off this year and next`, holFailNone:"Couldn't load holidays (offline?); only weekends are off",
     csvBtn:"Download workday CSV for Notion", csvYearAria:"CSV year",
     csvNote:"One row per day for the year: Name, Date, 休假 (checked for public holidays and days you marked off above). Import it into your Notion workday database with Merge with CSV.",
-    whyNoDl:"Enter a deadline", whyPast:"The deadline is before now", whyNoQty:"Enter sheet or cut counts",
+    whyNoDl:"Enter a deadline", whyPast:"The deadline is before now", whyNoQty:"Enter the sheet counts",
     whyBad:(h,d)=>`Short by ${h}h, about ${d} days of work`,
     whyWarn:(h,t)=>`Slack ${h}h, below the comfort line (${t}% of the new job)`,
     whyOk:(h,w)=>`Slack ${h}h, within ${w} working days`,
@@ -349,8 +350,8 @@ const I18N = {
     alertTwo:"Only one high-risk card at a time. You already hold one, so don't take this one yet.",
     alertRisk:"This is a high-risk card: if clean-up speed drops below 0.7× the monthly median, tell your lead the same day.",
     alertGaichu:(h,over,need)=>`社外: work ${h}h every day from today and don't leave it for the last 3 days; warn yourself if less than a third is done after 5 days.${over?` (You actually need ${need}h a day, over 3h.)`:""}`,
-    rows:{douga:"動画",shiage:"仕上",gentore:"清書",lo:"LO (1st key)",nigen:"二原",overhead:"Fixed per job",cpx:"Schedule coefficient",buffer:"Buffer",total:"New job total",avail:"Available hours",load:"Current workload (hard cards ×2)",slack:"Slack"},
-    workdays:w=>` (${w} working days)`, sheets:"sheets", cuts:"cuts"
+    rows:{douga:"動画（合わせ）",shiage:"仕上",gentore:"清書",overhead:"Fixed per job",cpx:"Schedule coefficient",buffer:"Buffer",total:"New job total",avail:"Available hours",load:"Current workload (hard cards ×2)",slack:"Slack"},
+    workdays:w=>` (${w} working days)`, sheets:"sheets"
   }
 };
 const LANG_KEY = "toreru-lang";
@@ -375,7 +376,7 @@ function applyLang(){
   document.querySelectorAll("[data-i18n-aria]").forEach(el => el.setAttribute("aria-label", t(el.dataset.i18nAria)));
 }
 const DEFAULTS = {
-  kDouga:0.55, kShiage:0.10, kGentore:0.59, kLo:3.0, kNigen:2.0, start:10.5, end:20, daily:8, buffer:0, overhead:0.5, target:20, dlDays:3, dlHour:12,
+  kDouga:0.55, kShiage:0.10, kGentore:0.59, kLoMai:1.0, kNigenMai:0.8, start:10.5, end:20, daily:8, buffer:0, overhead:0.5, target:20, dlDays:3, dlHour:12,
   cEasy:0.8, cNormal:1.4, cHard:2.0, cExtreme:2.8, cGaichu:2.0
 };
 const SETTING_IDS = Object.keys(DEFAULTS);
@@ -485,9 +486,9 @@ function readSettings(){
   SETTING_IDS.forEach(id => { s[id] = parseFloat($(id).value) || 0; });
   return s;
 }
-// A Notion formula builds a link like ?kDouga=0.5&kNigen=1.9 from the user's 6-month medians.
+// A Notion formula builds a link like ?kDouga=0.5&kNigenMai=0.8 from the user's 6-month medians.
 // Only speeds that came with the link are replaced and saved; the rest stay as set by hand.
-const LINK_KEYS = ["kGentore","kDouga","kShiage","kLo","kNigen"];
+const LINK_KEYS = ["kGentore","kDouga","kShiage","kLoMai","kNigenMai"];
 function applyLinkSpeeds(s){
   let p; try{ p = new URLSearchParams(location.search); }catch(e){ return s; }
   const got = LINK_KEYS.filter(k => p.has(k) && parseFloat(p.get(k)) > 0);
@@ -559,7 +560,7 @@ function earliestDate(now, deadline, s, load, need){
   return null;
 }
 
-// Quick lookup: for a few horizons, how many 動仕 sheets (動画+仕上) or 二原 cuts still fit after the current workload.
+// Quick lookup: for a few horizons, how many sheets of the chosen job type still fit after the current workload (動仕: 動画+仕上 per sheet).
 // 1-3 are 中1-中3 (that many working days ahead); 7 and 14 are calendar days, moved to the next working day if they land on a day off.
 const QUICK_DAYS = [0, 1, 2, 3, 7, 14];
 function quickDate(now, n){
@@ -573,7 +574,7 @@ function quickDate(now, n){
   while(isOff(d)) d.setDate(d.getDate() + 1);
   return d;
 }
-function renderQuick(now, s, cpx, load){
+function renderQuick(now, s, cpx, load, job){
   const mult = cpx * (1 + s.buffer/100);
   const rows = [];
   for(const n of QUICK_DAYS){
@@ -582,24 +583,30 @@ function renderQuick(now, s, cpx, load){
     const free = end > now ? availableHours(now, end, s).total - load : -load;
     const fit = k => free <= 0 || k <= 0 || !mult ? 0 : Math.max(0, Math.floor((free / mult - s.overhead) / k));
     const off = isOff(d) ? ` ${t("tagOff")}` : "";
-    rows.push(`<tr><td>${d.getMonth()+1}/${d.getDate()} <small>${t("quickDay")(n, cal)}${off}</small></td><td>${fmt(free)}h</td><td>${fit(s.kDouga + s.kShiage)}</td><td>${fit(s.kNigen)}</td></tr>`);
+    rows.push(`<tr><td>${d.getMonth()+1}/${d.getDate()} <small>${t("quickDay")(n, cal)}${off}</small></td><td>${fmt(free)}h</td><td>${fit(job.perSheet)}</td></tr>`);
   }
   $("quick").innerHTML = rows.join("");
+  $("qhSheet").textContent = t("qhSheet")(job.label);
   $("quickNote").textContent = t("quickNote")(fmt2(cpx), fmt(load));
 }
 
 function render(){
   const s = readSettings();
-  const q = {douga:+$("qDouga").value||0, shiage:+$("qShiage").value||0, gentore:+$("qGentore").value||0, cut:+$("qCut").value||0};
-  const cutKind = $("cutKind").value, kCut = cutKind === "lo" ? s.kLo : s.kNigen;
+  const jobType = $("jobType").value, doushi = jobType === "doushi";
+  document.querySelectorAll("[data-job]").forEach(el => { el.hidden = el.dataset.job !== (doushi ? "doushi" : "genga"); });
+  // counts for the other job type are ignored rather than cleared, so switching back keeps them
+  const q = doushi ? {douga:+$("qDouga").value||0, shiage:+$("qShiage").value||0, gentore:+$("qGentore").value||0, gen:0}
+                   : {douga:0, shiage:0, gentore:0, gen:+$("qGen").value||0};
+  const kGen = jobType === "lo" ? s.kLoMai : s.kNigenMai;
+  const job = {label: $("jobType").selectedOptions[0].textContent, perSheet: doushi ? s.kDouga + s.kShiage : kGen};
   const level = $("cpx").value, gaichu = $("gaichu").checked, redo = $("redo").checked;
   // 社外 replaces the difficulty coefficient instead of stacking on it
   let cpx = gaichu ? s.cGaichu : {easy:s.cEasy, normal:s.cNormal, hard:s.cHard, extreme:s.cExtreme}[level];
   if(redo) cpx *= REDO_MULT;
   const loadHard = +$("loadHard").value || 0;
   const load = (+$("load").value || 0) + loadHard * 2;
-  const base = {douga:q.douga*s.kDouga, shiage:q.shiage*s.kShiage, gentore:q.gentore*s.kGentore, cut:q.cut*kCut};
-  const raw = (base.douga + base.shiage + base.gentore + base.cut + s.overhead) * cpx;
+  const base = {douga:q.douga*s.kDouga, shiage:q.shiage*s.kShiage, gentore:q.gentore*s.kGentore, gen:q.gen*kGen};
+  const raw = (base.douga + base.shiage + base.gentore + base.gen + s.overhead) * cpx;
   const need = raw * (1 + s.buffer/100);
   const now = new Date();
   const dl = $("deadline").value ? new Date($("deadline").value) : null;
@@ -613,7 +620,7 @@ function render(){
   let state, stamp, why;
   if(!dl){ state="var(--muted)"; stamp="—"; why=t("whyNoDl"); }
   else if(dl <= now){ state="var(--bad)"; stamp="締め切り過ぎ"; why=t("whyPast"); }
-  else if(!q.douga && !q.shiage && !q.gentore && !q.cut){ state="var(--muted)"; stamp="—"; why=t("whyNoQty"); }
+  else if(!q.douga && !q.shiage && !q.gentore && !q.gen){ state="var(--muted)"; stamp="—"; why=t("whyNoQty"); }
   else if(slack < 0){ state="var(--bad)"; stamp="取れない"; why=t("whyBad")(fmt(-slack), fmt(-slack/(s.daily||1))); }
   else if(slack < need * s.target/100){ state="var(--warn)"; stamp="ギリギリ"; why=t("whyWarn")(fmt(slack), s.target); }
   else { state="var(--ok)"; stamp="取れる"; why=t("whyOk")(fmt(slack), av.workdays); }
@@ -632,7 +639,7 @@ function render(){
   }
   $("say").textContent = say;
 
-  const highRisk = gaichu || ((level === "hard" || level === "extreme") && q.douga >= RISK_MAIDS);
+  const highRisk = gaichu || ((level === "hard" || level === "extreme") && (doushi ? q.douga : q.gen) >= RISK_MAIDS);
   const alerts = [];
   if(highRisk && $("hasRisk").checked) alerts.push(["bad", t("alertTwo")]);
   else if(highRisk) alerts.push(["", t("alertRisk")]);
@@ -647,13 +654,15 @@ function render(){
   $("bNeed").style.width = (Math.min(need, Math.max(0, scale-load))/scale*100) + "%";
 
   const R = t("rows");
-  const rows = [
+  const work = doushi ? [
     [`${R.gentore} ${q.gentore}${t("sheets")} × ${s.kGentore}`, base.gentore],
     [`${R.douga} ${q.douga}${t("sheets")} × ${s.kDouga}`, base.douga],
-    [`${R.shiage} ${q.shiage}${t("sheets")} × ${s.kShiage}`, base.shiage],
-    [`${R[cutKind]} ${q.cut}${t("cuts")} × ${kCut}`, base.cut],
+    [`${R.shiage} ${q.shiage}${t("sheets")} × ${s.kShiage}`, base.shiage]
+  ] : [[`${job.label} ${q.gen}${t("sheets")} × ${kGen}`, base.gen]];
+  const rows = [
+    ...work,
     [R.overhead, s.overhead],
-    [`${R.cpx} × ${fmt2(cpx)}`, (base.douga+base.shiage+base.gentore+base.cut+s.overhead)*(cpx-1)],
+    [`${R.cpx} × ${fmt2(cpx)}`, (base.douga+base.shiage+base.gentore+base.gen+s.overhead)*(cpx-1)],
     [`${R.buffer} ${s.buffer}%`, need - raw],
     [R.total, need],
     [`${R.avail}${t("workdays")(av.workdays)}`, av.total],
@@ -661,7 +670,7 @@ function render(){
     [R.slack, slack]
   ];
   $("breakdown").innerHTML = rows.map(([k,v]) => `<tr><td>${k}</td><td>${fmt(v)}h</td></tr>`).join("");
-  renderQuick(now, s, cpx, load);
+  renderQuick(now, s, cpx, load, job);
 }
 
 // Remember which sections are collapsed
@@ -707,7 +716,7 @@ function init(){
   $("cpx").value = "normal"; $("load").value = 0; $("loadHard").value = 0;
   setDefaultDeadline();
   document.querySelectorAll("#settingsBox input").forEach(el => el.addEventListener("input", () => { saveSettings(readSettings()); setDefaultDeadline(); renderCal(); render(); }));
-  ["qDouga","qShiage","qGentore","qCut","cutKind","cpx","load","loadHard","gaichu","redo","hasRisk"].forEach(id => $(id).addEventListener("input", render));
+  ["qDouga","qShiage","qGentore","qGen","jobType","cpx","load","loadHard","gaichu","redo","hasRisk"].forEach(id => $(id).addEventListener("input", render));
   $("deadline").addEventListener("input", () => { deadlineTouched = true; renderCal(); render(); });
   $("cal").addEventListener("click", e => {
     const b = e.target.closest("button[data-d]"); if(!b) return;
