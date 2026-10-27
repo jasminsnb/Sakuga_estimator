@@ -215,6 +215,12 @@ button:hover{border-color:var(--blue)}
           <label for="cExtreme"><span data-i18n="lCExtreme"></span><input id="cExtreme" type="number" min="0" step="0.05"></label>
           <label for="cGaichu"><span data-i18n="lCGaichu"></span><input id="cGaichu" type="number" min="0" step="0.05"></label>
         </div>
+        <div class="grid">
+          <label for="riskLevel"><span data-i18n="lRiskLevel"></span><select id="riskLevel"><option value="1">普通</option><option value="2">難しい</option><option value="3">ハード</option><option value="9" data-i18n="optNever"></option></select></label>
+          <label for="riskMai"><span data-i18n="lRiskMai"></span> <span class="unit" data-i18n="uSheet"></span><input id="riskMai" type="number" min="0" step="1"></label>
+          <label for="riskGaichu"><span data-i18n="lRiskGaichu"></span><select id="riskGaichu"><option value="1" data-i18n="optYes"></option><option value="0" data-i18n="optNo"></option></select></label>
+        </div>
+        <p class="note" data-i18n="riskNote"></p>
         <div class="row"><button type="button" id="reset" data-i18n="reset"></button><span class="note" id="savedNote"></span></div>
       </div>
     </details>
@@ -258,7 +264,7 @@ const I18N = {
     speedWord:"速度", uHrPer:"hr/枚", uHrPerCut:"hr/カット", speedNote:"速度建議填 Notion 作画_案件 近 6 個月的 hr/枚 中位數。點基本設定的「計算機速度連結」會自動帶入；在 Notion 頁面裡用的話，複製那個連結貼到下面。", lLinkPaste:"貼上「計算機速度連結」", noLink:"這個連結裡沒有速度",
     lStart:"開工", lEnd:"收工", uHour:"時", lDaily:"每日上限", lBuffer:"額外緩衝", lOverhead:"每案固定",
     lTarget:"安心線", uSlackPct:"餘裕 %", lDlDays:"預設截止：幾個工作日後", lDlHour:"預設截止時刻", uWorkdays:"工作日",
-    lCEasy:"簡単 係數", lCNormal:"普通 係數", lCHard:"難しい 係數", lCExtreme:"ハード 係數", lCGaichu:"社外 係數",
+    lCEasy:"簡単 係數", lCNormal:"普通 係數", lCHard:"難しい 係數", lCExtreme:"ハード 係數", lCGaichu:"社外 係數", lRiskLevel:"高風險：難度從", lRiskMai:"高風險：枚數至少", lRiskGaichu:"社外一律高風險", optNever:"不判斷", optYes:"是", optNo:"否", riskNote:"難度達到這級以上、而且動画（或原画）枚數達到門檻，就提醒是高風險卡。",
     reset:"恢復預設值", saved:"已儲存", fromLink:n=>`已從 Notion 連結帶入 ${n} 個速度並儲存；之後一樣可以手動改。`, saveFail:"這個瀏覽器無法儲存設定",
     footNote:"排程係數來自 13 個月的崩壞回溯（2026-10-17）：簡単 0.8／普通 1.4／難しい 2.0／ハード 2.8；社外卡一律用社外係數 2.0（等於難しい），不跟難度疊乘；やり直し或ゴミ素材再 ×1.3。係數已含低估的部分，所以額外緩衝預設 0。這些預設是一個人的實測值，別人用時請在設定裡改成自己「實際÷預期工時」的中位數。高風險＝難しい／ハード 且 ≥9 枚，或社外；同時最多一卡。規則全文在 Notion 專案的「崩壞規則與接卡算法」。",
     weekdays:["日","月","火","水","木","金","土"],
@@ -295,7 +301,7 @@ const I18N = {
     speedWord:"速度", uHrPer:"hr/枚", uHrPerCut:"hr/カット", speedNote:"速度は Notion 作画_案件 の直近6か月の hr/枚 の中央値がおすすめです。基本設定の「計算機速度連結」を押すと自動で入ります。Notion のページ内で使う場合は、そのリンクをコピーして下に貼ってください。", lLinkPaste:"「計算機速度連結」を貼り付け", noLink:"このリンクに速度が入っていません",
     lStart:"開始", lEnd:"終了", uHour:"時", lDaily:"1日の上限", lBuffer:"追加バッファ", lOverhead:"案件ごとの固定",
     lTarget:"安心ライン", uSlackPct:"余裕 %", lDlDays:"締切の初期値：何稼働日後", lDlHour:"締切の初期時刻", uWorkdays:"稼働日",
-    lCEasy:"簡単 係数", lCNormal:"普通 係数", lCHard:"難しい 係数", lCExtreme:"ハード 係数", lCGaichu:"社外 係数",
+    lCEasy:"簡単 係数", lCNormal:"普通 係数", lCHard:"難しい 係数", lCExtreme:"ハード 係数", lCGaichu:"社外 係数", lRiskLevel:"高リスク：難度は", lRiskMai:"高リスク：枚数が", lRiskGaichu:"社外は常に高リスク", optNever:"判定しない", optYes:"はい", optNo:"いいえ", riskNote:"この難度以上で、動画（または原画）の枚数がしきい値以上なら、高リスクカードとして注意を出します。",
     reset:"初期値に戻す", saved:"保存しました", fromLink:n=>`Notion のリンクから速度を ${n} 件取り込んで保存しました。あとから手で変更できます。`, saveFail:"このブラウザには設定を保存できません",
     footNote:"排程係数は 13 か月分の崩壊の振り返り（2026-10-17）に基づきます：簡単 0.8／普通 1.4／難しい 2.0／ハード 2.8。社外カードは常に社外係数 2.0（難しい相当）を使い、難易度とは掛け合わせません。やり直しやゴミ素材はさらに ×1.3。係数に過小見積もり分が含まれているため、追加バッファの初期値は 0 です。これらの初期値は一人分の実測値なので、他の人が使うときは設定で自分の「実績÷見込み工数」の中央値に変更してください。高リスク＝難しい／ハード かつ 9 枚以上、または社外。同時に持てるのは 1 枚まで。ルール全文は Notion プロジェクトの「崩壊ルールと受注判断アルゴリズム」にあります。",
     weekdays:["日","月","火","水","木","金","土"],
@@ -332,7 +338,7 @@ const I18N = {
     speedWord:"speed", uHrPer:"hr/sheet", uHrPerCut:"hr/cut", speedNote:"Use the 6-month median hr/sheet from Notion 作画_案件. Opening the settings link 計算機速度連結 fills them in; inside a Notion page, copy that link and paste it below.", lLinkPaste:"Paste the 計算機速度連結 link", noLink:"No speeds found in this link",
     lStart:"Start", lEnd:"End", uHour:"h", lDaily:"Daily cap", lBuffer:"Extra buffer", lOverhead:"Fixed per job",
     lTarget:"Comfort line", uSlackPct:"slack %", lDlDays:"Default deadline: working days ahead", lDlHour:"Default deadline time", uWorkdays:"working days",
-    lCEasy:"簡単 coefficient", lCNormal:"普通 coefficient", lCHard:"難しい coefficient", lCExtreme:"ハード coefficient", lCGaichu:"社外 coefficient",
+    lCEasy:"簡単 coefficient", lCNormal:"普通 coefficient", lCHard:"難しい coefficient", lCExtreme:"ハード coefficient", lCGaichu:"社外 coefficient", lRiskLevel:"High risk from difficulty", lRiskMai:"High risk at sheets ≥", lRiskGaichu:"Every 社外 card is high risk", optNever:"Never", optYes:"Yes", optNo:"No", riskNote:"A card at or above this difficulty with at least this many 動画 (or 原画) sheets is flagged as high risk.",
     reset:"Reset to defaults", saved:"Saved", fromLink:n=>`Loaded ${n} speed${n > 1 ? "s" : ""} from the Notion link and saved them. You can still edit them by hand.`, saveFail:"This browser can't save settings",
     footNote:"Schedule coefficients come from a 13-month review of burnout episodes (2026-10-17): 簡単 0.8 / 普通 1.4 / 難しい 2.0 / ハード 2.8. 社外 cards always use the 社外 coefficient 2.0 (same as 難しい) and do not stack with difficulty; redo or poor source material adds ×1.3. The coefficients already absorb underestimation, so extra buffer defaults to 0. These defaults are one person's measured values; if you use this yourself, replace them in Settings with your own median of actual ÷ expected hours. High risk = 難しい/ハード with 9+ sheets, or 社外; at most one at a time. The full rules are in the Notion project note on the burnout rules and job-acceptance algorithm.",
     weekdays:["Sun","Mon","Tue","Wed","Thu","Fri","Sat"],
@@ -378,12 +384,14 @@ function applyLang(){
 }
 const DEFAULTS = {
   kDouga:0.55, kShiage:0.10, kGentore:0.59, kLoMai:1.0, kNigenMai:0.8, start:10.5, end:20, daily:8, buffer:0, overhead:0.5, target:20, dlDays:3, dlHour:12,
-  cEasy:0.8, cNormal:1.4, cHard:2.0, cExtreme:2.8, cGaichu:2.0
+  cEasy:0.8, cNormal:1.4, cHard:2.0, cExtreme:2.8, cGaichu:2.0,
+  // high-risk card: difficulty from riskLevel (1 普通, 2 難しい, 3 ハード, 9 never) and at least riskMai sheets, or any 社外 card when riskGaichu is 1
+  riskLevel:2, riskMai:9, riskGaichu:1
 };
 const SETTING_IDS = Object.keys(DEFAULTS);
 // v2: coefficients and daily cap changed on 2026-10-17, so old saved settings are not reused
 const KEY = "toreru-settings-v2", OFF_KEY = "toreru-offdays-v2";
-const REDO_MULT = 1.3, RISK_MAIDS = 9;
+const REDO_MULT = 1.3;
 const $ = id => document.getElementById(id);
 // Overrides of the default (weekends and public holidays off): date -> true (off) / false (working)
 let dayOverride = {};
@@ -645,7 +653,8 @@ function render(){
   }
   $("say").textContent = say;
 
-  const highRisk = gaichu || ((level === "hard" || level === "extreme") && (doushi ? q.douga : q.gen) >= RISK_MAIDS);
+  const levelRank = {easy:0, normal:1, hard:2, extreme:3}[level];
+  const highRisk = (gaichu && s.riskGaichu === 1) || (levelRank >= s.riskLevel && (doushi ? q.douga : q.gen) >= s.riskMai);
   const alerts = [];
   if(highRisk && $("hasRisk").checked) alerts.push(["bad", t("alertTwo")]);
   else if(highRisk) alerts.push(["", t("alertRisk")]);
@@ -721,7 +730,7 @@ function init(){
   // start empty; deadline defaults to 12:00 on the third working day from today
   $("cpx").value = "normal"; $("load").value = 0; $("loadHard").value = 0;
   setDefaultDeadline();
-  document.querySelectorAll("#settingsBox input:not(#linkPaste)").forEach(el => el.addEventListener("input", () => { saveSettings(readSettings()); setDefaultDeadline(); renderCal(); render(); }));
+  document.querySelectorAll("#settingsBox input:not(#linkPaste), #settingsBox select").forEach(el => el.addEventListener("input", () => { saveSettings(readSettings()); setDefaultDeadline(); renderCal(); render(); }));
   ["qDouga","qShiage","qGentore","qGen","jobType","cpx","load","loadHard","gaichu","redo","hasRisk"].forEach(id => $(id).addEventListener("input", render));
   $("deadline").addEventListener("input", () => { deadlineTouched = true; renderCal(); render(); });
   $("cal").addEventListener("click", e => {
