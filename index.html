@@ -666,7 +666,7 @@ function calibrateFromCsv(text, s){
   const lv = v => { const i = Math.max(...String(v).split(",").map(x => L.indexOf(x.trim()))); return i < 0 ? 1 : i; };
   const byLevel = [[],[],[],[]], byCell = {}, cardRatios = [];
   const clientName = v => String(v || "").split(",")[0].replace(/\s*\(https?:[^)]*\)/g, "").replace(/^\[CC\]\s*/, "").trim();
-  done.filter(r => r["仕事類"] === "動仕" && !/やり直|ゴミ素材/.test(r["動作"] + r["精細度"])).forEach(r => {
+  done.filter(r => r["仕事類"] === "動仕" && !/やり直|ゴミ素材/.test(r["動作"] + r["精細度"] + (r["特殊狀況"] || ""))).forEach(r => {
     const base = num(r["清書枚数"]) * s.kGentore + num(r["合わせ枚数"]) * s.kDouga + num(r["仕上枚数"]) * s.kShiage;
     if(base <= 0) return;
     const ratio = num(r["工時"]) / (base + s.overhead), a = lv(r["動作"]), b = lv(r["精細度"]);
@@ -683,7 +683,7 @@ function calibrateFromCsv(text, s){
   let pcells = 0;
   [["G","HRS_清書","清書枚数"],["D","HRS_中割","合わせ枚数"],["S","HRS_仕上","仕上枚数"]].forEach(([k, h, n]) => {
     const by = {};
-    done.filter(r => r["仕事類"] === "動仕" && !/やり直|ゴミ素材/.test(r["動作"] + r["精細度"])).forEach(r => {
+    done.filter(r => r["仕事類"] === "動仕" && !/やり直|ゴミ素材/.test(r["動作"] + r["精細度"] + (r["特殊狀況"] || ""))).forEach(r => {
       const hr = num(r[h]), sh = num(r[n]);
       if(hr > 0 && sh > 0) (by[`${lv(r["精細度"])}${lv(r["動作"])}`] = by[`${lv(r["精細度"])}${lv(r["動作"])}`] || []).push(hr / sh);
     });
