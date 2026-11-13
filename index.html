@@ -321,11 +321,12 @@ const I18N = {
     whyNoDl:"請填締め切り", whyPast:"締め切り早於現在", whyNoQty:"請填枚数",
     whyBad:(h,d)=>`差 ${h}h，相當於約 ${d} 天的工作量`,
     whyWarn:(b,h)=>`照中位數接得下，但偏壞情況（${b}h）會差 ${h}h`,
+    sdNote:(v,f)=>`。標準差（對數）${v}：大約 2/3 的卡落在中位數的 ÷${f}～×${f}`,
     rangeNote:(lo,hi,b,p)=>`常見範圍 ${lo}～${hi}h（一半的卡落在這裡）；偏壞情況 ${b}h（${p/10} 成的卡不會超過${p === 90 ? "；還沒用你自己的資料校正，所以看 9 成線" : ""}）`,
     alertExt:(f,n)=>`社外：已乘 ×${f}（同格社內的實績倍數；社外卡只有 ${n} 張，僅供參考）。`, alertHardMotion:"動作ハード 沒有實績，這一欄的係數是推估，預估可能偏低。",
     h2re:"清書做完後重估", reHint:"清書做完後填清書實際花的時間，用妳的實績（清書速度和合わせ速度的關係＋動作）重估合わせ。用上面新案的枚数和動作。", lReGen:"清書 實際",
     reNeed:"先在新案填清書和合わせ的枚数，再填清書實際時間。",
-    modelOn:(n,d,w)=>`格子、範圍、仕上速度、重估用了妳 Notion 的 ${n} 張已完成卡（${d}），自己的資料佔 ${Math.round(w*100)}%，其餘是內建預設；卡越多比重越高。每次從 Notion 點連結會重算，手改的格子會被蓋掉。`,
+    modelOn:(n,d,w)=>`格子、範圍、仕上速度、重估用了妳 Notion 的 ${n} 張已完成卡（${d}），自己的資料佔 ${Math.round(w*100)}%${w < 1 ? "，其餘是內建預設；40 張以上就全部用妳自己的" : ""}。每次從 Notion 點連結會重算，手改的格子會被蓋掉。`,
     modelOff:"還沒有妳的實績：預估用妳在設定裡填的清書／合わせ速度（普通的卡一張幾小時），難度比例借用內建的一位使用者的實績；偏壞情況看 9 成線。從 Notion 點「計算機速度連結」就會開始混入妳自己的已完成卡。",
     modelFew:n=>`Notion 帶來的已完成卡只有 ${n} 張（至少要 8 張才開始混入），先用內建預設值。`, fromHist:n=>`已用 ${n} 張已完成卡重算格子和範圍。`,
     reOut:(per,lo,hi,rem,bad)=>`合わせ 預估每枚 ${per}h，合計 ${lo}～${hi}h；剩下（合わせ＋仕上）中位數 ${rem}h，偏壞情況 ${bad}h。`,
@@ -371,11 +372,12 @@ const I18N = {
     whyNoDl:"締め切りを入力してください", whyPast:"締め切りが現在より前です", whyNoQty:"枚数を入力してください",
     whyBad:(h,d)=>`${h}h 不足、約 ${d} 日分の作業量です`,
     whyWarn:(b,h)=>`中央値なら入りますが、悪いケース（${b}h）だと ${h}h 足りません`,
+    sdNote:(v,f)=>`。標準偏差（対数）${v}：約 3 分の 2 のカードが中央値の ÷${f}～×${f} に入ります`,
     rangeNote:(lo,hi,b,p)=>`よくある範囲 ${lo}～${hi}h（半分のカードがここ）、悪いケース ${b}h（${p/10} 割のカードはこれ以内${p === 90 ? "。まだあなたのデータで校正していないので 9 割ライン" : ""}）`,
     alertExt:(f,n)=>`社外：×${f} を掛けています（同じマスの社内実績との比。社外カードは ${n} 枚だけなので参考値）。`, alertHardMotion:"動作ハード は実績がなく、この列の係数は推定値です。少なめに出ている可能性があります。",
     h2re:"清書が終わったら再見積もり", reHint:"清書にかかった実時間を入れると、実績（清書と合わせの速度の関係＋動作）から合わせを見積もり直します。枚数と動作は上の新案件の値を使います。", lReGen:"清書 実績",
     reNeed:"新案件に清書と合わせの枚数を入れてから、清書の実時間を入れてください。",
-    modelOn:(n,d,w)=>`マス・範囲・仕上の速度・再見積もりは Notion の完了カード ${n} 枚（${d}）から計算し、あなたのデータの比重は ${Math.round(w*100)}%、残りは内蔵の初期値です（カードが増えるほど比重が上がります）。リンクを開くたびに計算し直し、手で変えたマスは上書きされます。`,
+    modelOn:(n,d,w)=>`マス・範囲・仕上の速度・再見積もりは Notion の完了カード ${n} 枚（${d}）から計算し、あなたのデータの比重は ${Math.round(w*100)}%${w < 1 ? "、残りは内蔵の初期値です（40 枚以上で全部あなたのデータになります）" : ""}。リンクを開くたびに計算し直し、手で変えたマスは上書きされます。`,
     modelOff:"まだあなたの実績がありません。設定の清書／合わせの速度（普通のカード 1 枚あたり何時間）で見積もり、難度の比率は内蔵の一人分の実績を借りています。悪いケースは 9 割ラインです。Notion の「計算機速度連結」から開くと、あなたの完了カードを混ぜていきます。",
     modelFew:n=>`Notion から届いた完了カードが ${n} 枚しかないため（8 枚から混ぜ始めます）、内蔵の初期値を使います。`, fromHist:n=>`完了カード ${n} 枚からマスと範囲を計算し直しました。`,
     reOut:(per,lo,hi,rem,bad)=>`合わせ 1枚あたり ${per}h、合計 ${lo}～${hi}h。残り（合わせ＋仕上）は中央値 ${rem}h、悪いケース ${bad}h。`,
@@ -421,11 +423,12 @@ const I18N = {
     whyNoDl:"Enter a deadline", whyPast:"The deadline is before now", whyNoQty:"Enter the sheet counts",
     whyBad:(h,d)=>`Short by ${h}h, about ${d} days of work`,
     whyWarn:(b,h)=>`Fits at the median, but the bad case (${b}h) is ${h}h short`,
+    sdNote:(v,f)=>`. Standard deviation (log) ${v}: about 2 in 3 cards land within ÷${f} to ×${f} of the median`,
     rangeNote:(lo,hi,b,p)=>`Usual range ${lo}–${hi}h (half of cards land here); bad case ${b}h (${p/10} in 10 cards stay under it${p === 90 ? "; not yet calibrated on your data, so the 90% line is used" : ""})`,
     alertExt:(f,n)=>`社外: ×${f} applied (ratio to in-house cards in the same cell; only ${n} 社外 cards, so treat it as a rough guide).`, alertHardMotion:"動作ハード has no recorded cards; this column is an estimate and may be too low.",
     h2re:"Re-estimate after 清書", reHint:"Once 清書 is done, enter the hours it actually took; 合わせ is re-estimated from your records (how 合わせ speed follows 清書 speed, plus 動作). Uses the sheet counts and 動作 from the new job above.", lReGen:"清書 actual",
     reNeed:"Enter 清書 and 合わせ sheet counts in the new job first, then the actual 清書 hours.",
-    modelOn:(n,d,w)=>`The grid, ranges, 仕上 speed and re-estimate use ${n} of your finished cards in Notion (${d}), weighted ${Math.round(w*100)}% against the built-in defaults; the weight grows with more cards. They are refitted each time you open the link, replacing cells you edited by hand.`,
+    modelOn:(n,d,w)=>`The grid, ranges, 仕上 speed and re-estimate use ${n} of your finished cards in Notion (${d}), weighted ${Math.round(w*100)}%${w < 1 ? " against the built-in defaults (all yours from 40 cards)" : ""}. They are refitted each time you open the link, replacing cells you edited by hand.`,
     modelOff:"No records of yours yet: estimates use the 清書 / 合わせ speeds you set (hours per sheet on a 普通 card) with difficulty ratios borrowed from one person's records, and the bad case uses the 90% line. Open the calculator from the Notion 計算機速度連結 link to start blending in your own finished cards.",
     modelFew:n=>`The Notion link carried only ${n} finished cards (blending starts at 8), so the built-in defaults are used.`, fromHist:n=>`Refitted the grid and ranges from ${n} finished cards.`,
     reOut:(per,lo,hi,rem,bad)=>`合わせ about ${per}h per sheet, ${lo}–${hi}h in total; remaining (合わせ + 仕上) median ${rem}h, bad case ${bad}h.`,
@@ -480,6 +483,8 @@ const GRID_EST = ["gEN","gEH","gEX","gNX","gHN","gHH","gHX","gXE","gXN","gXH","g
 const SHIAGE_F = [0.54, 1, 1.47, 2.06];
 // Actual ÷ median estimate at the 25th / 75th / 80th / 90th percentile, by 清書+合わせ (or 原画) sheet count: up to 2, 3–5, 6–9, 10+
 const RANGE_BY_SIZE = [[2, [0.58, 2.17, 2.40, 3.22]], [5, [0.76, 1.42, 1.47, 1.56]], [9, [0.73, 1.56, 1.57, 1.71]], [1e9, [0.73, 1.55, 1.62, 1.96]]];
+// SD of ln(actual ÷ estimate) by the same size buckets (shown as ×/÷ e^SD)
+const SD_BY_SIZE = [[2, 0.83], [5, 0.52], [9, 0.66], [1e9, 0.53]];
 const EXT_MULT = 1.5;
 // After 清書: ln(合わせ hr/sheet) = a + b·ln(清書 hr/sheet) + c·(動作 難しい or ハード); 97 recent cards
 const RE_COEF = [-0.131, 0.635, 0.628];
@@ -492,10 +497,10 @@ const pick = (table, n) => table.find(([max]) => n <= max)[1];
 const MODEL_KEY = "toreru-model-v1";
 let model = null;
 try{ model = JSON.parse(localStorage.getItem(MODEL_KEY)) || null; }catch(e){}
-// A user's own fit is blended with the built-in defaults by weight n / (n + PRIOR_CARDS);
+// A user's own fit is blended with the built-in defaults by weight n / FULL_CARDS, reaching 100% at FULL_CARDS;
 // below MIN_FIT cards nothing is fitted. The bad case uses the 90th percentile until the weight reaches one half.
-const PRIOR_CARDS = 30, MIN_FIT = 8, MIN_CELL = 8;
-const blendW = n => n / (n + PRIOR_CARDS);
+const FULL_CARDS = 40, MIN_FIT = 8, MIN_CELL = 8;
+const blendW = n => Math.min(1, n / FULL_CARDS);
 function quantile(v, p){
   const a = [...v].sort((x, y) => x - y), i = p * (a.length - 1), lo = Math.floor(i);
   return a[lo] + (a[Math.min(lo + 1, a.length - 1)] - a[lo]) * (i - lo);
@@ -558,6 +563,12 @@ function fitModel(list, s){
     const lo = i ? RANGE_BY_SIZE[i - 1][0] + 1 : 0, v = rel.filter(r => r.size >= lo && r.size <= max).map(r => r.e);
     return [max, v.length >= MIN_CELL ? [0.25, 0.75, 0.8, 0.9].map((q, k) => Math.round(mix(quantile(v, q), def[k]) * 100) / 100) : def];
   });
+  const sd = SD_BY_SIZE.map(([max, def], i) => {
+    const lo = i ? SD_BY_SIZE[i - 1][0] + 1 : 0, v = rel.filter(r => r.size >= lo && r.size <= max).map(r => Math.log(r.e));
+    if(v.length < MIN_CELL) return [max, def];
+    const m = v.reduce((a, b) => a + b, 0) / v.length, sdv = Math.sqrt(v.reduce((a, b) => a + (b - m) ** 2, 0) / (v.length - 1));
+    return [max, Math.round(mix(sdv, def) * 100) / 100];
+  });
   // 仕上 hr/sheet per 精細度
   const shiage = [0, 1, 2, 3].map(v => {
     const w = own.filter(r => r.d === v && r.f > 0 && r.hf > 0).map(r => r.hf / r.f);
@@ -580,7 +591,7 @@ function fitModel(list, s){
   // 社外: median ratio of actual to the in-house estimate
   const ext = list.filter(r => r.x && ok(r)).map(r => Math.exp(y(r) - (fit(r) + shift)));
   const we = ext.length / (ext.length + 10);
-  return {fitted: true, n: own.length, w: Math.round(w * 100) / 100, est, range, shiage, re,
+  return {fitted: true, n: own.length, w: Math.round(w * 100) / 100, est, range, sd, shiage, re,
           ext: ext.length ? Math.round(Math.exp(we * Math.log(median(ext)) + (1 - we) * Math.log(EXT_MULT)) * 100) / 100 : null, nExt: ext.length,
           base: [kG, kD], at: new Date().toISOString().slice(0, 10)};
 }
@@ -591,6 +602,7 @@ function takeHist(query, s){
   if(m.fitted){ model = m; try{ localStorage.setItem(MODEL_KEY, JSON.stringify(m)); }catch(e){} }
   return m;
 }
+const sdTable = () => model && model.sd ? model.sd : SD_BY_SIZE;
 const gridEst = () => model && model.est ? model.est : GRID_EST;
 const rangeTable = () => model && model.range ? model.range : RANGE_BY_SIZE;
 const reModel = () => model && model.re ? model.re : {coef: RE_COEF, range: RE_RANGE};
@@ -923,6 +935,7 @@ function render(){
   const need = raw * bf;
   // spread of actual ÷ estimate for cards of this size (line-work part only)
   let rq = pick(rangeTable(), doushi ? q.gentore + q.douga : q.gen); if(rq.length < 4) rq = [...rq, rq[2]];
+  const sdv = pick(sdTable(), doushi ? q.gentore + q.douga : q.gen);
   const [needLo, needHi, needBad] = [rq[0], rq[1], rq[badIdx()]].map(f => (line * f + fixed) * bf);
   const now = new Date();
   const dl = $("deadline").value ? new Date($("deadline").value) : null;
@@ -933,7 +946,7 @@ function render(){
   $("nAvail").textContent = fmt(av.total) + "h";
   $("nSlack").textContent = (slack >= 0 ? "+" : "") + fmt(slack) + "h";
   $("modelNote").textContent = model ? t("modelOn")(model.n, model.at, model.w || 1) : t("modelOff");
-  $("rangeNote").textContent = need > 0 ? t("rangeNote")(fmt(needLo), fmt(needHi), fmt(needBad), badPct()) : "";
+  $("rangeNote").textContent = need > 0 ? t("rangeNote")(fmt(needLo), fmt(needHi), fmt(needBad), badPct()) + t("sdNote")(fmt2(sdv), fmt2(Math.exp(sdv))) : "";
 
   // high risk looks at the harder of 精細度 and 動作
   const levelRank = Math.max(LEVELS.indexOf(lvD), LEVELS.indexOf(lvA));
