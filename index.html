@@ -230,8 +230,8 @@ button:hover{border-color:var(--blue)}
       <summary data-i18n="sumSettings"></summary>
       <div style="display:grid;gap:14px">
         <div class="grid">
-          <label for="kGentore">清書 <span data-i18n="speedWord"></span> <span class="unit" data-i18n="uHrPer"></span><input id="kGentore" type="number" min="0" step="0.01"></label>
-          <label for="kDouga">合わせ <span data-i18n="speedWord"></span> <span class="unit" data-i18n="uHrPer"></span><input id="kDouga" type="number" min="0" step="0.01"></label>
+          <label for="kGentore">清書 <span data-i18n="speedWord"></span><span data-i18n="speedNormal"></span> <span class="unit" data-i18n="uHrPer"></span><input id="kGentore" type="number" min="0" step="0.01"></label>
+          <label for="kDouga">合わせ <span data-i18n="speedWord"></span><span data-i18n="speedNormal"></span> <span class="unit" data-i18n="uHrPer"></span><input id="kDouga" type="number" min="0" step="0.01"></label>
           <label for="kShiage">仕上 <span data-i18n="speedWord"></span> <span class="unit" data-i18n="uHrPer"></span><input id="kShiage" type="number" min="0" step="0.01"></label>
           <label for="kLoMai">LO（一原） <span data-i18n="speedWord"></span> <span class="unit" data-i18n="uHrPer"></span><input id="kLoMai" type="number" min="0" step="0.01"></label>
           <label for="kNigenMai">二原 <span data-i18n="speedWord"></span> <span class="unit" data-i18n="uHrPer"></span><input id="kNigenMai" type="number" min="0" step="0.01"></label>
@@ -299,7 +299,7 @@ const I18N = {
     lDeadline:"締め切り", lLoad:"手上剩餘（一般）", lLoadHard:"手上剩餘（難卡，自動 ×2）",
     h2days:"截止前的日子", daysHint:"點一下切換「工作／休」；土日與祝日預設休",
     h2break:"內訳", sumSettings:"設定（速度、工作時段）",
-    speedWord:"速度", uHrPer:"hr/枚", uHrPerCut:"hr/カット", speedNote:"速度建議填 Notion 作画_案件 近 6 個月的 hr/枚 中位數。點基本設定的「計算機速度連結」會自動帶入；在 Notion 頁面裡用的話，複製那個連結貼到下面。", lLinkPaste:"貼上「計算機速度連結」", noLink:"這個連結裡沒有資料",
+    speedWord:"速度", speedNormal:"（普通的卡）", uHrPer:"hr/枚", uHrPerCut:"hr/カット", speedNote:"速度建議填 Notion 作画_案件 近 6 個月的 hr/枚 中位數。點基本設定的「計算機速度連結」會自動帶入；在 Notion 頁面裡用的話，複製那個連結貼到下面。", lLinkPaste:"貼上「計算機速度連結」", noLink:"這個連結裡沒有資料",
     notionAsOf:w=>`Notion 資料：${w}（手上剩餘、高風險、休假已帶入）`, notionStale:"。超過 24 小時，資料可能舊了，回 Notion 再點一次連結。", notionClear:"清除 Notion 資料", fromNotion:"已帶入 Notion 資料。",
     h2cards:"既有卡檢查", chCard:"卡", chRem:"剩餘", chSlack:"到截止的餘裕", newCard:"（新案）",
     cardsNote:(noDl,unk)=>`按截止從近到遠：餘裕＝到那張截止的可用工時－到那張為止的剩餘合計（不含難卡 ×2）。紅＝接了新案會趕不上；橘＝不接也已經趕不上。` + (noDl ? `沒填締め切り的 ${noDl} 張只算進總量。` : "") + (unk ? `剩餘「?」的 ${unk} 張先算 0，請回 Notion 更新見積(hr)。` : ""),
@@ -321,13 +321,13 @@ const I18N = {
     whyNoDl:"請填締め切り", whyPast:"締め切り早於現在", whyNoQty:"請填枚数",
     whyBad:(h,d)=>`差 ${h}h，相當於約 ${d} 天的工作量`,
     whyWarn:(b,h)=>`照中位數接得下，但偏壞情況（${b}h）會差 ${h}h`,
-    rangeNote:(lo,hi,b)=>`常見範圍 ${lo}～${hi}h（一半的卡落在這裡）；偏壞情況 ${b}h（8 成的卡不會超過）`,
+    rangeNote:(lo,hi,b,p)=>`常見範圍 ${lo}～${hi}h（一半的卡落在這裡）；偏壞情況 ${b}h（${p/10} 成的卡不會超過${p === 90 ? "；還沒用你自己的資料校正，所以看 9 成線" : ""}）`,
     alertExt:(f,n)=>`社外：已乘 ×${f}（同格社內的實績倍數；社外卡只有 ${n} 張，僅供參考）。`, alertHardMotion:"動作ハード 沒有實績，這一欄的係數是推估，預估可能偏低。",
     h2re:"清書做完後重估", reHint:"清書做完後填清書實際花的時間，用妳的實績（清書速度和合わせ速度的關係＋動作）重估合わせ。用上面新案的枚数和動作。", lReGen:"清書 實際",
     reNeed:"先在新案填清書和合わせ的枚数，再填清書實際時間。",
-    modelOn:(n,d)=>`格子、範圍、仕上速度、重估都是用妳 Notion 的 ${n} 張已完成卡自動算的（${d}）。每次從 Notion 點連結會重算，手改的格子會被蓋掉。`,
-    modelOff:"格子和範圍是內建的預設值（一位使用者的實績）。從 Notion 點「計算機速度連結」就會改用妳自己的已完成卡自動算。",
-    modelFew:n=>`Notion 帶來的已完成卡只有 ${n} 張（需要 30 張），先用內建預設值。`, fromHist:n=>`已用 ${n} 張已完成卡重算格子和範圍。`,
+    modelOn:(n,d,w)=>`格子、範圍、仕上速度、重估用了妳 Notion 的 ${n} 張已完成卡（${d}），自己的資料佔 ${Math.round(w*100)}%，其餘是內建預設；卡越多比重越高。每次從 Notion 點連結會重算，手改的格子會被蓋掉。`,
+    modelOff:"還沒有妳的實績：預估用妳在設定裡填的清書／合わせ速度（普通的卡一張幾小時），難度比例借用內建的一位使用者的實績；偏壞情況看 9 成線。從 Notion 點「計算機速度連結」就會開始混入妳自己的已完成卡。",
+    modelFew:n=>`Notion 帶來的已完成卡只有 ${n} 張（至少要 8 張才開始混入），先用內建預設值。`, fromHist:n=>`已用 ${n} 張已完成卡重算格子和範圍。`,
     reOut:(per,lo,hi,rem,bad)=>`合わせ 預估每枚 ${per}h，合計 ${lo}～${hi}h；剩下（合わせ＋仕上）中位數 ${rem}h，偏壞情況 ${bad}h。`,
     whyOk:(h,w)=>`餘裕 ${h}h，${w} 個工作日內`,
     sayHead:"回覆：", sayOr:"、或", sayDate:(m,d)=>`「${m}月${d}日なら行けます」`,
@@ -349,7 +349,7 @@ const I18N = {
     lDeadline:"締め切り", lLoad:"手持ち残り（通常）", lLoadHard:"手持ち残り（難カード、自動 ×2）",
     h2days:"締切までの日", daysHint:"クリックで「稼働／休」を切替。土日と祝日は初期状態で休み",
     h2break:"内訳", sumSettings:"設定（速度・作業時間帯）",
-    speedWord:"速度", uHrPer:"hr/枚", uHrPerCut:"hr/カット", speedNote:"速度は Notion 作画_案件 の直近6か月の hr/枚 の中央値がおすすめです。基本設定の「計算機速度連結」を押すと自動で入ります。Notion のページ内で使う場合は、そのリンクをコピーして下に貼ってください。", lLinkPaste:"「計算機速度連結」を貼り付け", noLink:"このリンクにデータが入っていません",
+    speedWord:"速度", speedNormal:"（普通のカード）", uHrPer:"hr/枚", uHrPerCut:"hr/カット", speedNote:"速度は Notion 作画_案件 の直近6か月の hr/枚 の中央値がおすすめです。基本設定の「計算機速度連結」を押すと自動で入ります。Notion のページ内で使う場合は、そのリンクをコピーして下に貼ってください。", lLinkPaste:"「計算機速度連結」を貼り付け", noLink:"このリンクにデータが入っていません",
     notionAsOf:w=>`Notion データ：${w}（手持ち残り・高リスク・休みを反映済み）`, notionStale:"。24 時間以上前なので古いかもしれません。Notion でもう一度リンクを押してください。", notionClear:"Notion データを消す", fromNotion:"Notion データを取り込みました。",
     h2cards:"手持ちカードの確認", chCard:"カード", chRem:"残り", chSlack:"締切までの余裕", newCard:"（新案件）",
     cardsNote:(noDl,unk)=>`締切の近い順：余裕＝そのカードの締切までの空き時間－そこまでの残り合計（難カードの ×2 は含めません）。赤＝新案件を受けると間に合わない、橙＝受けなくてもすでに間に合わない。` + (noDl ? `締め切り未入力の ${noDl} 枚は合計にだけ含めます。` : "") + (unk ? `残り「?」の ${unk} 枚は 0 として数えています。Notion で見積(hr)を更新してください。` : ""),
@@ -371,13 +371,13 @@ const I18N = {
     whyNoDl:"締め切りを入力してください", whyPast:"締め切りが現在より前です", whyNoQty:"枚数を入力してください",
     whyBad:(h,d)=>`${h}h 不足、約 ${d} 日分の作業量です`,
     whyWarn:(b,h)=>`中央値なら入りますが、悪いケース（${b}h）だと ${h}h 足りません`,
-    rangeNote:(lo,hi,b)=>`よくある範囲 ${lo}～${hi}h（半分のカードがここ）、悪いケース ${b}h（8 割のカードはこれ以内）`,
+    rangeNote:(lo,hi,b,p)=>`よくある範囲 ${lo}～${hi}h（半分のカードがここ）、悪いケース ${b}h（${p/10} 割のカードはこれ以内${p === 90 ? "。まだあなたのデータで校正していないので 9 割ライン" : ""}）`,
     alertExt:(f,n)=>`社外：×${f} を掛けています（同じマスの社内実績との比。社外カードは ${n} 枚だけなので参考値）。`, alertHardMotion:"動作ハード は実績がなく、この列の係数は推定値です。少なめに出ている可能性があります。",
     h2re:"清書が終わったら再見積もり", reHint:"清書にかかった実時間を入れると、実績（清書と合わせの速度の関係＋動作）から合わせを見積もり直します。枚数と動作は上の新案件の値を使います。", lReGen:"清書 実績",
     reNeed:"新案件に清書と合わせの枚数を入れてから、清書の実時間を入れてください。",
-    modelOn:(n,d)=>`マス・範囲・仕上の速度・再見積もりは Notion の完了カード ${n} 枚から自動で計算しています（${d}）。Notion からリンクを開くたびに計算し直し、手で変えたマスは上書きされます。`,
-    modelOff:"マスと範囲は内蔵の初期値（一人分の実績）です。Notion の「計算機速度連結」から開くと、あなたの完了カードから自動で計算します。",
-    modelFew:n=>`Notion から届いた完了カードが ${n} 枚しかないため（30 枚必要）、内蔵の初期値を使います。`, fromHist:n=>`完了カード ${n} 枚からマスと範囲を計算し直しました。`,
+    modelOn:(n,d,w)=>`マス・範囲・仕上の速度・再見積もりは Notion の完了カード ${n} 枚（${d}）から計算し、あなたのデータの比重は ${Math.round(w*100)}%、残りは内蔵の初期値です（カードが増えるほど比重が上がります）。リンクを開くたびに計算し直し、手で変えたマスは上書きされます。`,
+    modelOff:"まだあなたの実績がありません。設定の清書／合わせの速度（普通のカード 1 枚あたり何時間）で見積もり、難度の比率は内蔵の一人分の実績を借りています。悪いケースは 9 割ラインです。Notion の「計算機速度連結」から開くと、あなたの完了カードを混ぜていきます。",
+    modelFew:n=>`Notion から届いた完了カードが ${n} 枚しかないため（8 枚から混ぜ始めます）、内蔵の初期値を使います。`, fromHist:n=>`完了カード ${n} 枚からマスと範囲を計算し直しました。`,
     reOut:(per,lo,hi,rem,bad)=>`合わせ 1枚あたり ${per}h、合計 ${lo}～${hi}h。残り（合わせ＋仕上）は中央値 ${rem}h、悪いケース ${bad}h。`,
     whyOk:(h,w)=>`余裕 ${h}h、${w} 稼働日以内`,
     sayHead:"返事：", sayOr:"、または", sayDate:(m,d)=>`「${m}月${d}日なら行けます」`,
@@ -399,7 +399,7 @@ const I18N = {
     lDeadline:"Deadline", lLoad:"Remaining workload (normal)", lLoadHard:"Remaining workload (hard cards, auto ×2)",
     h2days:"Days until the deadline", daysHint:"Click a day to toggle work / off. Weekends and public holidays are off by default",
     h2break:"Breakdown", sumSettings:"Settings (speed, work hours)",
-    speedWord:"speed", uHrPer:"hr/sheet", uHrPerCut:"hr/cut", speedNote:"Use the 6-month median hr/sheet from Notion 作画_案件. Opening the settings link 計算機速度連結 fills them in; inside a Notion page, copy that link and paste it below.", lLinkPaste:"Paste the 計算機速度連結 link", noLink:"No data found in this link",
+    speedWord:"speed", speedNormal:" (普通 card)", uHrPer:"hr/sheet", uHrPerCut:"hr/cut", speedNote:"Use the 6-month median hr/sheet from Notion 作画_案件. Opening the settings link 計算機速度連結 fills them in; inside a Notion page, copy that link and paste it below.", lLinkPaste:"Paste the 計算機速度連結 link", noLink:"No data found in this link",
     notionAsOf:w=>`Notion data: ${w} (workload, high-risk card and days off filled in)`, notionStale:". Over 24 hours old; open the link from Notion again.", notionClear:"Clear Notion data", fromNotion:"Loaded the Notion data.",
     h2cards:"Open cards check", chCard:"Card", chRem:"Left", chSlack:"Slack to due", newCard:"(new job)",
     cardsNote:(noDl,unk)=>`Nearest deadline first: slack = hours free until that card's deadline − all remaining work due by then (hard cards not doubled). Red = taking the new job makes it late; orange = already late without it. ` + (noDl ? `${noDl} card${noDl > 1 ? "s without a deadline only count" : " without a deadline only counts"} in the total. ` : "") + (unk ? `${unk} card${unk > 1 ? "s marked \"?\" count" : " marked \"?\" counts"} as 0; update 見積(hr) in Notion.` : ""),
@@ -421,13 +421,13 @@ const I18N = {
     whyNoDl:"Enter a deadline", whyPast:"The deadline is before now", whyNoQty:"Enter the sheet counts",
     whyBad:(h,d)=>`Short by ${h}h, about ${d} days of work`,
     whyWarn:(b,h)=>`Fits at the median, but the bad case (${b}h) is ${h}h short`,
-    rangeNote:(lo,hi,b)=>`Usual range ${lo}–${hi}h (half of cards land here); bad case ${b}h (8 in 10 cards stay under it)`,
+    rangeNote:(lo,hi,b,p)=>`Usual range ${lo}–${hi}h (half of cards land here); bad case ${b}h (${p/10} in 10 cards stay under it${p === 90 ? "; not yet calibrated on your data, so the 90% line is used" : ""})`,
     alertExt:(f,n)=>`社外: ×${f} applied (ratio to in-house cards in the same cell; only ${n} 社外 cards, so treat it as a rough guide).`, alertHardMotion:"動作ハード has no recorded cards; this column is an estimate and may be too low.",
     h2re:"Re-estimate after 清書", reHint:"Once 清書 is done, enter the hours it actually took; 合わせ is re-estimated from your records (how 合わせ speed follows 清書 speed, plus 動作). Uses the sheet counts and 動作 from the new job above.", lReGen:"清書 actual",
     reNeed:"Enter 清書 and 合わせ sheet counts in the new job first, then the actual 清書 hours.",
-    modelOn:(n,d)=>`The grid, ranges, 仕上 speed and re-estimate are fitted from ${n} of your finished cards in Notion (${d}). They are refitted each time you open the link from Notion, replacing cells you edited by hand.`,
-    modelOff:"The grid and ranges are built-in defaults (one person's records). Open the calculator from the Notion 計算機速度連結 link to fit them to your own finished cards.",
-    modelFew:n=>`The Notion link carried only ${n} finished cards (30 needed), so the built-in defaults are used.`, fromHist:n=>`Refitted the grid and ranges from ${n} finished cards.`,
+    modelOn:(n,d,w)=>`The grid, ranges, 仕上 speed and re-estimate use ${n} of your finished cards in Notion (${d}), weighted ${Math.round(w*100)}% against the built-in defaults; the weight grows with more cards. They are refitted each time you open the link, replacing cells you edited by hand.`,
+    modelOff:"No records of yours yet: estimates use the 清書 / 合わせ speeds you set (hours per sheet on a 普通 card) with difficulty ratios borrowed from one person's records, and the bad case uses the 90% line. Open the calculator from the Notion 計算機速度連結 link to start blending in your own finished cards.",
+    modelFew:n=>`The Notion link carried only ${n} finished cards (blending starts at 8), so the built-in defaults are used.`, fromHist:n=>`Refitted the grid and ranges from ${n} finished cards.`,
     reOut:(per,lo,hi,rem,bad)=>`合わせ about ${per}h per sheet, ${lo}–${hi}h in total; remaining (合わせ + 仕上) median ${rem}h, bad case ${bad}h.`,
     whyOk:(h,w)=>`Slack ${h}h, within ${w} working days`,
     sayHead:"Reply: ", sayOr:" or ", sayDate:(m,d)=>`「${m}月${d}日なら行けます」`,
@@ -460,7 +460,7 @@ function applyLang(){
   document.querySelectorAll("[data-i18n-aria]").forEach(el => el.setAttribute("aria-label", t(el.dataset.i18nAria)));
 }
 const DEFAULTS = {
-  kDouga:0.58, kShiage:0.10, kGentore:0.45, kLoMai:1.0, kNigenMai:0.8, start:10.5, end:20, daily:8, buffer:0, overhead:0, dlDays:3, dlHour:12,
+  kDouga:0.57, kShiage:0.10, kGentore:0.44, kLoMai:1.0, kNigenMai:0.8, start:10.5, end:20, daily:8, buffer:0, overhead:0, dlDays:3, dlHour:12,
   // high-risk card: difficulty from riskLevel (1 普通, 2 難しい, 3 ハード, 9 never) and at least riskMai sheets, or any 社外 card when riskGaichu is 1
   riskLevel:2, riskMai:15, riskGaichu:1
 };
@@ -470,20 +470,20 @@ const LEVELS = ["easy","normal","hard","extreme"], LV = ["E","N","H","X"];
 // untagged 動仕 cards finished 2026-02 to 2026-11, from a log-additive model (one 精細度 effect + one 動作 effect; 動作 簡単 = 普通).
 // No 動作ハード cards exist, so that column is the 難しい column × 1.5. GRID_EST marks cells with fewer than 8 recent cards.
 const GRID_DEFAULT = [
-  [0.46, 0.46, 0.73, 1.10],
-  [0.98, 0.98, 1.56, 2.34],
-  [1.53, 1.53, 2.44, 3.66],
-  [1.84, 1.84, 2.94, 4.41]
+  [0.47, 0.47, 0.74, 1.12],
+  [1.00, 1.00, 1.59, 2.39],
+  [1.56, 1.56, 2.49, 3.73],
+  [1.88, 1.88, 3.00, 4.50]
 ];
 const GRID_EST = ["gEN","gEH","gEX","gNX","gHN","gHH","gHX","gXE","gXN","gXH","gXX"];
 // 仕上 hr/sheet by 精細度 relative to 普通 (medians 0.052 / 0.096 / 0.141 / 0.198)
 const SHIAGE_F = [0.54, 1, 1.47, 2.06];
-// Actual ÷ median estimate at the 25th / 75th / 80th percentile, by 清書+合わせ (or 原画) sheet count: up to 2, 3–5, 6–9, 10+
-const RANGE_BY_SIZE = [[2, [0.58, 2.17, 2.40]], [5, [0.76, 1.42, 1.47]], [9, [0.73, 1.56, 1.57]], [1e9, [0.73, 1.55, 1.62]]];
+// Actual ÷ median estimate at the 25th / 75th / 80th / 90th percentile, by 清書+合わせ (or 原画) sheet count: up to 2, 3–5, 6–9, 10+
+const RANGE_BY_SIZE = [[2, [0.58, 2.17, 2.40, 3.22]], [5, [0.76, 1.42, 1.47, 1.56]], [9, [0.73, 1.56, 1.57, 1.71]], [1e9, [0.73, 1.55, 1.62, 1.96]]];
 const EXT_MULT = 1.5;
 // After 清書: ln(合わせ hr/sheet) = a + b·ln(清書 hr/sheet) + c·(動作 難しい or ハード); 97 recent cards
 const RE_COEF = [-0.131, 0.635, 0.628];
-const RE_RANGE = [[2, [0.40, 1.28, 1.40]], [4, [0.80, 1.74, 1.87]], [1e9, [0.79, 1.45, 1.50]]];
+const RE_RANGE = [[2, [0.40, 1.28, 1.40, 1.77]], [4, [0.80, 1.74, 1.87, 2.32]], [1e9, [0.79, 1.45, 1.50, 1.74]]];
 const pick = (table, n) => table.find(([max]) => n <= max)[1];
 // ---- Model from the user's own finished cards (link parameter hist) ----
 // hist = cards joined by ",", each "DM_s_a_f_hs_ha_hf_x": D/M = 精細度/動作 level 0-3, s/a/f = 清書/合わせ/仕上 sheets,
@@ -492,7 +492,10 @@ const pick = (table, n) => table.find(([max]) => n <= max)[1];
 const MODEL_KEY = "toreru-model-v1";
 let model = null;
 try{ model = JSON.parse(localStorage.getItem(MODEL_KEY)) || null; }catch(e){}
-const MIN_CARDS = 30, MIN_CELL = 8;
+// A user's own fit is blended with the built-in defaults by weight n / (n + PRIOR_CARDS);
+// below MIN_FIT cards nothing is fitted. The bad case uses the 90th percentile until the weight reaches one half.
+const PRIOR_CARDS = 30, MIN_FIT = 8, MIN_CELL = 8;
+const blendW = n => n / (n + PRIOR_CARDS);
 function quantile(v, p){
   const a = [...v].sort((x, y) => x - y), i = p * (a.length - 1), lo = Math.floor(i);
   return a[lo] + (a[Math.min(lo + 1, a.length - 1)] - a[lo]) * (i - lo);
@@ -528,7 +531,8 @@ function parseHist(query){
 function fitModel(list, s){
   const ok = r => r.s + r.a > 0 && (r.s === 0 || r.hs > 0) && (r.a === 0 || r.ha > 0) && r.hs + r.ha > 0;
   const own = list.filter(r => !r.x && ok(r));
-  if(own.length < MIN_CARDS) return {n: own.length, fitted: false};
+  if(own.length < MIN_FIT) return {n: own.length, fitted: false};
+  const w = blendW(own.length), mix = (a, b) => w * a + (1 - w) * b, mixLog = (a, b) => Math.exp(w * Math.log(a) + (1 - w) * Math.log(b));
   const kG = s.kGentore, kD = s.kDouga;
   const y = r => Math.log((r.hs + r.ha) / (r.s * kG + r.a * kD));
   // one effect per 精細度 level and per 動作 level (普通 is the base); 動作 簡単 is kept separate only if it has enough cards
@@ -545,36 +549,39 @@ function fitModel(list, s){
     : Math.log(GRID_DEFAULT[1][v] / GRID_DEFAULT[1][1]));
   const est = [];
   LV.forEach((d, i) => LV.forEach((a, j) => {
-    s["g" + d + a] = Math.round(Math.exp(beta[0] + shift + dEff[i] + mEff[j]) * 100) / 100;
+    s["g" + d + a] = Math.round(mixLog(Math.exp(beta[0] + shift + dEff[i] + mEff[j]), GRID_DEFAULT[i][j]) * 100) / 100;
     if(own.filter(r => r.d === i && r.m === j).length < MIN_CELL) est.push("g" + d + a);
   }));
   // spread of actual ÷ estimate by card size
   const rel = own.map((r, n) => ({size: r.s + r.a, e: Math.exp(res[n] - shift)}));
   const range = RANGE_BY_SIZE.map(([max, def], i) => {
     const lo = i ? RANGE_BY_SIZE[i - 1][0] + 1 : 0, v = rel.filter(r => r.size >= lo && r.size <= max).map(r => r.e);
-    return [max, v.length >= MIN_CELL ? [0.25, 0.75, 0.8].map(q => Math.round(quantile(v, q) * 100) / 100) : def];
+    return [max, v.length >= MIN_CELL ? [0.25, 0.75, 0.8, 0.9].map((q, k) => Math.round(mix(quantile(v, q), def[k]) * 100) / 100) : def];
   });
   // 仕上 hr/sheet per 精細度
   const shiage = [0, 1, 2, 3].map(v => {
     const w = own.filter(r => r.d === v && r.f > 0 && r.hf > 0).map(r => r.hf / r.f);
-    return w.length >= 3 ? Math.round(median(w) * 1000) / 1000 : null;
+    return w.length >= 3 ? Math.round(mixLog(median(w), s.kShiage * SHIAGE_F[v]) * 1000) / 1000 : null;
   });
   // after 清書: ln(合わせ/sheet) = a + b ln(清書/sheet) + c (動作 難しい or ハード)
   const both = own.filter(r => r.s > 0 && r.a > 0 && r.hs > 0 && r.ha > 0);
   let re = null;
-  if(both.length >= 20){
+  if(both.length >= MIN_FIT){
     const X = both.map(r => [1, Math.log(r.hs / r.s), r.m >= 2 ? 1 : 0]), Y = both.map(r => Math.log(r.ha / r.a));
     const b = lsq(X, Y), e = Y.map((v, n) => v - X[n].reduce((t, x, i) => t + x * b[i], 0)), sh = median(e);
     b[0] += sh;
+    b.forEach((v, i) => { b[i] = mix(v, RE_COEF[i]); });
     const rr = RE_RANGE.map(([max, def], i) => {
       const lo = i ? RE_RANGE[i - 1][0] + 1 : 0, v = both.map((r, n) => [r.a, Math.exp(e[n] - sh)]).filter(([a]) => a >= lo && a <= max).map(([, x]) => x);
-      return [max, v.length >= MIN_CELL ? [0.25, 0.75, 0.8].map(q => Math.round(quantile(v, q) * 100) / 100) : def];
+      return [max, v.length >= MIN_CELL ? [0.25, 0.75, 0.8, 0.9].map((q, k) => Math.round(mix(quantile(v, q), def[k]) * 100) / 100) : def];
     });
     re = {coef: b.map(v => Math.round(v * 1000) / 1000), range: rr, n: both.length};
   }
   // 社外: median ratio of actual to the in-house estimate
   const ext = list.filter(r => r.x && ok(r)).map(r => Math.exp(y(r) - (fit(r) + shift)));
-  return {fitted: true, n: own.length, est, range, shiage, re, ext: ext.length >= 5 ? Math.round(median(ext) * 100) / 100 : null, nExt: ext.length,
+  const we = ext.length / (ext.length + 10);
+  return {fitted: true, n: own.length, w: Math.round(w * 100) / 100, est, range, shiage, re,
+          ext: ext.length ? Math.round(Math.exp(we * Math.log(median(ext)) + (1 - we) * Math.log(EXT_MULT)) * 100) / 100 : null, nExt: ext.length,
           base: [kG, kD], at: new Date().toISOString().slice(0, 10)};
 }
 // Returns the model taken from the query string (also saved), or null when the link has no history
@@ -588,6 +595,9 @@ const gridEst = () => model && model.est ? model.est : GRID_EST;
 const rangeTable = () => model && model.range ? model.range : RANGE_BY_SIZE;
 const reModel = () => model && model.re ? model.re : {coef: RE_COEF, range: RE_RANGE};
 const extMult = () => model && model.ext ? model.ext : EXT_MULT;
+// index into [p25, p75, p80, p90] for the bad case: 90% while uncalibrated
+const badIdx = () => model && model.w >= 0.5 ? 2 : 3;
+const badPct = () => badIdx() === 2 ? 80 : 90;
 const shiagePer = (s, d) => model && model.shiage && model.shiage[d] ? model.shiage[d] : s.kShiage * SHIAGE_F[d];
 
 const gridId = (d, a) => "g" + LV[LEVELS.indexOf(d)] + LV[LEVELS.indexOf(a)];
@@ -717,10 +727,8 @@ function takeLinkSpeeds(query, s){
 function applyLinkSpeeds(s){
   const n = takeLinkSpeeds(location.search, s), snap = parseNotion(location.search), h = takeHist(location.search, s);
   if(!n && !snap && !h) return s;
-  if(n || (h && h.fitted)){
-    try{ localStorage.setItem(KEY, JSON.stringify(s)); }catch(e){}
-    linkNote = [n ? t("fromLink")(n) : "", h ? (h.fitted ? t("fromHist")(h.n) : t("modelFew")(h.n)) : ""].filter(Boolean).join(" ");
-  }
+  if(n || (h && h.fitted)){ try{ localStorage.setItem(KEY, JSON.stringify(s)); }catch(e){} }
+  linkNote = [n ? t("fromLink")(n) : "", h ? (h.fitted ? t("fromHist")(h.n) : t("modelFew")(h.n)) : ""].filter(Boolean).join(" ");
   if(snap) saveNotion(snap);
   // drop the parameters so a reload doesn't overwrite later manual edits
   try{ history.replaceState(null, "", location.pathname + location.hash); }catch(e){}
@@ -914,8 +922,8 @@ function render(){
   const raw = line + fixed;
   const need = raw * bf;
   // spread of actual ÷ estimate for cards of this size (line-work part only)
-  const rq = pick(rangeTable(), doushi ? q.gentore + q.douga : q.gen);
-  const [needLo, needHi, needBad] = rq.map(f => (line * f + fixed) * bf);
+  let rq = pick(rangeTable(), doushi ? q.gentore + q.douga : q.gen); if(rq.length < 4) rq = [...rq, rq[2]];
+  const [needLo, needHi, needBad] = [rq[0], rq[1], rq[badIdx()]].map(f => (line * f + fixed) * bf);
   const now = new Date();
   const dl = $("deadline").value ? new Date($("deadline").value) : null;
   const av = dl ? availableHours(now, dl, s) : {total:0, workdays:0};
@@ -924,8 +932,8 @@ function render(){
   $("nNeed").textContent = fmt(need) + "h";
   $("nAvail").textContent = fmt(av.total) + "h";
   $("nSlack").textContent = (slack >= 0 ? "+" : "") + fmt(slack) + "h";
-  $("modelNote").textContent = model ? t("modelOn")(model.n, model.at) : t("modelOff");
-  $("rangeNote").textContent = need > 0 ? t("rangeNote")(fmt(needLo), fmt(needHi), fmt(needBad)) : "";
+  $("modelNote").textContent = model ? t("modelOn")(model.n, model.at, model.w || 1) : t("modelOff");
+  $("rangeNote").textContent = need > 0 ? t("rangeNote")(fmt(needLo), fmt(needHi), fmt(needBad), badPct()) : "";
 
   // high risk looks at the harder of 精細度 and 動作
   const levelRank = Math.max(LEVELS.indexOf(lvD), LEVELS.indexOf(lvA));
@@ -1002,7 +1010,7 @@ function render(){
     const hard = LEVELS.indexOf(lvA) >= 2 ? 1 : 0;
     const rm = reModel(), c = rm.coef;
     const per = Math.exp(c[0] + c[1] * Math.log(reH / q.gentore) + c[2] * hard) * (gaichu ? extMult() : 1);
-    const [lo, hi, bad] = pick(rm.range, q.douga).map(f => per * q.douga * f);
+    const rr = pick(rm.range, q.douga), [lo, hi, bad] = [rr[0], rr[1], rr[rr.length > 3 ? badIdx() : 2]].map(f => per * q.douga * f);
     $("reOut").textContent = t("reOut")(fmt2(per), fmt(lo), fmt(hi), fmt(per * q.douga + base.shiage), fmt(bad + base.shiage));
   } else $("reOut").textContent = t("reNeed");
 }
