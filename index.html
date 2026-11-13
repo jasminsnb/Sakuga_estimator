@@ -47,6 +47,12 @@ h1{font-size:1.35rem;margin:0;text-wrap:balance;letter-spacing:.02em}
 .sheet{background:var(--paper);border:1px solid var(--rule);border-radius:6px;padding:16px;display:grid;gap:14px}
 .sheet h2{font-size:.78rem;letter-spacing:.12em;color:var(--blue);margin:0;font-weight:700}
 .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+/* 新案: 工種・精細度・動作 on one row, 清書・合わせ・仕上 on the next */
+.grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.cgrid input{padding:5px 6px;text-align:right}
+.cgrid th{font-weight:500;color:var(--muted);font-size:.78rem;padding:4px 6px;text-align:center}
+.cgrid th[scope=row]{text-align:left;padding-left:0}
+.cgrid td{padding:3px;border:0;text-align:center}
 label{display:grid;gap:4px;font-size:.85rem;color:var(--muted);min-width:0}
 label[hidden]{display:none}
 input,select{font:inherit;font-family:var(--f-num);font-size:.95rem;color:var(--ink);background:var(--field);border:1px solid var(--rule);border-radius:4px;padding:7px 9px;width:100%;min-width:0}
@@ -144,17 +150,22 @@ button:hover{border-color:var(--blue)}
     <details class="fold" data-fold="new" open>
       <summary><h2 data-i18n="h2new"></h2></summary>
       <div class="fold-body">
-    <div class="grid">
+    <div class="grid3">
       <label for="jobType"><span data-i18n="lJobType"></span>
         <select id="jobType"><option value="doushi">動仕</option><option value="lo">LO（一原）</option><option value="nigen">二原</option></select>
       </label>
+      <label for="cpxD"><span data-i18n="lDetail"></span>
+        <select id="cpxD"><option value="easy">簡単</option><option value="normal">普通</option><option value="hard">難しい</option><option value="extreme">ハード</option></select>
+      </label>
+      <label for="cpxA"><span data-i18n="lMotion"></span>
+        <select id="cpxA"><option value="easy">簡単</option><option value="normal">普通</option><option value="hard">難しい</option><option value="extreme">ハード</option></select>
+      </label>
+    </div>
+    <div class="grid3">
       <label for="qGentore" data-job="doushi">清書 <span class="unit" data-i18n="uSheet"></span><input id="qGentore" type="number" min="0" step="1" inputmode="numeric"></label>
-      <label for="qDouga" data-job="doushi">動画（合わせ） <span class="unit" data-i18n="uSheet"></span><input id="qDouga" type="number" min="0" step="1" inputmode="numeric"></label>
+      <label for="qDouga" data-job="doushi">合わせ <span class="unit" data-i18n="uSheet"></span><input id="qDouga" type="number" min="0" step="1" inputmode="numeric"></label>
       <label for="qShiage" data-job="doushi">仕上 <span class="unit" data-i18n="uSheet"></span><input id="qShiage" type="number" min="0" step="1" inputmode="numeric"></label>
       <label for="qGen" data-job="genga"><span data-i18n="lGen"></span> <span class="unit" data-i18n="uSheet"></span><input id="qGen" type="number" min="0" step="1" inputmode="numeric"></label>
-      <label for="cpx"><span data-i18n="lCpx"></span>
-        <select id="cpx"><option value="easy">簡単</option><option value="normal">普通</option><option value="hard">難しい</option><option value="extreme">ハード</option></select>
-      </label>
     </div>
     <div class="row">
       <label class="chk" for="gaichu"><input id="gaichu" type="checkbox"><span data-i18n="chkGaichu"></span></label>
@@ -205,7 +216,7 @@ button:hover{border-color:var(--blue)}
       <div style="display:grid;gap:14px">
         <div class="grid">
           <label for="kGentore">清書 <span data-i18n="speedWord"></span> <span class="unit" data-i18n="uHrPer"></span><input id="kGentore" type="number" min="0" step="0.01"></label>
-          <label for="kDouga">動画（合わせ） <span data-i18n="speedWord"></span> <span class="unit" data-i18n="uHrPer"></span><input id="kDouga" type="number" min="0" step="0.01"></label>
+          <label for="kDouga">合わせ <span data-i18n="speedWord"></span> <span class="unit" data-i18n="uHrPer"></span><input id="kDouga" type="number" min="0" step="0.01"></label>
           <label for="kShiage">仕上 <span data-i18n="speedWord"></span> <span class="unit" data-i18n="uHrPer"></span><input id="kShiage" type="number" min="0" step="0.01"></label>
           <label for="kLoMai">LO（一原） <span data-i18n="speedWord"></span> <span class="unit" data-i18n="uHrPer"></span><input id="kLoMai" type="number" min="0" step="0.01"></label>
           <label for="kNigenMai">二原 <span data-i18n="speedWord"></span> <span class="unit" data-i18n="uHrPer"></span><input id="kNigenMai" type="number" min="0" step="0.01"></label>
@@ -222,11 +233,12 @@ button:hover{border-color:var(--blue)}
           <label for="dlDays"><span data-i18n="lDlDays"></span> <span class="unit" data-i18n="uWorkdays"></span><input id="dlDays" type="number" min="0" max="60" step="1"></label>
           <label for="dlHour"><span data-i18n="lDlHour"></span> <span class="unit" data-i18n="uHour"></span><input id="dlHour" type="number" min="0" max="23.5" step="0.5"></label>
         </div>
+        <div>
+          <p class="note" data-i18n="gridTitle" style="margin-bottom:6px"></p>
+          <table class="cgrid" id="cgrid"></table>
+          <p class="note" data-i18n="gridNote" style="margin-top:6px"></p>
+        </div>
         <div class="grid">
-          <label for="cEasy"><span data-i18n="lCEasy"></span><input id="cEasy" type="number" min="0" step="0.05"></label>
-          <label for="cNormal"><span data-i18n="lCNormal"></span><input id="cNormal" type="number" min="0" step="0.05"></label>
-          <label for="cHard"><span data-i18n="lCHard"></span><input id="cHard" type="number" min="0" step="0.05"></label>
-          <label for="cExtreme"><span data-i18n="lCExtreme"></span><input id="cExtreme" type="number" min="0" step="0.05"></label>
           <label for="cGaichu"><span data-i18n="lCGaichu"></span><input id="cGaichu" type="number" min="0" step="0.05"></label>
         </div>
         <div class="grid">
@@ -269,8 +281,8 @@ const I18N = {
     nNeedL:"新案所需工時（見積 × 係數）", nAvailL:"截止前可用工時", nSlackL:"扣掉手上工作後的餘裕",
     barAria:"工時分配", legLoad:"手上剩餘", legNew:"新案",
     h2new:"新案", uSheet:"枚", h2quick:"還能接多少", qhDue:"截止", qhFree:"空き", qhSheet:j=>`枚（${j}）`,
-    quickNote:(c,l)=>`以手上剩餘 ${l}h、目前的難度係數 ×${c}、上面選的工種計算（動仕的 1 枚＝動画＋仕上）；截止算到當天收工；中1～中3 跳過休假日，7／14 天後若遇休假日順延到下個工作日。`,
-    quickDay:(n,c)=>n === 0 ? "今天" : n <= 3 ? `中${n}（${c} 天後）` : `${c} 天後`, lCpx:"難度", lJobType:"工種", lGen:"原画",
+    quickNote:(c,l)=>`以手上剩餘 ${l}h、目前的難度係數 ×${c}、上面選的工種計算（動仕的 1 枚＝合わせ＋仕上）；截止算到當天收工；中1～中3 跳過休假日，7／14 天後若遇休假日順延到下個工作日。`,
+    quickDay:(n,c)=>n === 0 ? "今天" : n <= 3 ? `中${n}（${c} 天後）` : `${c} 天後`, lDetail:"精細度", lMotion:"動作", lJobType:"工種", lGen:"原画",
     chkGaichu:"社外（用社外係數）", chkRedo:"やり直し／ゴミ素材（再 ×1.3）", chkRisk:"手上已有高風險卡",
     lDeadline:"締め切り", lLoad:"手上剩餘（一般）", lLoadHard:"手上剩餘（難卡，自動 ×2）",
     h2days:"截止前的日子", daysHint:"點一下切換「工作／休」；土日與祝日預設休",
@@ -283,9 +295,9 @@ const I18N = {
     alertLate:n=>`接了這張，這些卡會趕不上：${n}。`, alertAlreadyLate:n=>`不接也已經趕不上：${n}。先跟主任談延期。`,
     lStart:"開工", lEnd:"收工", uHour:"時", lDaily:"每日上限", lBuffer:"額外緩衝", lOverhead:"每案固定",
     lTarget:"安心線", uSlackPct:"餘裕 %", lDlDays:"預設截止：幾個工作日後", lDlHour:"預設截止時刻", uWorkdays:"工作日",
-    lCEasy:"簡単 係數", lCNormal:"普通 係數", lCHard:"難しい 係數", lCExtreme:"ハード 係數", lCGaichu:"社外 係數", lRiskLevel:"高風險：難度從", lRiskMai:"高風險：枚數至少", lRiskGaichu:"社外一律高風險", optNever:"不判斷", optYes:"是", optNo:"否", riskNote:"難度達到這級以上、而且動画（或原画）枚數達到門檻，就提醒是高風險卡。",
+    gridTitle:"排程係數（精細度 × 動作）", gridNote:"直列是精細度、橫列是動作。預設取兩者較高那一級的係數（簡単 0.8／普通 1.4／難しい 2.0／ハード 2.8），覺得某個組合特別花時間就改那一格。", lCGaichu:"社外 係數", lRiskLevel:"高風險：難度從", lRiskMai:"高風險：枚數至少", lRiskGaichu:"社外一律高風險", optNever:"不判斷", optYes:"是", optNo:"否", riskNote:"難度達到這級以上、而且動画（或原画）枚數達到門檻，就提醒是高風險卡。",
     reset:"恢復預設值", saved:"已儲存", fromLink:n=>`已從 Notion 連結帶入 ${n} 個速度並儲存；之後一樣可以手動改。`, saveFail:"這個瀏覽器無法儲存設定",
-    footNote:"排程係數來自 13 個月的崩壞回溯（2026-10-17）：簡単 0.8／普通 1.4／難しい 2.0／ハード 2.8；社外卡一律用社外係數 2.0（等於難しい），不跟難度疊乘；やり直し或ゴミ素材再 ×1.3。係數已含低估的部分，所以額外緩衝預設 0。這些預設是一個人的實測值，別人用時請在設定裡改成自己「實際÷預期工時」的中位數。高風險＝難しい／ハード 且 ≥15 枚，或社外；同時最多一卡。規則全文在 Notion 專案的「崩壞規則與接卡算法」。",
+    footNote:"排程係數來自 13 個月的崩壞回溯（2026-10-17）：簡単 0.8／普通 1.4／難しい 2.0／ハード 2.8，精細度和動作取較高那級（九宮格可逐格改）；社外卡一律用社外係數 2.0（等於難しい），不跟難度疊乘；やり直し或ゴミ素材再 ×1.3。係數已含低估的部分，所以額外緩衝預設 0。這些預設是一個人的實測值，別人用時請在設定裡改成自己「實際÷預期工時」的中位數。高風險＝難しい／ハード 且 ≥15 枚，或社外；同時最多一卡。規則全文在 Notion 專案的「崩壞規則與接卡算法」。",
     weekdays:["日","月","火","水","木","金","土"],
     calFill:"填好締め切り後會出現日曆。", tagDl:"締切", tagOff:"休", tagHol:"祝",
     dateLabel:(m,d)=>`${m}月${d}日`, work:"工作", off:"休",
@@ -302,7 +314,7 @@ const I18N = {
     alertTwo:"高風險卡同時最多一卡：手上已有一張，這張先別接。",
     alertRisk:"這是高風險卡：清書做完若速度低於當月中位 0.7 倍，當天就跟主任講。",
     alertGaichu:(h,over,need)=>`社外：從今天起每天做 ${h}h${over?`（實際需要每天 ${need}h，超過 3h）`:""}，不准留到最後 3 天；5 天後進度不到三分之一要警告。`,
-    rows:{douga:"動画（合わせ）",shiage:"仕上",gentore:"清書",overhead:"每案固定",cpx:"排程係數",buffer:"緩衝",total:"新案合計",avail:"可用工時",load:"手上剩餘（難卡 ×2 後）",slack:"餘裕"},
+    rows:{douga:"合わせ",shiage:"仕上",gentore:"清書",overhead:"每案固定",cpx:"排程係數",buffer:"緩衝",total:"新案合計",avail:"可用工時",load:"手上剩餘（難卡 ×2 後）",slack:"餘裕"},
     workdays:w=>`（${w} 個工作日）`, sheets:"枚"
   },
   ja: {
@@ -311,8 +323,8 @@ const I18N = {
     nNeedL:"新案件の所要工数（見積 × 係数）", nAvailL:"締切までの稼働可能時間", nSlackL:"手持ち作業を引いた余裕",
     barAria:"工数の配分", legLoad:"手持ち残り", legNew:"新案件",
     h2new:"新案件", uSheet:"枚", h2quick:"あとどれだけ受けられる？", qhDue:"締切", qhFree:"空き", qhSheet:j=>`枚（${j}）`,
-    quickNote:(c,l)=>`手持ち残り ${l}h、現在の難易度係数 ×${c}、上で選んだ工種で計算します（動仕の 1枚＝動画＋仕上）。その日の終業時刻までを数えます。中1～中3 は休日を飛ばし、7日後・14日後が休日なら次の稼働日にずらします。`,
-    quickDay:(n,c)=>n === 0 ? "今日" : n <= 3 ? `中${n}（${c}日後）` : `${c}日後`, lCpx:"難易度", lJobType:"工種", lGen:"原画",
+    quickNote:(c,l)=>`手持ち残り ${l}h、現在の難易度係数 ×${c}、上で選んだ工種で計算します（動仕の 1枚＝合わせ＋仕上）。その日の終業時刻までを数えます。中1～中3 は休日を飛ばし、7日後・14日後が休日なら次の稼働日にずらします。`,
+    quickDay:(n,c)=>n === 0 ? "今日" : n <= 3 ? `中${n}（${c}日後）` : `${c}日後`, lDetail:"精細度", lMotion:"動作", lJobType:"工種", lGen:"原画",
     chkGaichu:"社外（社外係数を使う）", chkRedo:"やり直し／ゴミ素材（さらに ×1.3）", chkRisk:"手持ちに高リスクカードあり",
     lDeadline:"締め切り", lLoad:"手持ち残り（通常）", lLoadHard:"手持ち残り（難カード、自動 ×2）",
     h2days:"締切までの日", daysHint:"クリックで「稼働／休」を切替。土日と祝日は初期状態で休み",
@@ -325,9 +337,9 @@ const I18N = {
     alertLate:n=>`これを受けると間に合わなくなるカード：${n}。`, alertAlreadyLate:n=>`受けなくてもすでに間に合わない：${n}。先に主任と締切を相談してください。`,
     lStart:"開始", lEnd:"終了", uHour:"時", lDaily:"1日の上限", lBuffer:"追加バッファ", lOverhead:"案件ごとの固定",
     lTarget:"安心ライン", uSlackPct:"余裕 %", lDlDays:"締切の初期値：何稼働日後", lDlHour:"締切の初期時刻", uWorkdays:"稼働日",
-    lCEasy:"簡単 係数", lCNormal:"普通 係数", lCHard:"難しい 係数", lCExtreme:"ハード 係数", lCGaichu:"社外 係数", lRiskLevel:"高リスク：難度は", lRiskMai:"高リスク：枚数が", lRiskGaichu:"社外は常に高リスク", optNever:"判定しない", optYes:"はい", optNo:"いいえ", riskNote:"この難度以上で、動画（または原画）の枚数がしきい値以上なら、高リスクカードとして注意を出します。",
+    gridTitle:"排程係数（精細度 × 動作）", gridNote:"縦が精細度、横が動作。初期値は高いほうの段階の係数（簡単 0.8／普通 1.4／難しい 2.0／ハード 2.8）。特に時間がかかる組み合わせはそのマスだけ変えてください。", lCGaichu:"社外 係数", lRiskLevel:"高リスク：難度は", lRiskMai:"高リスク：枚数が", lRiskGaichu:"社外は常に高リスク", optNever:"判定しない", optYes:"はい", optNo:"いいえ", riskNote:"この難度以上で、動画（または原画）の枚数がしきい値以上なら、高リスクカードとして注意を出します。",
     reset:"初期値に戻す", saved:"保存しました", fromLink:n=>`Notion のリンクから速度を ${n} 件取り込んで保存しました。あとから手で変更できます。`, saveFail:"このブラウザには設定を保存できません",
-    footNote:"排程係数は 13 か月分の崩壊の振り返り（2026-10-17）に基づきます：簡単 0.8／普通 1.4／難しい 2.0／ハード 2.8。社外カードは常に社外係数 2.0（難しい相当）を使い、難易度とは掛け合わせません。やり直しやゴミ素材はさらに ×1.3。係数に過小見積もり分が含まれているため、追加バッファの初期値は 0 です。これらの初期値は一人分の実測値なので、他の人が使うときは設定で自分の「実績÷見込み工数」の中央値に変更してください。高リスク＝難しい／ハード かつ 15 枚以上、または社外。同時に持てるのは 1 枚まで。ルール全文は Notion プロジェクトの「崩壊ルールと受注判断アルゴリズム」にあります。",
+    footNote:"排程係数は 13 か月分の崩壊の振り返り（2026-10-17）に基づきます：簡単 0.8／普通 1.4／難しい 2.0／ハード 2.8（精細度と動作の高いほう。マスごとに変更可）。社外カードは常に社外係数 2.0（難しい相当）を使い、難易度とは掛け合わせません。やり直しやゴミ素材はさらに ×1.3。係数に過小見積もり分が含まれているため、追加バッファの初期値は 0 です。これらの初期値は一人分の実測値なので、他の人が使うときは設定で自分の「実績÷見込み工数」の中央値に変更してください。高リスク＝難しい／ハード かつ 15 枚以上、または社外。同時に持てるのは 1 枚まで。ルール全文は Notion プロジェクトの「崩壊ルールと受注判断アルゴリズム」にあります。",
     weekdays:["日","月","火","水","木","金","土"],
     calFill:"締め切りを入力するとカレンダーが表示されます。", tagDl:"締切", tagOff:"休", tagHol:"祝",
     dateLabel:(m,d)=>`${m}月${d}日`, work:"稼働", off:"休",
@@ -344,7 +356,7 @@ const I18N = {
     alertTwo:"高リスクカードは同時に 1 枚まで。すでに 1 枚あるので、これは受けないでください。",
     alertRisk:"高リスクカードです。清書が終わった時点で速度が当月中央値の 0.7 倍未満なら、その日のうちに主任へ伝えてください。",
     alertGaichu:(h,over,need)=>`社外：今日から毎日 ${h}h 作業。最後の 3 日に回さないでください。5 日経って進捗が 3 分の 1 未満なら警告です。${over?`（実際には毎日 ${need}h 必要で、3h を超えています）`:""}`,
-    rows:{douga:"動画（合わせ）",shiage:"仕上",gentore:"清書",overhead:"案件ごとの固定",cpx:"排程係数",buffer:"バッファ",total:"新案件 合計",avail:"稼働可能時間",load:"手持ち残り（難カード ×2 後）",slack:"余裕"},
+    rows:{douga:"合わせ",shiage:"仕上",gentore:"清書",overhead:"案件ごとの固定",cpx:"排程係数",buffer:"バッファ",total:"新案件 合計",avail:"稼働可能時間",load:"手持ち残り（難カード ×2 後）",slack:"余裕"},
     workdays:w=>`（${w} 稼働日）`, sheets:"枚"
   },
   en: {
@@ -353,8 +365,8 @@ const I18N = {
     nNeedL:"Hours the new job needs (estimate × coefficient)", nAvailL:"Hours available before the deadline", nSlackL:"Slack after current workload",
     barAria:"Hours allocation", legLoad:"Current workload", legNew:"New job",
     h2new:"New job", uSheet:"sheets", h2quick:"How much more can I take?", qhDue:"Due", qhFree:"Free", qhSheet:j=>`Sheets (${j})`,
-    quickNote:(c,l)=>`Based on ${l}h of current workload, the current difficulty coefficient ×${c} and the job type chosen above (for 動仕, one sheet = in-between + paint), counting through the end of that day. 1–3 workdays skip days off; 7 and 14 days move to the next working day if they land on a day off.`,
-    quickDay:(n,c)=>n === 0 ? "today" : n <= 3 ? `${n} workday${n > 1 ? "s" : ""} (in ${c} day${c > 1 ? "s" : ""})` : `in ${c} days`, lCpx:"Difficulty", lJobType:"Job type", lGen:"Key animation",
+    quickNote:(c,l)=>`Based on ${l}h of current workload, the current difficulty coefficient ×${c} and the job type chosen above (for 動仕, one sheet = 合わせ + 仕上), counting through the end of that day. 1–3 workdays skip days off; 7 and 14 days move to the next working day if they land on a day off.`,
+    quickDay:(n,c)=>n === 0 ? "today" : n <= 3 ? `${n} workday${n > 1 ? "s" : ""} (in ${c} day${c > 1 ? "s" : ""})` : `in ${c} days`, lDetail:"精細度 (detail)", lMotion:"動作 (motion)", lJobType:"Job type", lGen:"Key animation",
     chkGaichu:"External client 社外 (use 社外 coefficient)", chkRedo:"Redo / poor source material (extra ×1.3)", chkRisk:"Already holding a high-risk card",
     lDeadline:"Deadline", lLoad:"Remaining workload (normal)", lLoadHard:"Remaining workload (hard cards, auto ×2)",
     h2days:"Days until the deadline", daysHint:"Click a day to toggle work / off. Weekends and public holidays are off by default",
@@ -367,9 +379,9 @@ const I18N = {
     alertLate:n=>`Taking this makes these cards late: ${n}.`, alertAlreadyLate:n=>`Already late even without it: ${n}. Talk to your lead about the deadline first.`,
     lStart:"Start", lEnd:"End", uHour:"h", lDaily:"Daily cap", lBuffer:"Extra buffer", lOverhead:"Fixed per job",
     lTarget:"Comfort line", uSlackPct:"slack %", lDlDays:"Default deadline: working days ahead", lDlHour:"Default deadline time", uWorkdays:"working days",
-    lCEasy:"簡単 coefficient", lCNormal:"普通 coefficient", lCHard:"難しい coefficient", lCExtreme:"ハード coefficient", lCGaichu:"社外 coefficient", lRiskLevel:"High risk from difficulty", lRiskMai:"High risk at sheets ≥", lRiskGaichu:"Every 社外 card is high risk", optNever:"Never", optYes:"Yes", optNo:"No", riskNote:"A card at or above this difficulty with at least this many 動画 (or 原画) sheets is flagged as high risk.",
+    gridTitle:"Schedule coefficient (精細度 × 動作)", gridNote:"Rows are 精細度 (detail), columns are 動作 (motion). Each cell defaults to the coefficient of the higher of the two (簡単 0.8 / 普通 1.4 / 難しい 2.0 / ハード 2.8); change a single cell if that combination takes you longer.", lCGaichu:"社外 coefficient", lRiskLevel:"High risk from difficulty", lRiskMai:"High risk at sheets ≥", lRiskGaichu:"Every 社外 card is high risk", optNever:"Never", optYes:"Yes", optNo:"No", riskNote:"A card at or above this difficulty with at least this many 動画 (or 原画) sheets is flagged as high risk.",
     reset:"Reset to defaults", saved:"Saved", fromLink:n=>`Loaded ${n} speed${n > 1 ? "s" : ""} from the Notion link and saved them. You can still edit them by hand.`, saveFail:"This browser can't save settings",
-    footNote:"Schedule coefficients come from a 13-month review of burnout episodes (2026-10-17): 簡単 0.8 / 普通 1.4 / 難しい 2.0 / ハード 2.8. 社外 cards always use the 社外 coefficient 2.0 (same as 難しい) and do not stack with difficulty; redo or poor source material adds ×1.3. The coefficients already absorb underestimation, so extra buffer defaults to 0. These defaults are one person's measured values; if you use this yourself, replace them in Settings with your own median of actual ÷ expected hours. High risk = 難しい/ハード with 15+ sheets, or 社外; at most one at a time. The full rules are in the Notion project note on the burnout rules and job-acceptance algorithm.",
+    footNote:"Schedule coefficients come from a 13-month review of burnout episodes (2026-10-17): 簡単 0.8 / 普通 1.4 / 難しい 2.0 / ハード 2.8, taking the higher of 精細度 and 動作 (each grid cell can be changed). 社外 cards always use the 社外 coefficient 2.0 (same as 難しい) and do not stack with difficulty; redo or poor source material adds ×1.3. The coefficients already absorb underestimation, so extra buffer defaults to 0. These defaults are one person's measured values; if you use this yourself, replace them in Settings with your own median of actual ÷ expected hours. High risk = 難しい/ハード with 15+ sheets, or 社外; at most one at a time. The full rules are in the Notion project note on the burnout rules and job-acceptance algorithm.",
     weekdays:["Sun","Mon","Tue","Wed","Thu","Fri","Sat"],
     calFill:"The calendar appears once you enter a deadline.", tagDl:"Due", tagOff:"Off", tagHol:"Hol",
     dateLabel:(m,d)=>`${m}/${d}`, work:"work", off:"off",
@@ -386,7 +398,7 @@ const I18N = {
     alertTwo:"Only one high-risk card at a time. You already hold one, so don't take this one yet.",
     alertRisk:"This is a high-risk card: if clean-up speed drops below 0.7× the monthly median, tell your lead the same day.",
     alertGaichu:(h,over,need)=>`社外: work ${h}h every day from today and don't leave it for the last 3 days; warn yourself if less than a third is done after 5 days.${over?` (You actually need ${need}h a day, over 3h.)`:""}`,
-    rows:{douga:"動画（合わせ）",shiage:"仕上",gentore:"清書",overhead:"Fixed per job",cpx:"Schedule coefficient",buffer:"Buffer",total:"New job total",avail:"Available hours",load:"Current workload (hard cards ×2)",slack:"Slack"},
+    rows:{douga:"合わせ",shiage:"仕上",gentore:"清書",overhead:"Fixed per job",cpx:"Schedule coefficient",buffer:"Buffer",total:"New job total",avail:"Available hours",load:"Current workload (hard cards ×2)",slack:"Slack"},
     workdays:w=>` (${w} working days)`, sheets:"sheets"
   }
 };
@@ -413,10 +425,14 @@ function applyLang(){
 }
 const DEFAULTS = {
   kDouga:0.55, kShiage:0.10, kGentore:0.59, kLoMai:1.0, kNigenMai:0.8, start:10.5, end:20, daily:8, buffer:0, overhead:0.5, target:20, dlDays:3, dlHour:12,
-  cEasy:0.8, cNormal:1.4, cHard:2.0, cExtreme:2.8, cGaichu:2.0,
+  cGaichu:2.0,
   // high-risk card: difficulty from riskLevel (1 普通, 2 難しい, 3 ハード, 9 never) and at least riskMai sheets, or any 社外 card when riskGaichu is 1
   riskLevel:2, riskMai:15, riskGaichu:1
 };
+// 精細度 × 動作 grid: each cell defaults to the coefficient of the higher level (same rule as the Notion 係數 formula)
+const LEVELS = ["easy","normal","hard","extreme"], LV = ["E","N","H","X"], LEVEL_COEF = [0.8, 1.4, 2.0, 2.8];
+const gridId = (d, a) => "g" + LV[LEVELS.indexOf(d)] + LV[LEVELS.indexOf(a)];
+LV.forEach((d, i) => LV.forEach((a, j) => { DEFAULTS["g" + d + a] = LEVEL_COEF[Math.max(i, j)]; }));
 const SETTING_IDS = Object.keys(DEFAULTS);
 // v2: coefficients and daily cap changed on 2026-10-17, so old saved settings are not reused
 const KEY = "toreru-settings-v2", OFF_KEY = "toreru-offdays-v2";
@@ -431,7 +447,16 @@ const builtinYear = (cc, y) => BUILTIN_HOLIDAYS[cc] && BUILTIN_HOLIDAYS[cc][y] ?
 let country = "JP", holidays = new Set(BUILTIN_YEARS.flatMap(y => builtinYear("JP", y))), holState = "";
 
 function loadSettings(){
-  try{ const s = JSON.parse(localStorage.getItem(KEY)); if(s) return {...DEFAULTS, ...s}; }catch(e){}
+  try{
+    const s = JSON.parse(localStorage.getItem(KEY));
+    if(s){
+      if(!("gEE" in s) && "cEasy" in s){
+        const old = [s.cEasy, s.cNormal, s.cHard, s.cExtreme];
+        LV.forEach((d, i) => LV.forEach((a, j) => { const v = old[Math.max(i, j)]; if(v > 0) s["g" + d + a] = v; }));
+      }
+      return {...DEFAULTS, ...s};
+    }
+  }catch(e){}
   return {...DEFAULTS};
 }
 function saveSettings(s){
@@ -721,9 +746,9 @@ function render(){
                    : {douga:0, shiage:0, gentore:0, gen:+$("qGen").value||0};
   const kGen = jobType === "lo" ? s.kLoMai : s.kNigenMai;
   const job = {label: $("jobType").selectedOptions[0].textContent, perSheet: doushi ? s.kDouga + s.kShiage : kGen};
-  const level = $("cpx").value, gaichu = $("gaichu").checked, redo = $("redo").checked;
+  const lvD = $("cpxD").value, lvA = $("cpxA").value, gaichu = $("gaichu").checked, redo = $("redo").checked;
   // 社外 replaces the difficulty coefficient instead of stacking on it
-  let cpx = gaichu ? s.cGaichu : {easy:s.cEasy, normal:s.cNormal, hard:s.cHard, extreme:s.cExtreme}[level];
+  let cpx = gaichu ? s.cGaichu : s[gridId(lvD, lvA)];
   if(redo) cpx *= REDO_MULT;
   const loadHard = +$("loadHard").value || 0;
   const load = (+$("load").value || 0) + loadHard * 2;
@@ -739,7 +764,8 @@ function render(){
   $("nAvail").textContent = fmt(av.total) + "h";
   $("nSlack").textContent = (slack >= 0 ? "+" : "") + fmt(slack) + "h";
 
-  const levelRank = {easy:0, normal:1, hard:2, extreme:3}[level];
+  // high risk looks at the harder of 精細度 and 動作
+  const levelRank = Math.max(LEVELS.indexOf(lvD), LEVELS.indexOf(lvA));
   const highRisk = (gaichu && s.riskGaichu === 1) || (levelRank >= s.riskLevel && (doushi ? q.douga : q.gen) >= s.riskMai);
   const hasQty = q.douga || q.shiage || q.gentore || q.gen;
   const cards = renderCards(now, s, hasQty ? need : 0, dl);
@@ -833,8 +859,15 @@ function setDefaultDeadline(){
   $("deadline").value = `${ymd(d)}T${String(Math.floor(h)).padStart(2,"0")}:${h % 1 ? "30" : "00"}`;
 }
 
+function buildGrid(){
+  const head = `<tr><th scope="col">精細度 ＼ 動作</th>` + LEVELS.map(a => `<th scope="col">${$("cpxA").querySelector(`[value=${a}]`).textContent}</th>`).join("") + "</tr>";
+  const body = LEVELS.map(d => `<tr><th scope="row">${$("cpxD").querySelector(`[value=${d}]`).textContent}</th>` +
+    LEVELS.map(a => `<td><input id="${gridId(d, a)}" type="number" min="0" step="0.05" aria-label="${d} × ${a}"></td>`).join("") + "</tr>").join("");
+  $("cgrid").innerHTML = head + body;
+}
 function init(){
   applyLang();
+  buildGrid();
   initFolds();
   let saved = "auto"; try{ saved = localStorage.getItem(LANG_KEY) || "auto"; }catch(e){}
   $("lang").value = I18N[saved] ? saved : "auto";
@@ -845,7 +878,7 @@ function init(){
   writeSettings(applyLinkSpeeds(loadSettings()));
   dayOverride = loadOff();
   // start empty, or with the workload from the Notion snapshot; deadline defaults to 12:00 on the third working day from today
-  $("cpx").value = "normal"; $("load").value = 0; $("loadHard").value = 0;
+  $("cpxD").value = "normal"; $("cpxA").value = "normal"; $("load").value = 0; $("loadHard").value = 0;
   applyNotion(); renderNotionNote();
   $("notionClear").addEventListener("click", () => {
     saveNotion(null); $("load").value = 0; $("loadHard").value = 0;
@@ -853,7 +886,7 @@ function init(){
   });
   setDefaultDeadline();
   document.querySelectorAll("#settingsBox input:not(#linkPaste), #settingsBox select").forEach(el => el.addEventListener("input", () => { saveSettings(readSettings()); setDefaultDeadline(); renderCal(); render(); }));
-  ["qDouga","qShiage","qGentore","qGen","jobType","cpx","load","loadHard","gaichu","redo","hasRisk"].forEach(id => $(id).addEventListener("input", render));
+  ["qDouga","qShiage","qGentore","qGen","jobType","cpxD","cpxA","load","loadHard","gaichu","redo","hasRisk"].forEach(id => $(id).addEventListener("input", render));
   $("deadline").addEventListener("input", () => { deadlineTouched = true; renderCal(); render(); });
   $("cal").addEventListener("click", e => {
     const b = e.target.closest("button[data-d]"); if(!b) return;
