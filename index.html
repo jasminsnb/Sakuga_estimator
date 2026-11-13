@@ -251,6 +251,7 @@ button:hover{border-color:var(--blue)}
           <p class="note" data-i18n="gridTitle" style="margin-bottom:6px"></p>
           <table class="cgrid" id="cgrid"></table>
           <p class="note" data-i18n="gridNote" style="margin-top:6px"></p>
+          <p class="note" id="modelNote"></p>
         </div>
         <div class="grid">
           <label for="riskLevel"><span data-i18n="lRiskLevel"></span><select id="riskLevel"><option value="1">普通</option><option value="2">難しい</option><option value="3">ハード</option><option value="9" data-i18n="optNever"></option></select></label>
@@ -321,9 +322,12 @@ const I18N = {
     whyBad:(h,d)=>`差 ${h}h，相當於約 ${d} 天的工作量`,
     whyWarn:(b,h)=>`照中位數接得下，但偏壞情況（${b}h）會差 ${h}h`,
     rangeNote:(lo,hi,b)=>`常見範圍 ${lo}～${hi}h（一半的卡落在這裡）；偏壞情況 ${b}h（8 成的卡不會超過）`,
-    alertExt:"社外：已乘 ×1.5（同格社內的實績倍數；只有 12 張社外卡，僅供參考）。", alertHardMotion:"動作ハード 沒有實績，這一欄的係數是推估，預估可能偏低。",
+    alertExt:(f,n)=>`社外：已乘 ×${f}（同格社內的實績倍數；社外卡只有 ${n} 張，僅供參考）。`, alertHardMotion:"動作ハード 沒有實績，這一欄的係數是推估，預估可能偏低。",
     h2re:"清書做完後重估", reHint:"清書做完後填清書實際花的時間，用妳的實績（清書速度和合わせ速度的關係＋動作）重估合わせ。用上面新案的枚数和動作。", lReGen:"清書 實際",
     reNeed:"先在新案填清書和合わせ的枚数，再填清書實際時間。",
+    modelOn:(n,d)=>`格子、範圍、仕上速度、重估都是用妳 Notion 的 ${n} 張已完成卡自動算的（${d}）。每次從 Notion 點連結會重算，手改的格子會被蓋掉。`,
+    modelOff:"格子和範圍是內建的預設值（一位使用者的實績）。從 Notion 點「計算機速度連結」就會改用妳自己的已完成卡自動算。",
+    modelFew:n=>`Notion 帶來的已完成卡只有 ${n} 張（需要 30 張），先用內建預設值。`, fromHist:n=>`已用 ${n} 張已完成卡重算格子和範圍。`,
     reOut:(per,lo,hi,rem,bad)=>`合わせ 預估每枚 ${per}h，合計 ${lo}～${hi}h；剩下（合わせ＋仕上）中位數 ${rem}h，偏壞情況 ${bad}h。`,
     whyOk:(h,w)=>`餘裕 ${h}h，${w} 個工作日內`,
     sayHead:"回覆：", sayOr:"、或", sayDate:(m,d)=>`「${m}月${d}日なら行けます」`,
@@ -368,9 +372,12 @@ const I18N = {
     whyBad:(h,d)=>`${h}h 不足、約 ${d} 日分の作業量です`,
     whyWarn:(b,h)=>`中央値なら入りますが、悪いケース（${b}h）だと ${h}h 足りません`,
     rangeNote:(lo,hi,b)=>`よくある範囲 ${lo}～${hi}h（半分のカードがここ）、悪いケース ${b}h（8 割のカードはこれ以内）`,
-    alertExt:"社外：×1.5 を掛けています（同じマスの社内実績との比。社外カードは 12 枚だけなので参考値）。", alertHardMotion:"動作ハード は実績がなく、この列の係数は推定値です。少なめに出ている可能性があります。",
+    alertExt:(f,n)=>`社外：×${f} を掛けています（同じマスの社内実績との比。社外カードは ${n} 枚だけなので参考値）。`, alertHardMotion:"動作ハード は実績がなく、この列の係数は推定値です。少なめに出ている可能性があります。",
     h2re:"清書が終わったら再見積もり", reHint:"清書にかかった実時間を入れると、実績（清書と合わせの速度の関係＋動作）から合わせを見積もり直します。枚数と動作は上の新案件の値を使います。", lReGen:"清書 実績",
     reNeed:"新案件に清書と合わせの枚数を入れてから、清書の実時間を入れてください。",
+    modelOn:(n,d)=>`マス・範囲・仕上の速度・再見積もりは Notion の完了カード ${n} 枚から自動で計算しています（${d}）。Notion からリンクを開くたびに計算し直し、手で変えたマスは上書きされます。`,
+    modelOff:"マスと範囲は内蔵の初期値（一人分の実績）です。Notion の「計算機速度連結」から開くと、あなたの完了カードから自動で計算します。",
+    modelFew:n=>`Notion から届いた完了カードが ${n} 枚しかないため（30 枚必要）、内蔵の初期値を使います。`, fromHist:n=>`完了カード ${n} 枚からマスと範囲を計算し直しました。`,
     reOut:(per,lo,hi,rem,bad)=>`合わせ 1枚あたり ${per}h、合計 ${lo}～${hi}h。残り（合わせ＋仕上）は中央値 ${rem}h、悪いケース ${bad}h。`,
     whyOk:(h,w)=>`余裕 ${h}h、${w} 稼働日以内`,
     sayHead:"返事：", sayOr:"、または", sayDate:(m,d)=>`「${m}月${d}日なら行けます」`,
@@ -415,9 +422,12 @@ const I18N = {
     whyBad:(h,d)=>`Short by ${h}h, about ${d} days of work`,
     whyWarn:(b,h)=>`Fits at the median, but the bad case (${b}h) is ${h}h short`,
     rangeNote:(lo,hi,b)=>`Usual range ${lo}–${hi}h (half of cards land here); bad case ${b}h (8 in 10 cards stay under it)`,
-    alertExt:"社外: ×1.5 applied (ratio to in-house cards in the same cell; only 12 社外 cards, so treat it as a rough guide).", alertHardMotion:"動作ハード has no recorded cards; this column is an estimate and may be too low.",
+    alertExt:(f,n)=>`社外: ×${f} applied (ratio to in-house cards in the same cell; only ${n} 社外 cards, so treat it as a rough guide).`, alertHardMotion:"動作ハード has no recorded cards; this column is an estimate and may be too low.",
     h2re:"Re-estimate after 清書", reHint:"Once 清書 is done, enter the hours it actually took; 合わせ is re-estimated from your records (how 合わせ speed follows 清書 speed, plus 動作). Uses the sheet counts and 動作 from the new job above.", lReGen:"清書 actual",
     reNeed:"Enter 清書 and 合わせ sheet counts in the new job first, then the actual 清書 hours.",
+    modelOn:(n,d)=>`The grid, ranges, 仕上 speed and re-estimate are fitted from ${n} of your finished cards in Notion (${d}). They are refitted each time you open the link from Notion, replacing cells you edited by hand.`,
+    modelOff:"The grid and ranges are built-in defaults (one person's records). Open the calculator from the Notion 計算機速度連結 link to fit them to your own finished cards.",
+    modelFew:n=>`The Notion link carried only ${n} finished cards (30 needed), so the built-in defaults are used.`, fromHist:n=>`Refitted the grid and ranges from ${n} finished cards.`,
     reOut:(per,lo,hi,rem,bad)=>`合わせ about ${per}h per sheet, ${lo}–${hi}h in total; remaining (合わせ + 仕上) median ${rem}h, bad case ${bad}h.`,
     whyOk:(h,w)=>`Slack ${h}h, within ${w} working days`,
     sayHead:"Reply: ", sayOr:" or ", sayDate:(m,d)=>`「${m}月${d}日なら行けます」`,
@@ -469,12 +479,117 @@ const GRID_EST = ["gEN","gEH","gEX","gNX","gHN","gHH","gHX","gXE","gXN","gXH","g
 // 仕上 hr/sheet by 精細度 relative to 普通 (medians 0.052 / 0.096 / 0.141 / 0.198)
 const SHIAGE_F = [0.54, 1, 1.47, 2.06];
 // Actual ÷ median estimate at the 25th / 75th / 80th percentile, by 清書+合わせ (or 原画) sheet count: up to 2, 3–5, 6–9, 10+
-const RANGE_BY_SIZE = [[2, [0.58, 2.17, 2.40]], [5, [0.76, 1.42, 1.47]], [9, [0.73, 1.56, 1.57]], [Infinity, [0.73, 1.55, 1.62]]];
+const RANGE_BY_SIZE = [[2, [0.58, 2.17, 2.40]], [5, [0.76, 1.42, 1.47]], [9, [0.73, 1.56, 1.57]], [1e9, [0.73, 1.55, 1.62]]];
 const EXT_MULT = 1.5;
 // After 清書: ln(合わせ hr/sheet) = a + b·ln(清書 hr/sheet) + c·(動作 難しい or ハード); 97 recent cards
 const RE_COEF = [-0.131, 0.635, 0.628];
-const RE_RANGE = [[2, [0.40, 1.28, 1.40]], [4, [0.80, 1.74, 1.87]], [Infinity, [0.79, 1.45, 1.50]]];
+const RE_RANGE = [[2, [0.40, 1.28, 1.40]], [4, [0.80, 1.74, 1.87]], [1e9, [0.79, 1.45, 1.50]]];
 const pick = (table, n) => table.find(([max]) => n <= max)[1];
+// ---- Model from the user's own finished cards (link parameter hist) ----
+// hist = cards joined by ",", each "DM_s_a_f_hs_ha_hf_x": D/M = 精細度/動作 level 0-3, s/a/f = 清書/合わせ/仕上 sheets,
+// hs/ha/hf = logged hours per process, x = 1 for 社外. Only finished, untagged 動仕 cards from the last 9 months are sent.
+// The grid, ranges, 仕上 speed per 精細度, the after-清書 model and the 社外 factor are fitted here, so every user gets their own.
+const MODEL_KEY = "toreru-model-v1";
+let model = null;
+try{ model = JSON.parse(localStorage.getItem(MODEL_KEY)) || null; }catch(e){}
+const MIN_CARDS = 30, MIN_CELL = 8;
+function quantile(v, p){
+  const a = [...v].sort((x, y) => x - y), i = p * (a.length - 1), lo = Math.floor(i);
+  return a[lo] + (a[Math.min(lo + 1, a.length - 1)] - a[lo]) * (i - lo);
+}
+const median = v => quantile(v, 0.5);
+// least squares by normal equations (few columns, so plain Gauss-Jordan is enough)
+function lsq(X, y){
+  const k = X[0].length, M = [];
+  for(let i = 0; i < k; i++){
+    const row = [];
+    for(let j = 0; j < k; j++) row.push(X.reduce((t, r) => t + r[i] * r[j], 0) + (i === j ? 1e-9 : 0));
+    row.push(X.reduce((t, r, n) => t + r[i] * y[n], 0)); M.push(row);
+  }
+  for(let i = 0; i < k; i++){
+    let p = i; for(let r = i + 1; r < k; r++) if(Math.abs(M[r][i]) > Math.abs(M[p][i])) p = r;
+    [M[i], M[p]] = [M[p], M[i]];
+    for(let r = 0; r < k; r++) if(r !== i){ const f = M[r][i] / M[i][i]; for(let c = i; c <= k; c++) M[r][c] -= f * M[i][c]; }
+  }
+  return M.map((r, i) => r[k] / r[i]);
+}
+function parseHist(query){
+  let p; try{ p = new URLSearchParams(query); }catch(e){ return null; }
+  if(!p.has("hist")) return null;
+  const list = p.get("hist").split(",").map(e => {
+    const f = e.split("_");
+    if(f.length < 8 || !/^[0-3]{2}$/.test(f[0])) return null;
+    const [s, a, sh, hs, ha, hf] = f.slice(1, 7).map(Number);
+    return {d:+f[0][0], m:+f[0][1], s, a, f:sh, hs, ha, hf, x:f[7] === "1"};
+  }).filter(r => r && [r.s, r.a, r.f, r.hs, r.ha, r.hf].every(Number.isFinite));
+  return list.length ? list : null;
+}
+// Fits the model against the current base speeds (kGentore, kDouga), writes the grid into s and returns the model, or null if too few cards
+function fitModel(list, s){
+  const ok = r => r.s + r.a > 0 && (r.s === 0 || r.hs > 0) && (r.a === 0 || r.ha > 0) && r.hs + r.ha > 0;
+  const own = list.filter(r => !r.x && ok(r));
+  if(own.length < MIN_CARDS) return {n: own.length, fitted: false};
+  const kG = s.kGentore, kD = s.kDouga;
+  const y = r => Math.log((r.hs + r.ha) / (r.s * kG + r.a * kD));
+  // one effect per 精細度 level and per 動作 level (普通 is the base); 動作 簡単 is kept separate only if it has enough cards
+  const cnt = (key, v) => own.filter(r => r[key] === v).length;
+  const dCols = [0, 2, 3].filter(v => cnt("d", v) >= 3), mCols = [0, 2, 3].filter(v => cnt("m", v) >= 3);
+  const feats = r => [1, ...dCols.map(v => r.d === v ? 1 : 0), ...mCols.map(v => r.m === v ? 1 : 0)];
+  const beta = lsq(own.map(feats), own.map(y));
+  const fit = r => feats(r).reduce((t, x, i) => t + x * beta[i], 0);
+  const res = own.map(r => y(r) - fit(r)), shift = median(res);
+  // levels without enough cards borrow the built-in ratio to 普通 (動作ハード: 1.5 × 難しい)
+  const dEff = [0, 1, 2, 3].map(v => v === 1 ? 0 : dCols.includes(v) ? beta[1 + dCols.indexOf(v)] : Math.log(GRID_DEFAULT[v][1] / GRID_DEFAULT[1][1]));
+  const mEff = [0, 1, 2, 3].map(v => v === 1 ? 0 : mCols.includes(v) ? beta[1 + dCols.length + mCols.indexOf(v)]
+    : v === 3 ? (mCols.includes(2) ? beta[1 + dCols.length + mCols.indexOf(2)] : Math.log(GRID_DEFAULT[1][2] / GRID_DEFAULT[1][1])) + Math.log(1.5)
+    : Math.log(GRID_DEFAULT[1][v] / GRID_DEFAULT[1][1]));
+  const est = [];
+  LV.forEach((d, i) => LV.forEach((a, j) => {
+    s["g" + d + a] = Math.round(Math.exp(beta[0] + shift + dEff[i] + mEff[j]) * 100) / 100;
+    if(own.filter(r => r.d === i && r.m === j).length < MIN_CELL) est.push("g" + d + a);
+  }));
+  // spread of actual ÷ estimate by card size
+  const rel = own.map((r, n) => ({size: r.s + r.a, e: Math.exp(res[n] - shift)}));
+  const range = RANGE_BY_SIZE.map(([max, def], i) => {
+    const lo = i ? RANGE_BY_SIZE[i - 1][0] + 1 : 0, v = rel.filter(r => r.size >= lo && r.size <= max).map(r => r.e);
+    return [max, v.length >= MIN_CELL ? [0.25, 0.75, 0.8].map(q => Math.round(quantile(v, q) * 100) / 100) : def];
+  });
+  // 仕上 hr/sheet per 精細度
+  const shiage = [0, 1, 2, 3].map(v => {
+    const w = own.filter(r => r.d === v && r.f > 0 && r.hf > 0).map(r => r.hf / r.f);
+    return w.length >= 3 ? Math.round(median(w) * 1000) / 1000 : null;
+  });
+  // after 清書: ln(合わせ/sheet) = a + b ln(清書/sheet) + c (動作 難しい or ハード)
+  const both = own.filter(r => r.s > 0 && r.a > 0 && r.hs > 0 && r.ha > 0);
+  let re = null;
+  if(both.length >= 20){
+    const X = both.map(r => [1, Math.log(r.hs / r.s), r.m >= 2 ? 1 : 0]), Y = both.map(r => Math.log(r.ha / r.a));
+    const b = lsq(X, Y), e = Y.map((v, n) => v - X[n].reduce((t, x, i) => t + x * b[i], 0)), sh = median(e);
+    b[0] += sh;
+    const rr = RE_RANGE.map(([max, def], i) => {
+      const lo = i ? RE_RANGE[i - 1][0] + 1 : 0, v = both.map((r, n) => [r.a, Math.exp(e[n] - sh)]).filter(([a]) => a >= lo && a <= max).map(([, x]) => x);
+      return [max, v.length >= MIN_CELL ? [0.25, 0.75, 0.8].map(q => Math.round(quantile(v, q) * 100) / 100) : def];
+    });
+    re = {coef: b.map(v => Math.round(v * 1000) / 1000), range: rr, n: both.length};
+  }
+  // 社外: median ratio of actual to the in-house estimate
+  const ext = list.filter(r => r.x && ok(r)).map(r => Math.exp(y(r) - (fit(r) + shift)));
+  return {fitted: true, n: own.length, est, range, shiage, re, ext: ext.length >= 5 ? Math.round(median(ext) * 100) / 100 : null, nExt: ext.length,
+          base: [kG, kD], at: new Date().toISOString().slice(0, 10)};
+}
+// Returns the model taken from the query string (also saved), or null when the link has no history
+function takeHist(query, s){
+  const list = parseHist(query); if(!list) return null;
+  const m = fitModel(list, s);
+  if(m.fitted){ model = m; try{ localStorage.setItem(MODEL_KEY, JSON.stringify(m)); }catch(e){} }
+  return m;
+}
+const gridEst = () => model && model.est ? model.est : GRID_EST;
+const rangeTable = () => model && model.range ? model.range : RANGE_BY_SIZE;
+const reModel = () => model && model.re ? model.re : {coef: RE_COEF, range: RE_RANGE};
+const extMult = () => model && model.ext ? model.ext : EXT_MULT;
+const shiagePer = (s, d) => model && model.shiage && model.shiage[d] ? model.shiage[d] : s.kShiage * SHIAGE_F[d];
+
 const gridId = (d, a) => "g" + LV[LEVELS.indexOf(d)] + LV[LEVELS.indexOf(a)];
 LV.forEach((d, i) => LV.forEach((a, j) => { DEFAULTS["g" + d + a] = GRID_DEFAULT[i][j]; }));
 const SETTING_IDS = Object.keys(DEFAULTS);
@@ -600,11 +715,11 @@ function takeLinkSpeeds(query, s){
   return got.length;
 }
 function applyLinkSpeeds(s){
-  const n = takeLinkSpeeds(location.search, s), snap = parseNotion(location.search);
-  if(!n && !snap) return s;
-  if(n){
+  const n = takeLinkSpeeds(location.search, s), snap = parseNotion(location.search), h = takeHist(location.search, s);
+  if(!n && !snap && !h) return s;
+  if(n || (h && h.fitted)){
     try{ localStorage.setItem(KEY, JSON.stringify(s)); }catch(e){}
-    linkNote = t("fromLink")(n);
+    linkNote = [n ? t("fromLink")(n) : "", h ? (h.fitted ? t("fromHist")(h.n) : t("modelFew")(h.n)) : ""].filter(Boolean).join(" ");
   }
   if(snap) saveNotion(snap);
   // drop the parameters so a reload doesn't overwrite later manual edits
@@ -788,9 +903,9 @@ function render(){
   const lvD = $("cpxD").value, lvA = $("cpxA").value, gaichu = $("gaichu").checked, redo = $("redo").checked;
   // the grid multiplies line work (清書+合わせ, or 原画) only; 仕上 is estimated per 精細度
   let cpx = s[gridId(lvD, lvA)];
-  if(gaichu) cpx *= EXT_MULT;
+  if(gaichu) cpx *= extMult();
   if(redo) cpx *= REDO_MULT;
-  const shK = s.kShiage * SHIAGE_F[LEVELS.indexOf(lvD)];
+  const shK = shiagePer(s, LEVELS.indexOf(lvD));
   const job = {label: $("jobType").selectedOptions[0].textContent, perSheet: doushi ? s.kDouga * cpx + shK : kGen * cpx};
   const loadHard = +$("loadHard").value || 0;
   const load = (+$("load").value || 0) + loadHard * 2;
@@ -799,7 +914,7 @@ function render(){
   const raw = line + fixed;
   const need = raw * bf;
   // spread of actual ÷ estimate for cards of this size (line-work part only)
-  const rq = pick(RANGE_BY_SIZE, doushi ? q.gentore + q.douga : q.gen);
+  const rq = pick(rangeTable(), doushi ? q.gentore + q.douga : q.gen);
   const [needLo, needHi, needBad] = rq.map(f => (line * f + fixed) * bf);
   const now = new Date();
   const dl = $("deadline").value ? new Date($("deadline").value) : null;
@@ -809,6 +924,7 @@ function render(){
   $("nNeed").textContent = fmt(need) + "h";
   $("nAvail").textContent = fmt(av.total) + "h";
   $("nSlack").textContent = (slack >= 0 ? "+" : "") + fmt(slack) + "h";
+  $("modelNote").textContent = model ? t("modelOn")(model.n, model.at) : t("modelOff");
   $("rangeNote").textContent = need > 0 ? t("rangeNote")(fmt(needLo), fmt(needHi), fmt(needBad)) : "";
 
   // high risk looks at the harder of 精細度 and 動作
@@ -848,7 +964,7 @@ function render(){
   else if(highRisk) alerts.push(["", t("alertRisk")]);
   if(cards.late.length) alerts.push(["bad", t("alertLate")(cards.late.join(lang === "en" ? ", " : "、"))]);
   if(cards.already.length) alerts.push(["", t("alertAlreadyLate")(cards.already.join(lang === "en" ? ", " : "、"))]);
-  if(gaichu) alerts.push(["", t("alertExt")]);
+  if(gaichu) alerts.push(["", t("alertExt")(fmt2(extMult()), model ? model.nExt : 12)]);
   if(lvA === "extreme") alerts.push(["", t("alertHardMotion")]);
   if(gaichu && dl && dl > now){
     const perDay = need / Math.max(av.workdays, 1);
@@ -884,8 +1000,9 @@ function render(){
   const reH = +$("reGenH").value || 0;
   if(doushi && reH > 0 && q.gentore > 0 && q.douga > 0){
     const hard = LEVELS.indexOf(lvA) >= 2 ? 1 : 0;
-    const per = Math.exp(RE_COEF[0] + RE_COEF[1] * Math.log(reH / q.gentore) + RE_COEF[2] * hard) * (gaichu ? EXT_MULT : 1);
-    const [lo, hi, bad] = pick(RE_RANGE, q.douga).map(f => per * q.douga * f);
+    const rm = reModel(), c = rm.coef;
+    const per = Math.exp(c[0] + c[1] * Math.log(reH / q.gentore) + c[2] * hard) * (gaichu ? extMult() : 1);
+    const [lo, hi, bad] = pick(rm.range, q.douga).map(f => per * q.douga * f);
     $("reOut").textContent = t("reOut")(fmt2(per), fmt(lo), fmt(hi), fmt(per * q.douga + base.shiage), fmt(bad + base.shiage));
   } else $("reOut").textContent = t("reNeed");
 }
@@ -921,7 +1038,7 @@ function setDefaultDeadline(){
 function buildGrid(){
   const head = `<tr><th scope="col">精細度 ＼ 動作</th>` + LEVELS.map(a => `<th scope="col">${$("cpxA").querySelector(`[value=${a}]`).textContent}</th>`).join("") + "</tr>";
   const body = LEVELS.map(d => `<tr><th scope="row">${$("cpxD").querySelector(`[value=${d}]`).textContent}</th>` +
-    LEVELS.map(a => `<td><input id="${gridId(d, a)}" type="number" min="0" step="0.05" aria-label="${d} × ${a}"${GRID_EST.includes(gridId(d, a)) ? ' class="est"' : ""}></td>`).join("") + "</tr>").join("");
+    LEVELS.map(a => `<td><input id="${gridId(d, a)}" type="number" min="0" step="0.05" aria-label="${d} × ${a}"${gridEst().includes(gridId(d, a)) ? ' class="est"' : ""}></td>`).join("") + "</tr>").join("");
   $("cgrid").innerHTML = head + body;
 }
 function init(){
@@ -934,7 +1051,7 @@ function init(){
     try{ localStorage.setItem(LANG_KEY, $("lang").value); }catch(e){}
     lang = detectLang(); applyLang(); renderNotionNote(); renderCountries(); renderHolNote(); renderCal(); render();
   });
-  writeSettings(applyLinkSpeeds(loadSettings()));
+  { const s0 = applyLinkSpeeds(loadSettings()); buildGrid(); writeSettings(s0); }
   dayOverride = loadOff();
   // start empty, or with the workload from the Notion snapshot; deadline defaults to 12:00 on the third working day from today
   $("cpxD").value = "normal"; $("cpxA").value = "normal"; $("load").value = 0; $("loadHard").value = 0;
@@ -957,14 +1074,17 @@ function init(){
   $("linkPaste").addEventListener("input", () => {
     const v = $("linkPaste").value.trim(); if(!v) return;
     const query = v.includes("?") ? v.slice(v.indexOf("?")) : v;
-    const s = readSettings(), n = takeLinkSpeeds(query, s), snap = parseNotion(query);
-    if(!n && !snap){ $("savedNote").textContent = t("noLink"); return; }
-    if(n){ writeSettings(s); saveSettings(s); }
+    const s = readSettings(), n = takeLinkSpeeds(query, s), snap = parseNotion(query), h = takeHist(query, s);
+    if(!n && !snap && !h){ $("savedNote").textContent = t("noLink"); return; }
+    if(n || (h && h.fitted)){ writeSettings(s); saveSettings(s); buildGrid(); writeSettings(s); }
     if(snap){ saveNotion(snap); applyNotion(); renderNotionNote(); }
-    $("savedNote").textContent = n ? t("fromLink")(n) : t("fromNotion"); $("linkPaste").value = "";
+    $("savedNote").textContent = [n ? t("fromLink")(n) : "", h ? (h.fitted ? t("fromHist")(h.n) : t("modelFew")(h.n)) : "", !n && !h ? t("fromNotion") : ""].filter(Boolean).join(" "); $("linkPaste").value = "";
     setDefaultDeadline(); renderCal(); render();
   });
-  $("reset").addEventListener("click", () => { writeSettings({...DEFAULTS}); saveSettings(readSettings()); render(); });
+  $("reset").addEventListener("click", () => {
+    model = null; try{ localStorage.removeItem(MODEL_KEY); }catch(e){}
+    buildGrid(); writeSettings({...DEFAULTS}); saveSettings(readSettings()); render();
+  });
   country = loadCountry(); renderCountries();
   $("country").addEventListener("change", () => {
     country = $("country").value;
