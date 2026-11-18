@@ -306,7 +306,7 @@ const I18N = {
     h2cards:"既有卡檢查", chCard:"卡", chRem:"剩餘", chSlack:"到截止的餘裕", chLate:"趕不上機率", newCard:"（新案）",
     simOut:(w,wo)=>w === null ? `照截止順序模擬 ${SIM_N} 次，手上至少一張趕不上的機率約 ${wo}。` : `照截止順序模擬 ${SIM_N} 次（前面的卡拖久，後面的卡跟著被擠）：接了這張，至少一張趕不上的機率約 ${w}；不接是 ${wo}。`,
     simNote:"每張卡的剩餘照過去實際÷預估的散佈抽樣（中位數＝目前預估）；欄位「不接→接」。",
-    whySim:p=>`照中位數排得下，但模擬下來有 ${p} 的機率至少一張卡趕不上`,
+    whySim:(a,b)=>`照中位數排得下，但接了這張，至少一張卡趕不上的機率從 ${a} 升到 ${b}`,
     cardsNote:(noDl,unk)=>`按截止從近到遠：餘裕＝到那張截止的可用工時－到那張為止的剩餘合計（不含難卡 ×2）。紅＝接了新案會趕不上；橘＝不接也已經趕不上。` + (noDl ? `沒填締め切り的 ${noDl} 張只算進總量。` : "") + (unk ? `剩餘「?」的 ${unk} 張先算 0，請回 Notion 更新見積(hr)。` : ""),
     whyRisk:"高風險卡同時最多一卡，手上已有一張", whyLate:n=>`接了會讓 ${n} 張既有卡趕不上截止`, whyUnknown:n=>`有 ${n} 張卡剩餘不明（需重估或沒見積），先回 Notion 更新見積再判斷`,
     alertLate:n=>`接了這張，這些卡會趕不上：${n}。`, alertAlreadyLate:n=>`不接也已經趕不上：${n}。先跟主任談延期。`,
@@ -362,7 +362,7 @@ const I18N = {
     h2cards:"手持ちカードの確認", chCard:"カード", chRem:"残り", chSlack:"締切までの余裕", chLate:"間に合わない確率", newCard:"（新案件）",
     simOut:(w,wo)=>w === null ? `締切順に ${SIM_N} 回シミュレーション：手持ちのどれかが間に合わない確率は約 ${wo}。` : `締切順に ${SIM_N} 回シミュレーション（前のカードが延びると後ろも押される）：受けるとどれかが間に合わない確率は約 ${w}、受けなければ ${wo}。`,
     simNote:"各カードの残りは過去の実績÷見積のばらつきで抽選（中央値＝今の見積）。列は「受けない→受ける」。",
-    whySim:p=>`中央値なら入りますが、シミュレーションでは ${p} の確率でどれかが間に合いません`,
+    whySim:(a,b)=>`中央値なら入りますが、受けるとどれかが間に合わない確率が ${a} から ${b} に上がります`,
     cardsNote:(noDl,unk)=>`締切の近い順：余裕＝そのカードの締切までの空き時間－そこまでの残り合計（難カードの ×2 は含めません）。赤＝新案件を受けると間に合わない、橙＝受けなくてもすでに間に合わない。` + (noDl ? `締め切り未入力の ${noDl} 枚は合計にだけ含めます。` : "") + (unk ? `残り「?」の ${unk} 枚は 0 として数えています。Notion で見積(hr)を更新してください。` : ""),
     whyRisk:"高リスクカードは同時に 1 枚まで。すでに 1 枚あります", whyLate:n=>`受けると手持ちの ${n} 枚が締切に間に合いません`, whyUnknown:n=>`残りが不明なカードが ${n} 枚あります（要再見積・見積なし）。Notion で見積を更新してから判断してください`,
     alertLate:n=>`これを受けると間に合わなくなるカード：${n}。`, alertAlreadyLate:n=>`受けなくてもすでに間に合わない：${n}。先に主任と締切を相談してください。`,
@@ -418,7 +418,7 @@ const I18N = {
     h2cards:"Open cards check", chCard:"Card", chRem:"Left", chSlack:"Slack to due", chLate:"Late risk", newCard:"(new job)",
     simOut:(w,wo)=>w === null ? `${SIM_N} runs in deadline order: chance that at least one open card is late ≈ ${wo}.` : `${SIM_N} runs in deadline order (a card that runs long pushes the later ones): taking this job, the chance that at least one card is late is ≈ ${w}; without it, ${wo}.`,
     simNote:"Each card's remaining hours are drawn from the past spread of actual ÷ estimate (median = current estimate). Column shows without → with.",
-    whySim:p=>`Fits at the median, but in the simulation at least one card is late ${p} of the time`,
+    whySim:(a,b)=>`Fits at the median, but taking it raises the chance that some card is late from ${a} to ${b}`,
     cardsNote:(noDl,unk)=>`Nearest deadline first: slack = hours free until that card's deadline − all remaining work due by then (hard cards not doubled). Red = taking the new job makes it late; orange = already late without it. ` + (noDl ? `${noDl} card${noDl > 1 ? "s without a deadline only count" : " without a deadline only counts"} in the total. ` : "") + (unk ? `${unk} card${unk > 1 ? "s marked \"?\" count" : " marked \"?\" counts"} as 0; update 見積(hr) in Notion.` : ""),
     whyRisk:"Only one high-risk card at a time, and you already hold one", whyLate:n=>`Taking it would make ${n} open card${n > 1 ? "s" : ""} miss the deadline`, whyUnknown:n=>`${n} card${n > 1 ? "s have" : " has"} unknown remaining hours (needs a new estimate); update it in Notion first`,
     alertLate:n=>`Taking this makes these cards late: ${n}.`, alertAlreadyLate:n=>`Already late even without it: ${n}. Talk to your lead about the deadline first.`,
@@ -955,7 +955,8 @@ function renderQuick(now, s, cpx, load, job){
 // and worked in deadline order, so a card that runs long pushes every later one. Cards are drawn independently: in the
 // 162-card backtest, the errors of cards finished within the same week did not move together (correlation 0.02).
 // A fixed seed keeps the numbers from flickering while typing.
-const SIM_N = 2000, SIM_WARN = 0.2;
+// The verdict looks at how much the new job adds, not the total: with several open cards the total is often high anyway.
+const SIM_N = 2000, SIM_WARN_ADD = 0.15;
 function rng(a){ return () => { a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
 // rows sorted by due with .av (hours free until due); sim = {line, fixed, bf, sd} for the new card.
 // Returns per-row late chance with and without the new card, and the chance that any card is late.
@@ -984,7 +985,7 @@ const pct = p => p <= 0 ? "0%" : p < 0.01 ? "<1%" : p > 0.99 && p < 1 ? ">99%" :
 function renderCards(now, s, need, dl, sim){
   const list = notion ? notion.cards : [];
   $("cardsSheet").hidden = !list.length;
-  if(!list.length){ $("simOut").textContent = ""; return {late:[], already:[], pAny:null}; }
+  if(!list.length){ $("simOut").textContent = ""; return {late:[], already:[], pAny:null, pAnyBase:null}; }
   // a date-only deadline comes as 00:00; count it to the end of that working day
   const dueOf = v => { const d = new Date(v); if(!d.getHours() && !d.getMinutes()) d.setHours(Math.floor(s.end), (s.end % 1) * 60); return d; };
   const rows = list.filter(c => c.dl).map(c => ({name:c.name, rem:c.rem || 0, unknown:c.rem === null, due:dueOf(c.dl)}));
@@ -1009,7 +1010,7 @@ function renderCards(now, s, need, dl, sim){
   }).join("");
   $("simOut").textContent = t("simOut")(hasNew ? pct(mc.anyW) : null, pct(mc.anyWo));
   $("cardsNote").textContent = t("cardsNote")(list.filter(c => !c.dl).length, list.filter(c => c.rem === null).length) + (lang === "en" ? " " : "") + t("simNote");
-  return {late, already, pAny: hasNew ? mc.anyW : null};
+  return {late, already, pAny: hasNew ? mc.anyW : null, pAnyBase: mc.anyWo};
 }
 const esc = v => String(v).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"})[c]);
 
@@ -1067,7 +1068,7 @@ function render(){
   else if(highRisk && $("hasRisk").checked){ state="var(--bad)"; stamp="取れない"; why=t("whyRisk"); }
   else if(cards.late.length){ state="var(--bad)"; stamp="取れない"; why=t("whyLate")(cards.late.length); }
   else if(slackBad < 0){ state="var(--warn)"; stamp="ギリギリ"; why=t("whyWarn")(fmt(needBad), fmt(-slackBad)); }
-  else if(cards.pAny >= SIM_WARN){ state="var(--warn)"; stamp="ギリギリ"; why=t("whySim")(pct(cards.pAny)); }
+  else if(cards.pAny !== null && cards.pAny - cards.pAnyBase >= SIM_WARN_ADD){ state="var(--warn)"; stamp="ギリギリ"; why=t("whySim")(pct(cards.pAnyBase), pct(cards.pAny)); }
   else if(unknown){ state="var(--warn)"; stamp="ギリギリ"; why=t("whyUnknown")(unknown); }
   else { state="var(--ok)"; stamp="取れる"; why=t("whyOk")(fmt(slack), av.workdays); }
   $("verdict").style.setProperty("--state", state);
