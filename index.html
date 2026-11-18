@@ -131,7 +131,8 @@ button:hover{border-color:var(--blue)}
     <details class="fold" data-fold="cards" open>
       <summary><h2 data-i18n="h2cards"></h2></summary>
       <div class="fold-body">
-        <table class="quick"><thead><tr><th data-i18n="chCard"></th><th data-i18n="qhDue"></th><th data-i18n="chRem"></th><th data-i18n="chSlack"></th></tr></thead><tbody id="cards"></tbody></table>
+        <table class="quick"><thead><tr><th data-i18n="chCard"></th><th data-i18n="qhDue"></th><th data-i18n="chRem"></th><th data-i18n="chSlack"></th><th data-i18n="chLate"></th></tr></thead><tbody id="cards"></tbody></table>
+        <p class="say" id="simOut"></p>
         <p class="note" id="cardsNote"></p>
       </div>
     </details>
@@ -302,7 +303,9 @@ const I18N = {
     h2break:"內訳", sumSettings:"設定（速度、工作時段）",
     speedWord:"速度", speedNormal:"（普通的卡）", uHrPer:"hr/枚", uHrPerCut:"hr/カット", speedNote:"速度建議填 Notion 作画_案件 近 6 個月的 hr/枚 中位數。點基本設定的「計算機速度連結」會自動帶入；在 Notion 頁面裡用的話，複製那個連結貼到下面。", lLinkPaste:"貼上「計算機速度連結」", noLink:"這個連結裡沒有資料",
     notionAsOf:w=>`Notion 資料：${w}（手上剩餘、高風險、休假已帶入）`, notionStale:"。超過 24 小時，資料可能舊了，回 Notion 再點一次連結。", notionClear:"清除 Notion 資料", fromNotion:"已帶入 Notion 資料。",
-    h2cards:"既有卡檢查", chCard:"卡", chRem:"剩餘", chSlack:"到截止的餘裕", newCard:"（新案）",
+    h2cards:"既有卡檢查", chCard:"卡", chRem:"剩餘", chSlack:"到截止的餘裕", chLate:"趕不上機率", newCard:"（新案）",
+    simOut:(w,wo)=>w === null ? `照截止順序模擬 ${SIM_N} 次，手上至少一張趕不上的機率約 ${wo}。` : `照截止順序模擬 ${SIM_N} 次（前面的卡拖久，後面的卡跟著被擠）：接了這張，至少一張趕不上的機率約 ${w}；不接是 ${wo}。`,
+    simNote:"每張卡的剩餘照過去實際÷預估的散佈抽樣（中位數＝目前預估）；欄位「不接→接」。",
     cardsNote:(noDl,unk)=>`按截止從近到遠：餘裕＝到那張截止的可用工時－到那張為止的剩餘合計（不含難卡 ×2）。紅＝接了新案會趕不上；橘＝不接也已經趕不上。` + (noDl ? `沒填締め切り的 ${noDl} 張只算進總量。` : "") + (unk ? `剩餘「?」的 ${unk} 張先算 0，請回 Notion 更新見積(hr)。` : ""),
     whyRisk:"高風險卡同時最多一卡，手上已有一張", whyLate:n=>`接了會讓 ${n} 張既有卡趕不上截止`, whyUnknown:n=>`有 ${n} 張卡剩餘不明（需重估或沒見積），先回 Notion 更新見積再判斷`,
     alertLate:n=>`接了這張，這些卡會趕不上：${n}。`, alertAlreadyLate:n=>`不接也已經趕不上：${n}。先跟主任談延期。`,
@@ -355,7 +358,9 @@ const I18N = {
     h2break:"内訳", sumSettings:"設定（速度・作業時間帯）",
     speedWord:"速度", speedNormal:"（普通のカード）", uHrPer:"hr/枚", uHrPerCut:"hr/カット", speedNote:"速度は Notion 作画_案件 の直近6か月の hr/枚 の中央値がおすすめです。基本設定の「計算機速度連結」を押すと自動で入ります。Notion のページ内で使う場合は、そのリンクをコピーして下に貼ってください。", lLinkPaste:"「計算機速度連結」を貼り付け", noLink:"このリンクにデータが入っていません",
     notionAsOf:w=>`Notion データ：${w}（手持ち残り・高リスク・休みを反映済み）`, notionStale:"。24 時間以上前なので古いかもしれません。Notion でもう一度リンクを押してください。", notionClear:"Notion データを消す", fromNotion:"Notion データを取り込みました。",
-    h2cards:"手持ちカードの確認", chCard:"カード", chRem:"残り", chSlack:"締切までの余裕", newCard:"（新案件）",
+    h2cards:"手持ちカードの確認", chCard:"カード", chRem:"残り", chSlack:"締切までの余裕", chLate:"間に合わない確率", newCard:"（新案件）",
+    simOut:(w,wo)=>w === null ? `締切順に ${SIM_N} 回シミュレーション：手持ちのどれかが間に合わない確率は約 ${wo}。` : `締切順に ${SIM_N} 回シミュレーション（前のカードが延びると後ろも押される）：受けるとどれかが間に合わない確率は約 ${w}、受けなければ ${wo}。`,
+    simNote:"各カードの残りは過去の実績÷見積のばらつきで抽選（中央値＝今の見積）。列は「受けない→受ける」。",
     cardsNote:(noDl,unk)=>`締切の近い順：余裕＝そのカードの締切までの空き時間－そこまでの残り合計（難カードの ×2 は含めません）。赤＝新案件を受けると間に合わない、橙＝受けなくてもすでに間に合わない。` + (noDl ? `締め切り未入力の ${noDl} 枚は合計にだけ含めます。` : "") + (unk ? `残り「?」の ${unk} 枚は 0 として数えています。Notion で見積(hr)を更新してください。` : ""),
     whyRisk:"高リスクカードは同時に 1 枚まで。すでに 1 枚あります", whyLate:n=>`受けると手持ちの ${n} 枚が締切に間に合いません`, whyUnknown:n=>`残りが不明なカードが ${n} 枚あります（要再見積・見積なし）。Notion で見積を更新してから判断してください`,
     alertLate:n=>`これを受けると間に合わなくなるカード：${n}。`, alertAlreadyLate:n=>`受けなくてもすでに間に合わない：${n}。先に主任と締切を相談してください。`,
@@ -408,7 +413,9 @@ const I18N = {
     h2break:"Breakdown", sumSettings:"Settings (speed, work hours)",
     speedWord:"speed", speedNormal:" (普通 card)", uHrPer:"hr/sheet", uHrPerCut:"hr/cut", speedNote:"Use the 6-month median hr/sheet from Notion 作画_案件. Opening the settings link 計算機速度連結 fills them in; inside a Notion page, copy that link and paste it below.", lLinkPaste:"Paste the 計算機速度連結 link", noLink:"No data found in this link",
     notionAsOf:w=>`Notion data: ${w} (workload, high-risk card and days off filled in)`, notionStale:". Over 24 hours old; open the link from Notion again.", notionClear:"Clear Notion data", fromNotion:"Loaded the Notion data.",
-    h2cards:"Open cards check", chCard:"Card", chRem:"Left", chSlack:"Slack to due", newCard:"(new job)",
+    h2cards:"Open cards check", chCard:"Card", chRem:"Left", chSlack:"Slack to due", chLate:"Late risk", newCard:"(new job)",
+    simOut:(w,wo)=>w === null ? `${SIM_N} runs in deadline order: chance that at least one open card is late ≈ ${wo}.` : `${SIM_N} runs in deadline order (a card that runs long pushes the later ones): taking this job, the chance that at least one card is late is ≈ ${w}; without it, ${wo}.`,
+    simNote:"Each card's remaining hours are drawn from the past spread of actual ÷ estimate (median = current estimate). Column shows without → with.",
     cardsNote:(noDl,unk)=>`Nearest deadline first: slack = hours free until that card's deadline − all remaining work due by then (hard cards not doubled). Red = taking the new job makes it late; orange = already late without it. ` + (noDl ? `${noDl} card${noDl > 1 ? "s without a deadline only count" : " without a deadline only counts"} in the total. ` : "") + (unk ? `${unk} card${unk > 1 ? "s marked \"?\" count" : " marked \"?\" counts"} as 0; update 見積(hr) in Notion.` : ""),
     whyRisk:"Only one high-risk card at a time, and you already hold one", whyLate:n=>`Taking it would make ${n} open card${n > 1 ? "s" : ""} miss the deadline`, whyUnknown:n=>`${n} card${n > 1 ? "s have" : " has"} unknown remaining hours (needs a new estimate); update it in Notion first`,
     alertLate:n=>`Taking this makes these cards late: ${n}.`, alertAlreadyLate:n=>`Already late even without it: ${n}. Talk to your lead about the deadline first.`,
@@ -941,33 +948,66 @@ function renderQuick(now, s, cpx, load, job){
   $("quickNote").textContent = t("quickNote")(fmt2(cpx), fmt(load));
 }
 
+// Monte Carlo over the open cards: each card's remaining hours are drawn around its estimate (log-normal, median = estimate)
+// and worked in deadline order, so a card that runs long pushes every later one. Cards are drawn independently: in the
+// 162-card backtest, the errors of cards finished within the same week did not move together (correlation 0.02).
+// A fixed seed keeps the numbers from flickering while typing.
+// Shown only for now: the verdict ignores it until a threshold is set from the user's own experience.
+const SIM_N = 2000;
+function rng(a){ return () => { a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+// rows sorted by due with .av (hours free until due); sim = {line, fixed, bf, sd} for the new card.
+// Returns per-row late chance with and without the new card, and the chance that any card is late.
+function simulateLate(rows, sim){
+  const r = rng(20261119), z = () => Math.sqrt(-2 * Math.log(1 - r())) * Math.cos(2 * Math.PI * r());
+  // open cards carry no sheet counts in the link, so they use the middle of the size buckets
+  const sdOld = median((model && model.sd ? model.sd : SD_BY_SIZE).map(e => e[1]));
+  const w = rows.map(() => 0), wo = rows.map(() => 0);
+  let anyW = 0, anyWo = 0;
+  for(let k = 0; k < SIM_N; k++){
+    let cw = 0, cwo = 0, lw = false, lwo = false;
+    rows.forEach((row, i) => {
+      const h = row.isNew ? (sim.line * Math.exp(sim.sd * z()) + sim.fixed) * sim.bf : row.rem * Math.exp(sdOld * z());
+      cw += h;
+      if(cw > row.av){ w[i]++; lw = true; }
+      if(!row.isNew){ cwo += h; if(cwo > row.av){ wo[i]++; lwo = true; } }
+    });
+    if(lw) anyW++; if(lwo) anyWo++;
+  }
+  return {w: w.map(v => v / SIM_N), wo: wo.map(v => v / SIM_N), anyW: anyW / SIM_N, anyWo: anyWo / SIM_N};
+}
+const pct = p => p <= 0 ? "0%" : p < 0.01 ? "<1%" : p > 0.99 && p < 1 ? ">99%" : Math.round(p * 100) + "%";
+
 // Each open card from Notion plus the new one, nearest deadline first: hours free until that deadline minus all remaining work due by then.
 // Returns the old cards the new one would make late, and those already late without it.
-function renderCards(now, s, need, dl){
+function renderCards(now, s, need, dl, sim){
   const list = notion ? notion.cards : [];
   $("cardsSheet").hidden = !list.length;
-  if(!list.length) return {late:[], already:[]};
+  if(!list.length){ $("simOut").textContent = ""; return {late:[], already:[], pAny:null, pAnyBase:null}; }
   // a date-only deadline comes as 00:00; count it to the end of that working day
   const dueOf = v => { const d = new Date(v); if(!d.getHours() && !d.getMinutes()) d.setHours(Math.floor(s.end), (s.end % 1) * 60); return d; };
   const rows = list.filter(c => c.dl).map(c => ({name:c.name, rem:c.rem || 0, unknown:c.rem === null, due:dueOf(c.dl)}));
   if(dl && dl > now && need > 0) rows.push({name:t("newCard"), rem:need, due:dl, isNew:true});
   // on a tie the new card goes after the old ones
   rows.sort((a, b) => a.due - b.due || (a.isNew ? 1 : 0) - (b.isNew ? 1 : 0));
+  rows.forEach(r => { r.av = r.due > now ? availableHours(now, r.due, s).total : 0; });
+  const hasNew = rows.some(r => r.isNew), mc = simulateLate(rows, sim);
   let cum = 0, cumOld = 0;
   const late = [], already = [];
   const pad = n => String(n).padStart(2, "0");
-  $("cards").innerHTML = rows.map(r => {
+  $("cards").innerHTML = rows.map((r, i) => {
     cum += r.rem; if(!r.isNew) cumOld += r.rem;
-    const av = r.due > now ? availableHours(now, r.due, s).total : 0;
+    const av = r.av;
+    const risk = r.isNew || !hasNew ? pct(hasNew ? mc.w[i] : mc.wo[i]) : pct(mc.wo[i]) === pct(mc.w[i]) ? pct(mc.w[i]) : `${pct(mc.wo[i])}→${pct(mc.w[i])}`;
     const slack = av - cum;
     let cls = r.isNew ? "new" : "";
     if(!r.isNew && av - cumOld < 0){ cls = "warn"; already.push(r.name); }
     else if(slack < 0){ cls += " bad"; if(!r.isNew) late.push(r.name); }
     const due = `${r.due.getMonth()+1}/${r.due.getDate()} ${pad(r.due.getHours())}:${pad(r.due.getMinutes())}`;
-    return `<tr class="${cls.trim()}"><td>${esc(r.name)}</td><td>${due}</td><td>${r.unknown ? "?" : fmt(r.rem) + "h"}</td><td>${(slack >= 0 ? "+" : "") + fmt(slack)}h</td></tr>`;
+    return `<tr class="${cls.trim()}"><td>${esc(r.name)}</td><td>${due}</td><td>${r.unknown ? "?" : fmt(r.rem) + "h"}</td><td>${(slack >= 0 ? "+" : "") + fmt(slack)}h</td><td>${risk}</td></tr>`;
   }).join("");
-  $("cardsNote").textContent = t("cardsNote")(list.filter(c => !c.dl).length, list.filter(c => c.rem === null).length);
-  return {late, already};
+  $("simOut").textContent = t("simOut")(hasNew ? pct(mc.anyW) : null, pct(mc.anyWo));
+  $("cardsNote").textContent = t("cardsNote")(list.filter(c => !c.dl).length, list.filter(c => c.rem === null).length) + (lang === "en" ? " " : "") + t("simNote");
+  return {late, already, pAny: hasNew ? mc.anyW : null, pAnyBase: mc.anyWo};
 }
 const esc = v => String(v).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"})[c]);
 
@@ -1014,7 +1054,7 @@ function render(){
   const levelRank = Math.max(LEVELS.indexOf(lvD), LEVELS.indexOf(lvA));
   const highRisk = (gaichu && s.riskGaichu === 1) || (levelRank >= s.riskLevel && (doushi ? q.douga : q.gen) >= s.riskMai);
   const hasQty = q.douga || q.shiage || q.gentore || q.gen;
-  const cards = renderCards(now, s, hasQty ? need : 0, dl);
+  const cards = renderCards(now, s, hasQty ? need : 0, dl, {line, fixed, bf, sd: sdv});
   const unknown = notion ? notion.cards.filter(c => c.rem === null).length : 0;
 
   let state, stamp, why;
