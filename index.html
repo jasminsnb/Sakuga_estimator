@@ -41,6 +41,7 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--f-body);fo
 .quick td:first-child small{color:var(--muted);font-family:var(--f-body)}
 .quick tr.bad td{color:var(--bad)}
 .quick tr.warn td{color:var(--warn)}
+.quick tr.skip td{color:var(--muted)} .quick label.pick{display:inline-flex;gap:6px;align-items:center;cursor:pointer;font:inherit;color:inherit} .quick label.pick input{width:auto;margin:0}
 .quick tr.new td{font-weight:600} #notionNote.stale{color:var(--warn)}
 h1{font-size:1.35rem;margin:0;text-wrap:balance;letter-spacing:.02em}
 .sub{color:var(--muted);font-size:.85rem;margin:2px 0 0}
@@ -304,6 +305,7 @@ const I18N = {
     speedWord:"速度", speedNormal:"（普通的卡）", uHrPer:"hr/枚", uHrPerCut:"hr/カット", speedNote:"速度建議填 Notion 作画_案件 近 6 個月的 hr/枚 中位數。點基本設定的「計算機速度連結」會自動帶入；在 Notion 頁面裡用的話，複製那個連結貼到下面。", lLinkPaste:"貼上「計算機速度連結」", noLink:"這個連結裡沒有資料",
     notionAsOf:w=>`Notion 資料：${w}（手上剩餘、高風險、休假已帶入）`, notionStale:"。超過 24 小時，資料可能舊了，回 Notion 再點一次連結。", notionClear:"清除 Notion 資料", fromNotion:"已帶入 Notion 資料。",
     h2cards:"既有卡檢查", chCard:"卡", chRem:"剩餘", chSlack:"到截止的餘裕", chLate:"趕不上機率", newCard:"（新案）",
+    pickNote:"取消勾選的卡（例如只是在等檢查）不算進手上剩餘，也不進排程和模擬；選擇會記住。", skipNote:(n,h)=>`目前排除 ${n} 張、共 ${h}h。`,
     simOut:(w,wo)=>w === null ? `照截止順序模擬 ${SIM_N} 次，手上至少一張趕不上的機率約 ${wo}。` : `照截止順序模擬 ${SIM_N} 次（前面的卡拖久，後面的卡跟著被擠）：接了這張，至少一張趕不上的機率約 ${w}；不接是 ${wo}。`,
     simNote:"每張卡的剩餘照過去實際÷預估的散佈抽樣（中位數＝目前預估）；欄位「不接→接」。",
     cardsNote:(noDl,unk)=>`按截止從近到遠：餘裕＝到那張截止的可用工時－到那張為止的剩餘合計（不含難卡 ×2）。紅＝接了新案會趕不上；橘＝不接也已經趕不上。` + (noDl ? `沒填締め切り的 ${noDl} 張只算進總量。` : "") + (unk ? `剩餘「?」的 ${unk} 張先算 0，請回 Notion 更新見積(hr)。` : ""),
@@ -359,6 +361,7 @@ const I18N = {
     speedWord:"速度", speedNormal:"（普通のカード）", uHrPer:"hr/枚", uHrPerCut:"hr/カット", speedNote:"速度は Notion 作画_案件 の直近6か月の hr/枚 の中央値がおすすめです。基本設定の「計算機速度連結」を押すと自動で入ります。Notion のページ内で使う場合は、そのリンクをコピーして下に貼ってください。", lLinkPaste:"「計算機速度連結」を貼り付け", noLink:"このリンクにデータが入っていません",
     notionAsOf:w=>`Notion データ：${w}（手持ち残り・高リスク・休みを反映済み）`, notionStale:"。24 時間以上前なので古いかもしれません。Notion でもう一度リンクを押してください。", notionClear:"Notion データを消す", fromNotion:"Notion データを取り込みました。",
     h2cards:"手持ちカードの確認", chCard:"カード", chRem:"残り", chSlack:"締切までの余裕", chLate:"間に合わない確率", newCard:"（新案件）",
+    pickNote:"チェックを外したカード（チェック待ちなど）は手持ち残り・スケジュール・シミュレーションから除きます。選択は保存されます。", skipNote:(n,h)=>`現在 ${n} 枚・${h}h を除外中。`,
     simOut:(w,wo)=>w === null ? `締切順に ${SIM_N} 回シミュレーション：手持ちのどれかが間に合わない確率は約 ${wo}。` : `締切順に ${SIM_N} 回シミュレーション（前のカードが延びると後ろも押される）：受けるとどれかが間に合わない確率は約 ${w}、受けなければ ${wo}。`,
     simNote:"各カードの残りは過去の実績÷見積のばらつきで抽選（中央値＝今の見積）。列は「受けない→受ける」。",
     cardsNote:(noDl,unk)=>`締切の近い順：余裕＝そのカードの締切までの空き時間－そこまでの残り合計（難カードの ×2 は含めません）。赤＝新案件を受けると間に合わない、橙＝受けなくてもすでに間に合わない。` + (noDl ? `締め切り未入力の ${noDl} 枚は合計にだけ含めます。` : "") + (unk ? `残り「?」の ${unk} 枚は 0 として数えています。Notion で見積(hr)を更新してください。` : ""),
@@ -414,6 +417,7 @@ const I18N = {
     speedWord:"speed", speedNormal:" (普通 card)", uHrPer:"hr/sheet", uHrPerCut:"hr/cut", speedNote:"Use the 6-month median hr/sheet from Notion 作画_案件. Opening the settings link 計算機速度連結 fills them in; inside a Notion page, copy that link and paste it below.", lLinkPaste:"Paste the 計算機速度連結 link", noLink:"No data found in this link",
     notionAsOf:w=>`Notion data: ${w} (workload, high-risk card and days off filled in)`, notionStale:". Over 24 hours old; open the link from Notion again.", notionClear:"Clear Notion data", fromNotion:"Loaded the Notion data.",
     h2cards:"Open cards check", chCard:"Card", chRem:"Left", chSlack:"Slack to due", chLate:"Late risk", newCard:"(new job)",
+    pickNote:"Untick a card (for example one only waiting for a check) to leave it out of the workload, the schedule and the simulation. The choice is remembered. ", skipNote:(n,h)=>`Currently leaving out ${n} card${n > 1 ? "s" : ""}, ${h}h. `,
     simOut:(w,wo)=>w === null ? `${SIM_N} runs in deadline order: chance that at least one open card is late ≈ ${wo}.` : `${SIM_N} runs in deadline order (a card that runs long pushes the later ones): taking this job, the chance that at least one card is late is ≈ ${w}; without it, ${wo}.`,
     simNote:"Each card's remaining hours are drawn from the past spread of actual ÷ estimate (median = current estimate). Column shows without → with.",
     cardsNote:(noDl,unk)=>`Nearest deadline first: slack = hours free until that card's deadline − all remaining work due by then (hard cards not doubled). Red = taking the new job makes it late; orange = already late without it. ` + (noDl ? `${noDl} card${noDl > 1 ? "s without a deadline only count" : " without a deadline only counts"} in the total. ` : "") + (unk ? `${unk} card${unk > 1 ? "s marked \"?\" count" : " marked \"?\" counts"} as 0; update 見積(hr) in Notion.` : ""),
@@ -979,13 +983,23 @@ const pct = p => p <= 0 ? "0%" : p < 0.01 ? "<1%" : p > 0.99 && p < 1 ? ">99%" :
 
 // Each open card from Notion plus the new one, nearest deadline first: hours free until that deadline minus all remaining work due by then.
 // Returns the old cards the new one would make late, and those already late without it.
+// Cards the user unticked (for example ones only waiting for a check) are left out of the workload, the table and the simulation.
+// Kept by name + deadline, so the choice survives the next Notion link.
+const SKIP_KEY = "toreru-skip-v1";
+let skipped = new Set();
+try{ skipped = new Set(JSON.parse(localStorage.getItem(SKIP_KEY)) || []); }catch(e){}
+const cardKey = c => `${c.name}~${c.dl || "-"}`;
+const isSkipped = c => skipped.has(cardKey(c));
+const skippedHours = () => notion ? notion.cards.filter(isSkipped).reduce((a, c) => a + (c.rem || 0), 0) : 0;
 function renderCards(now, s, need, dl, sim){
   const list = notion ? notion.cards : [];
   $("cardsSheet").hidden = !list.length;
   if(!list.length){ $("simOut").textContent = ""; return {late:[], already:[], pAny:null, pAnyBase:null}; }
   // a date-only deadline comes as 00:00; count it to the end of that working day
   const dueOf = v => { const d = new Date(v); if(!d.getHours() && !d.getMinutes()) d.setHours(Math.floor(s.end), (s.end % 1) * 60); return d; };
-  const rows = list.filter(c => c.dl).map(c => ({name:c.name, rem:c.rem || 0, unknown:c.rem === null, due:dueOf(c.dl)}));
+  const rows = list.filter(c => c.dl && !isSkipped(c)).map(c => ({name:c.name, rem:c.rem || 0, unknown:c.rem === null, due:dueOf(c.dl), key:cardKey(c)}));
+  // unticked cards and cards without a deadline go below the schedule, still with their checkbox
+  const rest = list.filter(c => !c.dl || isSkipped(c));
   if(dl && dl > now && need > 0) rows.push({name:t("newCard"), rem:need, due:dl, isNew:true});
   // on a tie the new card goes after the old ones
   rows.sort((a, b) => a.due - b.due || (a.isNew ? 1 : 0) - (b.isNew ? 1 : 0));
@@ -994,6 +1008,7 @@ function renderCards(now, s, need, dl, sim){
   let cum = 0, cumOld = 0;
   const late = [], already = [];
   const pad = n => String(n).padStart(2, "0");
+  const box = (key, on, name) => `<label class="pick"><input type="checkbox" data-card="${esc(key)}"${on ? " checked" : ""}>${esc(name)}</label>`;
   $("cards").innerHTML = rows.map((r, i) => {
     cum += r.rem; if(!r.isNew) cumOld += r.rem;
     const av = r.av;
@@ -1003,10 +1018,14 @@ function renderCards(now, s, need, dl, sim){
     if(!r.isNew && av - cumOld < 0){ cls = "warn"; already.push(r.name); }
     else if(slack < 0){ cls += " bad"; if(!r.isNew) late.push(r.name); }
     const due = `${r.due.getMonth()+1}/${r.due.getDate()} ${pad(r.due.getHours())}:${pad(r.due.getMinutes())}`;
-    return `<tr class="${cls.trim()}"><td>${esc(r.name)}</td><td>${due}</td><td>${r.unknown ? "?" : fmt(r.rem) + "h"}</td><td>${(slack >= 0 ? "+" : "") + fmt(slack)}h</td><td>${risk}</td></tr>`;
+    return `<tr class="${cls.trim()}"><td>${r.isNew ? esc(r.name) : box(r.key, true, r.name)}</td><td>${due}</td><td>${r.unknown ? "?" : fmt(r.rem) + "h"}</td><td>${(slack >= 0 ? "+" : "") + fmt(slack)}h</td><td>${risk}</td></tr>`;
+  }).join("") + rest.map(c => {
+    const d = c.dl ? dueOf(c.dl) : null, off = isSkipped(c);
+    return `<tr class="${off ? "skip" : ""}"><td>${box(cardKey(c), !off, c.name)}</td><td>${d ? `${d.getMonth()+1}/${d.getDate()} ${pad(d.getHours())}:${pad(d.getMinutes())}` : "-"}</td><td>${c.rem === null ? "?" : fmt(c.rem) + "h"}</td><td>—</td><td>—</td></tr>`;
   }).join("");
+  const nSkip = list.filter(isSkipped).length;
   $("simOut").textContent = t("simOut")(hasNew ? pct(mc.anyW) : null, pct(mc.anyWo));
-  $("cardsNote").textContent = t("cardsNote")(list.filter(c => !c.dl).length, list.filter(c => c.rem === null).length) + (lang === "en" ? " " : "") + t("simNote");
+  $("cardsNote").textContent = t("pickNote") + (nSkip ? t("skipNote")(nSkip, fmt(skippedHours())) : "") + t("cardsNote")(list.filter(c => !c.dl && !isSkipped(c)).length, list.filter(c => c.rem === null && !isSkipped(c)).length) + (lang === "en" ? " " : "") + t("simNote");
   return {late, already, pAny: hasNew ? mc.anyW : null, pAnyBase: mc.anyWo};
 }
 const esc = v => String(v).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"})[c]);
@@ -1027,8 +1046,10 @@ function render(){
   if(part) cpx *= partMult();
   const shK = shiagePer(s, LEVELS.indexOf(lvD));
   const job = {label: $("jobType").selectedOptions[0].textContent, perSheet: doushi ? s.kDouga * cpx + shK : kGen * cpx};
-  const loadHard = +$("loadHard").value || 0;
-  const load = (+$("load").value || 0) + loadHard * 2;
+  // hours of unticked cards come off the ordinary workload first, then off the hard-card workload (the link does not say which a card is)
+  const skipH = skippedHours(), loadN = +$("load").value || 0;
+  const loadHard = Math.max(0, (+$("loadHard").value || 0) - Math.max(0, skipH - loadN));
+  const load = Math.max(0, loadN - skipH) + loadHard * 2;
   const base = {douga:q.douga*s.kDouga, shiage:q.shiage*shK, gentore:q.gentore*s.kGentore, gen:q.gen*kGen};
   const line = (base.douga + base.gentore + base.gen) * cpx, fixed = base.shiage + s.overhead, bf = 1 + s.buffer/100;
   const raw = line + fixed;
@@ -1055,7 +1076,7 @@ function render(){
   const highRisk = (gaichu && s.riskGaichu === 1) || (levelRank >= s.riskLevel && (doushi ? q.douga : q.gen) >= s.riskMai);
   const hasQty = q.douga || q.shiage || q.gentore || q.gen;
   const cards = renderCards(now, s, hasQty ? need : 0, dl, {line, fixed, bf, sd: sdv});
-  const unknown = notion ? notion.cards.filter(c => c.rem === null).length : 0;
+  const unknown = notion ? notion.cards.filter(c => c.rem === null && !isSkipped(c)).length : 0;
 
   let state, stamp, why;
   if(!dl){ state="var(--muted)"; stamp="—"; why=t("whyNoDl"); }
@@ -1180,6 +1201,13 @@ function init(){
   // start empty, or with the workload from the Notion snapshot; deadline defaults to 12:00 on the third working day from today
   $("cpxD").value = "normal"; $("cpxA").value = "normal"; $("load").value = 0; $("loadHard").value = 0;
   applyNotion(); renderNotionNote();
+  $("cards").addEventListener("change", e => {
+    const k = e.target.dataset && e.target.dataset.card;
+    if(!k) return;
+    if(e.target.checked) skipped.delete(k); else skipped.add(k);
+    try{ localStorage.setItem(SKIP_KEY, JSON.stringify([...skipped])); }catch(err){}
+    render();
+  });
   $("notionClear").addEventListener("click", () => {
     saveNotion(null); $("load").value = 0; $("loadHard").value = 0;
     renderNotionNote(); render();
