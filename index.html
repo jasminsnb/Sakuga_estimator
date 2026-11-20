@@ -527,6 +527,8 @@ const RANGE_Q = [0.2, 0.75, 0.8, 0.9];
 const EXT_MULT = 1.5;
 // 部分修: hours relative to an ordinary card with the same sheet counts, and the spread around that
 const PART_MULT = 0.3, PART_SPREAD = {q: [0.27, 1.75, 1.79, 2.37], sd: 1.04};
+// 仕上 actual ÷ estimate per sheet (248 cards with 仕上 logs, residual from the 精細度 median); its error moves with 合わせ at about 0.5
+const SHIAGE_SPREAD = {q: [0.60, 1.73, 1.95, 2.56], sd: 0.72}, SHIAGE_RHO = 0.5;
 // After 清書: ln(合わせ hr/sheet) = a + b·ln(清書 hr/sheet) + c·(動作 難しい or ハード); 97 recent cards
 const RE_COEF = [-0.131, 0.635, 0.628];
 const RE_RANGE = [[2, [0.40, 1.28, 1.40, 1.77]], [4, [0.80, 1.74, 1.87, 2.32]], [1e9, [0.79, 1.45, 1.50, 1.74]]];
@@ -656,6 +658,9 @@ function fitModel(list, s){
     const c = own.map((r, i) => [r, wt[i]]).filter(([r]) => r.d === v && r.f > 0 && r.hf > 0);
     return c.length >= 3 ? Math.round(mixLog(wQuantile(c.map(([r]) => r.hf / r.f), c.map(e => e[1]), 0.5), s.kShiage * SHIAGE_F[v]) * 1000) / 1000 : null;
   });
+  // spread of 仕上 hours around that per-sheet estimate
+  const shSp = spread(own.map((r, i) => ({r, w: wt[i]})).filter(({r}) => r.f > 0 && r.hf > 0)
+    .map(({r, w}) => ({e: r.hf / r.f / (shiage[r.d] || s.kShiage * SHIAGE_F[r.d]), w})), SHIAGE_SPREAD);
   // after 清書: ln(合わせ/sheet) = a + b ln(清書/sheet) + c (動作 難しい or ハード)
   const both = own.map((r, i) => [r, wt[i]]).filter(([r]) => !r.p && r.s > 0 && r.a > 0 && r.hs > 0 && r.ha > 0);
   let re = null;
@@ -675,7 +680,7 @@ function fitModel(list, s){
   const ext = list.filter(r => r.x && ok(r)).map(r => Math.exp(y(r) - fit(r) - shift - recent));
   const we = ext.length / (ext.length + 10);
   return {fitted: true, n: own.length, w: Math.round(w * 100) / 100, est, part, nPart: own.filter(r => r.p).length,
-          range: bySize.map(([max, v]) => [max, v.q]), sd: bySize.map(([max, v]) => [max, v.sd]), partSpread: sp,
+          range: bySize.map(([max, v]) => [max, v.q]), sd: bySize.map(([max, v]) => [max, v.sd]), partSpread: sp, shiageSpread: shSp,
           dated: dated.length >= MIN_FIT, trend: Math.round(trend * 1000) / 1000, recent: Math.round(Math.exp(recent) * 100) / 100, shiage, re,
           ext: ext.length ? Math.round(Math.exp(we * Math.log(median(ext)) + (1 - we) * Math.log(EXT_MULT)) * 100) / 100 : null, nExt: ext.length,
           base: [kG, kD], at: new Date().toISOString().slice(0, 10)};
@@ -693,6 +698,14 @@ function spreadFor(size, part){
   if(part) return model && model.partSpread ? model.partSpread : PART_SPREAD;
   const tab = (m, def) => pick(model && model[m] ? model[m] : def, size);
   return {q: tab("range", RANGE_BY_SIZE), sd: tab("sd", SD_BY_SIZE)};
+}
+const shiageSpread = () => model && model.shiageSpread ? model.shiageSpread : SHIAGE_SPREAD;
+// sd (log) of line + 仕上 as one log-normal (Fenton–Wilkinson, errors correlated at SHIAGE_RHO)
+function sdSum(a, sa, b, sb){
+  if(!(b > 0)) return sa; if(!(a > 0)) return sb;
+  const ea = a * Math.exp(sa * sa / 2), eb = b * Math.exp(sb * sb / 2), e = ea + eb;
+  const v = ea * ea * (Math.exp(sa * sa) - 1) + eb * eb * (Math.exp(sb * sb) - 1) + 2 * ea * eb * (Math.exp(SHIAGE_RHO * sa * sb) - 1);
+  return Math.sqrt(Math.log(1 + v / (e * e)));
 }
 const gridEst = () => model && model.est ? model.est : GRID_EST;
 const reModel = () => model && model.re ? model.re : {coef: RE_COEF, range: RE_RANGE};
@@ -1124,9 +1137,12 @@ function render(){
   const raw = line + fixed;
   const need = raw * bf;
   // spread of actual ÷ estimate for cards of this size (line-work part only)
-  const sp = spreadFor(doushi ? q.gentore + q.douga : q.gen, part), sdv = sp.sd;
+  // 仕上 has its own spread; the two are taken at the same rank for the range (they move together at about 0.5, so slightly wide)
+  const sp = spreadFor(doushi ? q.gentore + q.douga : q.gen, part), ssp = shiageSpread();
+  const sdv = sdSum(line, sp.sd, base.shiage, ssp.sd), vary = line + base.shiage;
   let rq = sp.q; if(rq.length < 4) rq = [...rq, rq[2]];
-  const [needLo, needBad] = [rq[0], rq[badIdx()]].map(f => (line * f + fixed) * bf);
+  const sq = ssp.q.length < 4 ? [...ssp.q, ssp.q[2]] : ssp.q;
+  const [needLo, needBad] = [0, badIdx()].map(k => (line * rq[k] + base.shiage * sq[k] + s.overhead) * bf);
   const now = new Date();
   const dl = $("deadline").value ? new Date($("deadline").value) : null;
   const av = dl ? availableHours(now, dl, s) : {total:0, workdays:0};
@@ -1138,14 +1154,14 @@ function render(){
   $("nAvail").textContent = fmt(av.total) + "h";
   $("nSlack").textContent = (slack >= 0 ? "+" : "") + fmt(slack) + "h";
   $("modelNote").textContent = model ? t("modelOn")(model.n, model.at, model.w || 1) + (model.dated ? t("modelTrend")(Math.round((Math.exp(-(model.trend || 0)) - 1) * 100), model.recent || 1) : model.fitted ? t("modelNoAge") : "") : t("modelOff");
-  renderDist(line, fixed, bf, sdv, needLo, need, needBad, dl && dl > now ? av.total - load : null);
+  renderDist(vary, s.overhead, bf, sdv, needLo, need, needBad, dl && dl > now ? av.total - load : null);
   $("rangeNote").textContent = need > 0 ? t("rangeNote")(fmt(needLo), fmt(need), fmt(needBad), badPct()) + t("sdNote")(fmt2(sdv), fmt2(Math.exp(sdv))) : "";
 
   // high risk looks at the harder of 精細度 and 動作
   const levelRank = Math.max(LEVELS.indexOf(lvD), LEVELS.indexOf(lvA));
   const highRisk = (gaichu && s.riskGaichu === 1) || (levelRank >= s.riskLevel && (doushi ? q.douga : q.gen) >= s.riskMai);
   const hasQty = q.douga || q.shiage || q.gentore || q.gen;
-  const cards = renderCards(now, s, hasQty ? need : 0, dl, {line, fixed, bf, sd: sdv});
+  const cards = renderCards(now, s, hasQty ? need : 0, dl, {line: vary, fixed: s.overhead, bf, sd: sdv});
   const unknown = notion ? notion.cards.filter(c => c.rem === null && !isSkipped(c)).length : 0;
 
   let state, stamp, why;
