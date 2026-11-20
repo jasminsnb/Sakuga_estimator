@@ -49,6 +49,11 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--f-body);fo
 .dist svg{width:100%;height:120px;display:block;touch-action:none}
 .dist-axis{position:relative;height:18px;font:12px var(--f-num);color:var(--muted)}
 .dist-axis span{position:absolute;transform:translateX(-50%);white-space:nowrap}
+.dist-top{position:relative;height:16px;font:12px var(--f-num);color:var(--red)}
+.dist-top span{position:absolute;transform:translateX(-50%);white-space:nowrap}
+.dist-band{position:relative;height:22px;font:12px var(--f-num);color:var(--blue)}
+.dist-band div{position:absolute;top:2px;border-top:2px solid var(--blue);display:flex;justify-content:space-between;gap:6px;white-space:nowrap;padding-top:2px}
+.dist-band b{font-weight:600}
 .dist-tip{position:absolute;top:0;transform:translateX(-50%);background:var(--paper);border:1px solid var(--rule);border-radius:6px;padding:2px 8px;font:12px var(--f-num);color:var(--ink);pointer-events:none;white-space:nowrap}
 .quick tr.skip td{color:var(--muted)} .quick label.pick{display:inline-flex;gap:6px;align-items:center;cursor:pointer;font:inherit;color:inherit} .quick label.pick input{width:auto;margin:0}
 .quick tr.new td{font-weight:600} #notionNote.stale{color:var(--warn)}
@@ -134,14 +139,18 @@ button:hover{border-color:var(--blue)}
     <div id="distBox" hidden>
       <div class="dists">
         <div class="dist"><h3 data-i18n="distNowT"></h3>
+          <div class="dist-top" id="distNowTop"></div>
           <svg id="distNow" viewBox="0 0 320 120" role="img" preserveAspectRatio="none"></svg>
+          <div class="dist-band" id="distNowBand"></div>
           <div class="dist-axis" id="distNowAxis"></div>
           <div class="dist-tip" id="distNowTip" hidden></div>
           <p class="note" id="distNowNote"></p>
         </div>
         <div class="dist"><h3 data-i18n="distNewT"></h3>
           <p class="note dist-wait" id="distNewWait" data-i18n="distWait"></p>
+          <div class="dist-top" id="distNewTop"></div>
           <svg id="distNew" viewBox="0 0 320 120" role="img" preserveAspectRatio="none"></svg>
+          <div class="dist-band" id="distNewBand"></div>
           <div class="dist-axis" id="distNewAxis"></div>
           <div class="dist-tip" id="distNewTip" hidden></div>
           <p class="note" id="distNewNote"></p>
@@ -357,8 +366,8 @@ const I18N = {
     sdNote:(v,f)=>`。標準差（對數）${v}：大約 2/3 的卡落在中位數的 ÷${f}～×${f}`,
     distNowT:"現在（手上的卡）", distNewT:"接了這張之後", distWait:"填了新卡的枚數，這裡會並排畫出接了之後的分布。",
     distAria:"合計工時的分布", distFree:"可用", distMid:"通常", distTip:(h,p)=>`${h}h：${p} 的機率在這之內`,
-    distSub:(m,a,b,f,p)=>`合計通常 ${m}h（±1σ ${a}～${b}h）` + (f === null ? "" : `，超過可用 ${f}h 的機率約 ${p}`),
-    distNote:dl=>`曲線越高＝越常落在那附近。藍底是順的話～偏壞，灰色虛線是 ±1 個標準差（約 2/3 落在兩條之間），兩張橫軸相同。` + (dl ? `紅色虛線是截止前可用的工時，超過的部分塗紅。` : `填了締め切り後會畫出可用工時。`),
+    distBand:"±1 標準差", distSub:(m,a,b,f,p)=>`合計通常 ${m}h` + (f === null ? "" : `，超過可用 ${f}h 的機率約 ${p}`),
+    distNote:dl=>`藍色帶＝±1 個標準差，大約 2/3 的情況落在這個範圍。兩張橫軸相同。` + (dl ? `紅色虛線＝截止前可用的工時。` : `填了締め切り後會畫出可用工時。`),
     rangeNote:(lo,m,b,p)=>`順的話 ${lo}h（2 成的卡比這快）、通常 ${m}h（中位數）、偏壞 ${b}h（${p/10} 成的卡不會超過${p === 90 ? "；還沒用你自己的資料校正，所以看 9 成線" : ""}）。接不接看偏壞那一端`,
     alertExt:(f,n)=>`社外：已乘 ×${f}（同格社內的實績倍數；社外卡只有 ${n} 張，僅供參考）。`, alertHardMotion:"動作ハード 沒有實績，這一欄的係數是推估，預估可能偏低。",
     h2re:"清書做完後重估", reHint:"清書做完後填清書實際花的時間，用妳的實績（清書速度和合わせ速度的關係＋動作）重估合わせ。用上面新案的枚数和動作。", lReGen:"清書 實際",
@@ -417,8 +426,8 @@ const I18N = {
     sdNote:(v,f)=>`。標準偏差（対数）${v}：約 3 分の 2 のカードが中央値の ÷${f}～×${f} に入ります`,
     distNowT:"今（手持ちのカード）", distNewT:"このカードを受けた後", distWait:"新案件の枚数を入れると、受けた後の分布をここに並べて描きます。",
     distAria:"合計工数の分布", distFree:"稼働可能", distMid:"通常", distTip:(h,p)=>`${h}h：${p} の確率でこれ以内`,
-    distSub:(m,a,b,f,p)=>`合計 通常 ${m}h（±1σ ${a}～${b}h）` + (f === null ? "" : `、稼働可能 ${f}h を超える確率 約 ${p}`),
-    distNote:dl=>`曲線が高いほどその辺りに落ちやすい。青い帯は順調～悪いケース、灰色の点線は ±1 標準偏差（約 3 分の 2 がこの間）、2 枚の横軸は同じです。` + (dl ? `赤い点線は締切までの稼働可能時間で、超える部分を赤く塗っています。` : `締め切りを入れると稼働可能時間も描きます。`),
+    distBand:"±1 標準偏差", distSub:(m,a,b,f,p)=>`合計 通常 ${m}h` + (f === null ? "" : `、稼働可能 ${f}h を超える確率 約 ${p}`),
+    distNote:dl=>`青い帯＝±1 標準偏差で、約 3 分の 2 がこの範囲に入ります。2 枚の横軸は同じです。` + (dl ? `赤い点線＝締切までの稼働可能時間。` : `締め切りを入れると稼働可能時間も描きます。`),
     rangeNote:(lo,m,b,p)=>`順調なら ${lo}h（2 割のカードはこれより速い）、通常 ${m}h（中央値）、悪いケース ${b}h（${p/10} 割のカードはこれ以内${p === 90 ? "。まだあなたのデータで校正していないので 9 割ライン" : ""}）。受けるかどうかは悪いケースで判断`,
     alertExt:(f,n)=>`社外：×${f} を掛けています（同じマスの社内実績との比。社外カードは ${n} 枚だけなので参考値）。`, alertHardMotion:"動作ハード は実績がなく、この列の係数は推定値です。少なめに出ている可能性があります。",
     h2re:"清書が終わったら再見積もり", reHint:"清書にかかった実時間を入れると、実績（清書と合わせの速度の関係＋動作）から合わせを見積もり直します。枚数と動作は上の新案件の値を使います。", lReGen:"清書 実績",
@@ -477,8 +486,8 @@ const I18N = {
     sdNote:(v,f)=>`. Standard deviation (log) ${v}: about 2 in 3 cards land within ÷${f} to ×${f} of the median`,
     distNowT:"Now (cards on hand)", distNewT:"After taking this job", distWait:"Enter the new job's sheets to draw the after-taking curve here, side by side.",
     distAria:"Spread of total hours", distFree:"available", distMid:"typical", distTip:(h,p)=>`${h}h: ${p} chance it stays within`,
-    distSub:(m,a,b,f,p)=>`Total typically ${m}h (±1σ ${a}–${b}h)` + (f === null ? "" : `; chance of going past the ${f}h available about ${p}`),
-    distNote:dl=>`Higher curve = more likely. The blue band is good case to bad case, the grey dashed lines are ±1 standard deviation (about 2 in 3 fall between them), and both charts share the same axis. ` + (dl ? `The red dashed line is the hours available before the deadline; the part past it is red.` : `Enter a deadline to draw the available hours.`),
+    distBand:"±1 SD", distSub:(m,a,b,f,p)=>`Total typically ${m}h` + (f === null ? "" : `; chance of going past the ${f}h available about ${p}`),
+    distNote:dl=>`The blue band is ±1 standard deviation: about 2 in 3 outcomes fall inside it. Both charts share the same axis. ` + (dl ? `The red dashed line is the hours available before the deadline.` : `Enter a deadline to draw the available hours.`),
     rangeNote:(lo,m,b,p)=>`Good case ${lo}h (2 in 10 cards are faster), typical ${m}h (median), bad case ${b}h (${p/10} in 10 cards stay under it${p === 90 ? "; not yet calibrated on your data, so the 90% line is used" : ""}). Decide on the bad case`,
     alertExt:(f,n)=>`社外: ×${f} applied (ratio to in-house cards in the same cell; only ${n} 社外 cards, so treat it as a rough guide).`, alertHardMotion:"動作ハード has no recorded cards; this column is an estimate and may be too low.",
     h2re:"Re-estimate after 清書", reHint:"Once 清書 is done, enter the hours it actually took; 合わせ is re-estimated from your records (how 合わせ speed follows 清書 speed, plus 動作). Uses the sheet counts and 動作 from the new job above.", lReGen:"清書 actual",
@@ -1099,7 +1108,7 @@ const Z_LO = -0.8416, zBad = () => badPct() === 80 ? 0.8416 : 1.2816;
 const distState = {};
 function drawDist(id, c, x0, x1, free){
   const at = z => c.a * Math.exp(c.sd * z) + c.b, cdf = h => h <= c.b ? 0 : c.sd > 0 ? normCdf(Math.log((h - c.b) / c.a) / c.sd) : (h >= c.a + c.b ? 1 : 0);
-  const lo = at(Z_LO), mid = at(0), bad = at(zBad()), m1 = at(-1), p1 = at(1);
+  const mid = at(0), m1 = at(-1), p1 = at(1);
   const W = 320, H = 120, top = 8, X = h => (h - x0) / (x1 - x0) * W;
   const N = 160, pts = [];
   for(let i = 0; i <= N; i++){ const h = x0 + (x1 - x0) * i / N, u = h - c.b; pts.push([h, u > 0 ? Math.exp(-((Math.log(u / c.a) / c.sd) ** 2) / 2) / (c.sd * u) : 0]); }
@@ -1111,20 +1120,19 @@ function drawDist(id, c, x0, x1, free){
   const svg = $(id);
   svg.setAttribute("aria-label", t("distAria"));
   svg.innerHTML =
-    `<path d="${area(lo, bad)}" fill="var(--blue)" fill-opacity=".18"/>` +
-    (free === null ? "" : free > 0 ? `<path d="${area(free, x1)}" fill="var(--red)" fill-opacity=".22"/>` : `<path d="${area(x0, x1)}" fill="var(--red)" fill-opacity=".12"/>`) +
+    `<path d="${area(m1, p1)}" fill="var(--blue)" fill-opacity=".22"/>` +
     `<path d="${curve}" fill="none" stroke="var(--blue)" stroke-width="2" vector-effect="non-scaling-stroke"/>` +
     `<line x1="0" x2="${W}" y1="${H - .5}" y2="${H - .5}" stroke="var(--rule)" vector-effect="non-scaling-stroke"/>` +
-    vline(m1, 'stroke="var(--muted)" stroke-width="1" stroke-dasharray="3 3"') + vline(p1, 'stroke="var(--muted)" stroke-width="1" stroke-dasharray="3 3"') +
+    vline(m1, 'stroke="var(--blue)" stroke-width="1" stroke-dasharray="3 3"') + vline(p1, 'stroke="var(--blue)" stroke-width="1" stroke-dasharray="3 3"') +
     vline(mid, 'stroke="var(--blue)" stroke-width="1"') +
     (free > 0 ? vline(free, 'stroke="var(--red)" stroke-width="1.5" stroke-dasharray="4 3"') : "") +
     `<line class="hover" x1="0" x2="0" y1="${top}" y2="${H}" stroke="var(--muted)" stroke-width="1" vector-effect="non-scaling-stroke" visibility="hidden"/>`;
   const pctX = h => (h - x0) / (x1 - x0) * 100;
-  const ticks = [[m1, `−1σ ${fmt(m1)}`], [p1, `+1σ ${fmt(p1)}`], [mid, `${t("distMid")} ${fmt(mid)}`]];
-  if(free > 0 && free <= x1) ticks.unshift([free, `${t("distFree")} ${fmt(free)}`]);
-  // drop labels that would collide (earlier ones win)
-  const keep = []; ticks.forEach(k => { if(k[0] >= x0 && k[0] <= x1 && keep.every(o => Math.abs(pctX(o[0]) - pctX(k[0])) > 24)) keep.push(k); });
-  $(id + "Axis").innerHTML = keep.map(([h, l]) => `<span style="left:${Math.min(88, Math.max(12, pctX(h)))}%">${l}</span>`).join("");
+  const cl = v => Math.min(100, Math.max(0, v)), bl = cl(pctX(m1)), bw = cl(pctX(p1)) - bl;
+  // the ±1σ range as a bracket under the curve with the hours at both ends
+  $(id + "Band").innerHTML = `<div style="left:${bl}%;width:${bw}%"><b>${fmt(m1)}h</b>${bw > 38 ? `<span>${t("distBand")}</span>` : ""}<b>${fmt(p1)}h</b></div>`;
+  $(id + "Top").innerHTML = free > 0 && free <= x1 ? `<span style="left:${Math.min(88, Math.max(12, pctX(free)))}%">${t("distFree")} ${fmt(free)}h</span>` : "";
+  $(id + "Axis").innerHTML = `<span style="left:${Math.min(88, Math.max(12, pctX(mid)))}%">${t("distMid")} ${fmt(mid)}h</span>`;
   $(id + "Note").textContent = t("distSub")(fmt(mid), fmt(m1), fmt(p1), free === null ? null : fmt(Math.max(0, free)), pct(free > 0 ? 1 - cdf(free) : 1));
   distState[id] = {x0, x1, cdf};
 }
@@ -1138,9 +1146,9 @@ function renderDist(now, next, avail){
   let x1 = Math.max(...cs.map(c => c.a * Math.exp(2.3 * c.sd) + c.b));
   if(avail > 0) x1 = Math.max(x1, Math.min(avail * 1.08, Math.max(...cs.map(c => c.a * Math.exp(3 * c.sd) + c.b))));
   const nowOn = now.a > 0;
-  ["distNow", "distNowAxis", "distNowNote"].forEach(k => { $(k).hidden = !nowOn; });
+  ["distNow", "distNowAxis", "distNowNote", "distNowTop", "distNowBand"].forEach(k => { $(k).hidden = !nowOn; });
   if(nowOn) drawDist("distNow", now, x0, x1, avail); else delete distState.distNow;
-  ["distNew", "distNewAxis", "distNewNote"].forEach(k => { $(k).hidden = !next; });
+  ["distNew", "distNewAxis", "distNewNote", "distNewTop", "distNewBand"].forEach(k => { $(k).hidden = !next; });
   $("distNewWait").hidden = !!next;
   if(next) drawDist("distNew", next, x0, x1, avail); else delete distState.distNew;
   $("distNote").textContent = t("distNote")(avail !== null);
