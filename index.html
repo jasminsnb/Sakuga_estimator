@@ -54,7 +54,7 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--f-body);fo
 .dist svg{width:100%;height:120px;display:block;touch-action:none}
 .dist-axis{position:relative;height:18px;font:12px var(--f-num);color:var(--muted)}
 .dist-axis span{position:absolute;transform:translateX(-50%);white-space:nowrap}
-.dist-top{position:relative;height:16px;font:12px var(--f-num);color:var(--red)}
+.dist-top{position:relative;height:16px;font:12px var(--f-num);color:var(--warn)}
 .dist-top span{position:absolute;transform:translateX(-50%);white-space:nowrap}
 .dist-band{position:relative;height:22px;font:12px var(--f-num);color:var(--blue)}
 .dist-band div{position:absolute;top:2px;border-top:2px solid var(--blue);display:flex;justify-content:space-between;gap:6px;white-space:nowrap;padding-top:2px}
@@ -376,11 +376,11 @@ const I18N = {
     whyBad:(h,d)=>`差 ${h}h，相當於約 ${d} 天的工作量`,
     whyWarn:(b,h)=>`照中位數接得下，但偏壞情況（${b}h）會差 ${h}h`,
     sdNote:(v,f)=>`。標準差（對數）${v}：大約 2/3 的卡落在中位數的 ÷${f}～×${f}`,
-    demo:{peak:"高峰＝最常見的工時", mid:"通常＝一半比它快、一半比它慢", band:"藍色帶＝±1 標準差：約 2/3 落在這段", free:"紅虛線＝截止前可用工時", over:"右邊紅色＝做不完的情況", tail:"長尾＝偶爾會慢很多", ex:"示範：通常 14h、可用 22h"}, howT:"怎麼看這張圖？", how1:"左邊是現在手上的卡加起來要幾小時，右邊是接了這張之後。兩張橫軸相同，曲線往右移多少，就是新卡加了多少工作。", how2:"曲線越高的地方，越常落在那附近。高峰是最常見的工時，但不是「通常」：工時快也快不了多少、慢可以慢很多，曲線右邊拖著長尾，所以對半切的「通常」（中位數）會在高峰右邊一點。", how3:"藍色帶＝±1 個標準差，大約 2/3 的情況落在這段裡。帶下方兩端的數字就是範圍，例如 12.7h～33.2h。帶越寬＝越難預測。", how4:"紅色虛線＝截止前可用的工時。看藍色帶在紅線的哪一邊：整條帶在紅線左邊＝大多數情況做得完；紅線切在帶中間＝有相當機率做不完；帶整條在紅線右邊＝多半做不完。", how5:"圖下的「超過可用 Xh 的機率」是一句話的結論：比較左右兩張，看接了之後機率升了多少。",
+    demo:{peak:"高峰＝最常見的工時", mid:"通常＝一半比它快、一半比它慢", band:"藍色帶＝±1 標準差：約 2/3 落在這段", free:"橘色虛線＝截止前可用工時", over:"右邊紅色＝做不完的情況", tail:"長尾＝偶爾會慢很多", ex:"示範：通常 14h、可用 22h"}, howT:"怎麼看這張圖？", how1:"左邊是現在手上的卡加起來要幾小時，右邊是接了這張之後。兩張橫軸相同，曲線往右移多少，就是新卡加了多少工作。", how2:"曲線越高的地方，越常落在那附近。高峰是最常見的工時，但不是「通常」：工時快也快不了多少、慢可以慢很多，曲線右邊拖著長尾，所以對半切的「通常」（中位數）會在高峰右邊一點。", how3:"藍色帶＝±1 個標準差，大約 2/3 的情況落在這段裡。帶下方兩端的數字就是範圍，例如 12.7h～33.2h。帶越寬＝越難預測。", how4:"橘色虛線＝截止前可用的工時。看藍色帶在橘線的哪一邊：整條帶在橘線左邊＝大多數情況做得完；橘線切在帶中間＝有相當機率做不完；帶整條在橘線右邊＝多半做不完。", how5:"圖下的「超過可用 Xh 的機率」是一句話的結論：比較左右兩張，看接了之後機率升了多少。",
     distNowT:"現在（手上的卡）", distNewT:"接了這張之後", distWait:"填了新卡的枚數，這裡會並排畫出接了之後的分布。",
     distAria:"合計工時的分布", distFree:"可用", distMid:"通常", distTip:(h,p)=>`${h}h：${p} 的機率在這之內`,
     distBand:"±1 標準差", distSub:(m,a,b,f,p)=>`合計通常 ${m}h` + (f === null ? "" : `，超過可用 ${f}h 的機率約 ${p}`),
-    distNote:dl=>`藍色帶＝±1 個標準差，大約 2/3 的情況落在這個範圍。兩張橫軸相同。` + (dl ? `紅色虛線＝截止前可用的工時。` : `填了締め切り後會畫出可用工時。`),
+    distNote:dl=>`藍色帶＝±1 個標準差，大約 2/3 的情況落在這個範圍。兩張橫軸相同。` + (dl ? `橘色虛線＝截止前可用的工時。` : `填了締め切り後會畫出可用工時。`),
     rangeNote:(lo,m,b,p)=>`順的話 ${lo}h（2 成的卡比這快）、通常 ${m}h（中位數）、偏壞 ${b}h（${p/10} 成的卡不會超過${p === 90 ? "；還沒用你自己的資料校正，所以看 9 成線" : ""}）。接不接看偏壞那一端`,
     alertExt:(f,n)=>`社外：已乘 ×${f}（同格社內的實績倍數；社外卡只有 ${n} 張，僅供參考）。`, alertHardMotion:"動作ハード 沒有實績，這一欄的係數是推估，預估可能偏低。",
     h2re:"清書做完後重估", reHint:"清書做完後填清書實際花的時間，用妳的實績（清書速度和合わせ速度的關係＋動作）重估合わせ。用上面新案的枚数和動作。", lReGen:"清書 實際",
@@ -437,11 +437,11 @@ const I18N = {
     whyBad:(h,d)=>`${h}h 不足、約 ${d} 日分の作業量です`,
     whyWarn:(b,h)=>`中央値なら入りますが、悪いケース（${b}h）だと ${h}h 足りません`,
     sdNote:(v,f)=>`。標準偏差（対数）${v}：約 3 分の 2 のカードが中央値の ÷${f}～×${f} に入ります`,
-    demo:{peak:"山の頂上＝一番よくある工数", mid:"通常＝半分はこれより速く、半分は遅い", band:"青い帯＝±1 標準偏差：約 3 分の 2 がこの中", free:"赤い点線＝締切までの稼働可能時間", over:"右の赤＝間に合わないケース", tail:"長い裾＝たまにかなり遅くなる", ex:"例：通常 14h、稼働可能 22h"}, howT:"このグラフの見方", how1:"左は今の手持ちカードの合計工数、右はこのカードを受けた後。横軸は同じなので、曲線が右にずれた分が新しいカードで増える仕事量です。", how2:"曲線が高いところほど、その辺りに落ちやすい。山の頂上は一番よくある工数ですが「通常」ではありません。工数は速くなるのには限りがあり、遅くなると何倍にもなるので右に長い裾があり、半々で分ける「通常」（中央値）は頂上より少し右になります。", how3:"青い帯＝±1 標準偏差で、約 3 分の 2 がこの中に入ります。帯の下の両端の数字が範囲（例 12.7h～33.2h）。帯が広いほど読みにくいカードです。", how4:"赤い点線＝締切までの稼働可能時間。青い帯が赤い線のどちら側にあるかを見ます：帯が全部線の左＝ほとんど間に合う、線が帯の途中＝間に合わない可能性がかなりある、帯が全部線の右＝たぶん間に合わない。", how5:"グラフの下の「稼働可能 Xh を超える確率」が一言でいう結論です。左右を比べて、受けた後にどれだけ上がるかを見ます。",
+    demo:{peak:"山の頂上＝一番よくある工数", mid:"通常＝半分はこれより速く、半分は遅い", band:"青い帯＝±1 標準偏差：約 3 分の 2 がこの中", free:"オレンジの点線＝締切までの稼働可能時間", over:"右の赤＝間に合わないケース", tail:"長い裾＝たまにかなり遅くなる", ex:"例：通常 14h、稼働可能 22h"}, howT:"このグラフの見方", how1:"左は今の手持ちカードの合計工数、右はこのカードを受けた後。横軸は同じなので、曲線が右にずれた分が新しいカードで増える仕事量です。", how2:"曲線が高いところほど、その辺りに落ちやすい。山の頂上は一番よくある工数ですが「通常」ではありません。工数は速くなるのには限りがあり、遅くなると何倍にもなるので右に長い裾があり、半々で分ける「通常」（中央値）は頂上より少し右になります。", how3:"青い帯＝±1 標準偏差で、約 3 分の 2 がこの中に入ります。帯の下の両端の数字が範囲（例 12.7h～33.2h）。帯が広いほど読みにくいカードです。", how4:"オレンジの点線＝締切までの稼働可能時間。青い帯がオレンジの線のどちら側にあるかを見ます：帯が全部線の左＝ほとんど間に合う、線が帯の途中＝間に合わない可能性がかなりある、帯が全部線の右＝たぶん間に合わない。", how5:"グラフの下の「稼働可能 Xh を超える確率」が一言でいう結論です。左右を比べて、受けた後にどれだけ上がるかを見ます。",
     distNowT:"今（手持ちのカード）", distNewT:"このカードを受けた後", distWait:"新案件の枚数を入れると、受けた後の分布をここに並べて描きます。",
     distAria:"合計工数の分布", distFree:"稼働可能", distMid:"通常", distTip:(h,p)=>`${h}h：${p} の確率でこれ以内`,
     distBand:"±1 標準偏差", distSub:(m,a,b,f,p)=>`合計 通常 ${m}h` + (f === null ? "" : `、稼働可能 ${f}h を超える確率 約 ${p}`),
-    distNote:dl=>`青い帯＝±1 標準偏差で、約 3 分の 2 がこの範囲に入ります。2 枚の横軸は同じです。` + (dl ? `赤い点線＝締切までの稼働可能時間。` : `締め切りを入れると稼働可能時間も描きます。`),
+    distNote:dl=>`青い帯＝±1 標準偏差で、約 3 分の 2 がこの範囲に入ります。2 枚の横軸は同じです。` + (dl ? `オレンジの点線＝締切までの稼働可能時間。` : `締め切りを入れると稼働可能時間も描きます。`),
     rangeNote:(lo,m,b,p)=>`順調なら ${lo}h（2 割のカードはこれより速い）、通常 ${m}h（中央値）、悪いケース ${b}h（${p/10} 割のカードはこれ以内${p === 90 ? "。まだあなたのデータで校正していないので 9 割ライン" : ""}）。受けるかどうかは悪いケースで判断`,
     alertExt:(f,n)=>`社外：×${f} を掛けています（同じマスの社内実績との比。社外カードは ${n} 枚だけなので参考値）。`, alertHardMotion:"動作ハード は実績がなく、この列の係数は推定値です。少なめに出ている可能性があります。",
     h2re:"清書が終わったら再見積もり", reHint:"清書にかかった実時間を入れると、実績（清書と合わせの速度の関係＋動作）から合わせを見積もり直します。枚数と動作は上の新案件の値を使います。", lReGen:"清書 実績",
@@ -498,11 +498,11 @@ const I18N = {
     whyBad:(h,d)=>`Short by ${h}h, about ${d} days of work`,
     whyWarn:(b,h)=>`Fits at the median, but the bad case (${b}h) is ${h}h short`,
     sdNote:(v,f)=>`. Standard deviation (log) ${v}: about 2 in 3 cards land within ÷${f} to ×${f} of the median`,
-    demo:{peak:"Peak = the most common hours", mid:"Typical = half faster, half slower", band:"Blue band = ±1 SD: about 2 in 3 land here", free:"Red dashed = hours available before the deadline", over:"Red part = cases that miss", tail:"Long tail = sometimes much slower", ex:"Example: typical 14h, available 22h"}, howT:"How to read this chart", how1:"Left: total hours for the cards you have now. Right: after taking this job. Both share the same axis, so how far the curve moves right is the work the new job adds.", how2:"The higher the curve, the more often hours land there. The peak is the most common value, not the typical one: work can only be a little faster but can be several times slower, so the curve has a long right tail and the typical (median) value sits a bit right of the peak.", how3:"Blue band = ±1 standard deviation; about 2 in 3 outcomes fall inside. The numbers under its ends are the range (e.g. 12.7h–33.2h). A wider band means a harder card to predict.", how4:"Red dashed line = hours available before the deadline. Look at which side of it the blue band sits: all left = you finish in most cases; the line cuts through the band = a real chance of missing; all right = you probably miss.", how5:"The chance of going past the available hours, under each chart, is the one-line answer: compare left and right to see how much taking the job raises it.",
+    demo:{peak:"Peak = the most common hours", mid:"Typical = half faster, half slower", band:"Blue band = ±1 SD: about 2 in 3 land here", free:"Orange dashed = hours available before the deadline", over:"Red part = cases that miss", tail:"Long tail = sometimes much slower", ex:"Example: typical 14h, available 22h"}, howT:"How to read this chart", how1:"Left: total hours for the cards you have now. Right: after taking this job. Both share the same axis, so how far the curve moves right is the work the new job adds.", how2:"The higher the curve, the more often hours land there. The peak is the most common value, not the typical one: work can only be a little faster but can be several times slower, so the curve has a long right tail and the typical (median) value sits a bit right of the peak.", how3:"Blue band = ±1 standard deviation; about 2 in 3 outcomes fall inside. The numbers under its ends are the range (e.g. 12.7h–33.2h). A wider band means a harder card to predict.", how4:"Orange dashed line = hours available before the deadline. Look at which side of it the blue band sits: all left = you finish in most cases; the line cuts through the band = a real chance of missing; all right = you probably miss.", how5:"The chance of going past the available hours, under each chart, is the one-line answer: compare left and right to see how much taking the job raises it.",
     distNowT:"Now (cards on hand)", distNewT:"After taking this job", distWait:"Enter the new job's sheets to draw the after-taking curve here, side by side.",
     distAria:"Spread of total hours", distFree:"available", distMid:"typical", distTip:(h,p)=>`${h}h: ${p} chance it stays within`,
     distBand:"±1 SD", distSub:(m,a,b,f,p)=>`Total typically ${m}h` + (f === null ? "" : `; chance of going past the ${f}h available about ${p}`),
-    distNote:dl=>`The blue band is ±1 standard deviation: about 2 in 3 outcomes fall inside it. Both charts share the same axis. ` + (dl ? `The red dashed line is the hours available before the deadline.` : `Enter a deadline to draw the available hours.`),
+    distNote:dl=>`The blue band is ±1 standard deviation: about 2 in 3 outcomes fall inside it. Both charts share the same axis. ` + (dl ? `The orange dashed line is the hours available before the deadline.` : `Enter a deadline to draw the available hours.`),
     rangeNote:(lo,m,b,p)=>`Good case ${lo}h (2 in 10 cards are faster), typical ${m}h (median), bad case ${b}h (${p/10} in 10 cards stay under it${p === 90 ? "; not yet calibrated on your data, so the 90% line is used" : ""}). Decide on the bad case`,
     alertExt:(f,n)=>`社外: ×${f} applied (ratio to in-house cards in the same cell; only ${n} 社外 cards, so treat it as a rough guide).`, alertHardMotion:"動作ハード has no recorded cards; this column is an estimate and may be too low.",
     h2re:"Re-estimate after 清書", reHint:"Once 清書 is done, enter the hours it actually took; 合わせ is re-estimated from your records (how 合わせ speed follows 清書 speed, plus 動作). Uses the sheet counts and 動作 from the new job above.", lReGen:"清書 actual",
@@ -1140,7 +1140,7 @@ function drawDist(id, c, x0, x1, free){
     `<line x1="0" x2="${W}" y1="${H - .5}" y2="${H - .5}" stroke="var(--rule)" vector-effect="non-scaling-stroke"/>` +
     vline(m1, 'stroke="var(--blue)" stroke-width="1" stroke-dasharray="3 3"') + vline(p1, 'stroke="var(--blue)" stroke-width="1" stroke-dasharray="3 3"') +
     vline(mid, 'stroke="var(--blue)" stroke-width="1"') +
-    (free > 0 ? vline(free, 'stroke="var(--red)" stroke-width="1.5" stroke-dasharray="4 3"') : "") +
+    (free > 0 ? vline(free, 'stroke="var(--warn)" stroke-width="2" stroke-dasharray="4 3"') : "") +
     `<line class="hover" x1="0" x2="0" y1="${top}" y2="${H}" stroke="var(--muted)" stroke-width="1" vector-effect="non-scaling-stroke" visibility="hidden"/>`;
   const pctX = h => (h - x0) / (x1 - x0) * 100;
   const cl = v => Math.min(100, Math.max(0, v)), bl = cl(pctX(m1)), bw = cl(pctX(p1)) - bl;
@@ -1184,7 +1184,7 @@ function drawDemo(){
     `<path d="M${pts.map(p => `${X(p[0]).toFixed(1)},${Y(p[1]).toFixed(1)}`).join(" L")}" fill="none" stroke="var(--blue)" stroke-width="2.5"/>` +
     `<line x1="${L}" x2="${R}" y1="${B}" y2="${B}" stroke="var(--rule)"/>` +
     `<line x1="${xm}" x2="${xm}" y1="44" y2="${B}" stroke="var(--blue)" stroke-width="1.5"/>` +
-    `<line x1="${xf}" x2="${xf}" y1="66" y2="${B}" stroke="var(--red)" stroke-width="2" stroke-dasharray="5 4"/>` +
+    `<line x1="${xf}" x2="${xf}" y1="66" y2="${B}" stroke="var(--warn)" stroke-width="2.5" stroke-dasharray="5 4"/>` +
     `<circle cx="${xp}" cy="${yp}" r="4" fill="var(--blue)"/>` +
     arrow(xp, yp - 5, xp, 24) + lab(xp - 8, 18, d.peak, "start") +
     lab(xm + 6, 44, d.mid) +
