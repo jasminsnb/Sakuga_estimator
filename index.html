@@ -46,7 +46,7 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--f-body);fo
 .quick td:first-child small{color:var(--muted);font-family:var(--f-body)}
 .quick tr.bad td{color:var(--bad)}
 .quick tr.warn td{color:var(--warn)}
-.dists{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px}
+.dists{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(260px,100%),1fr));gap:16px}
 .dist{position:relative;display:grid;gap:2px;align-content:start}
 .dist h3{margin:0;font-size:.85rem;font-weight:600;color:var(--muted)}
 .dist-wait[hidden],.dist [hidden]{display:none}
@@ -60,8 +60,8 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--f-body);fo
 .dist-band div{position:absolute;top:2px;border-top:2px solid var(--blue);display:flex;justify-content:space-between;gap:6px;white-space:nowrap;padding-top:2px}
 .dist-band b{font-weight:600}
 .dist-tip{position:absolute;top:0;transform:translateX(-50%);background:var(--paper);border:1px solid var(--rule);border-radius:6px;padding:2px 8px;font:12px var(--f-num);color:var(--ink);pointer-events:none;white-space:nowrap}
-.quick tr.skip td{color:var(--muted)} .quick label.pick{display:inline-flex;gap:6px;align-items:center;cursor:pointer;font:inherit;color:inherit} .quick label.pick input{width:auto;margin:0}
-.quick tr.new td{font-weight:600} #notionNote.stale{color:var(--warn)}
+.quick tr.skip td{color:var(--muted)} .quick label.pick{display:inline-flex;gap:6px;align-items:center;cursor:pointer;font:inherit;color:inherit} .quick label.pick input{width:auto;margin:0;flex-shrink:0}
+.quick tr.new td{font-weight:600} .quick td:first-child{text-align:left;overflow-wrap:anywhere;word-break:break-word} .tscroll{overflow-x:auto;max-width:100%} .wrap>*,.pair>*,.sheet>*,.fold-body>*{min-width:0} #notionNote.stale{color:var(--warn)}
 h1{font-size:1.35rem;margin:0;text-wrap:balance;letter-spacing:.02em}
 .sub{color:var(--muted);font-size:.85rem;margin:2px 0 0}
 .sheet{background:var(--paper);border:1px solid var(--rule);border-radius:6px;padding:16px;display:grid;gap:14px}
@@ -110,6 +110,8 @@ button:hover{border-color:var(--blue)}
 .cal .pad{visibility:hidden}
 .chk{display:flex;align-items:center;gap:6px;color:var(--ink)}
 .chk input{width:auto}
+.ot{margin:0;padding:8px 12px;border-left:4px solid var(--st,var(--ok));background:var(--field);border-radius:4px;font-size:.92rem}
+.ot b{color:var(--st,var(--ok))}
 .alerts{display:grid;gap:4px;margin:0;padding:0;list-style:none;font-size:.85rem}
 .alerts li{color:var(--warn)}
 .alerts li.bad{color:var(--bad)}
@@ -140,6 +142,7 @@ button:hover{border-color:var(--blue)}
       <div class="num"><b id="nAvail">0</b><span data-i18n="nAvailL"></span></div>
       <div class="num"><b id="nSlack">0</b><span data-i18n="nSlackL"></span></div>
     </div>
+    <p class="ot" id="otNote" hidden></p>
     <p class="note" id="rangeNote"></p>
     <div id="distBox" hidden>
       <div class="dists">
@@ -180,7 +183,7 @@ button:hover{border-color:var(--blue)}
     <details class="fold" data-fold="cards" open>
       <summary><h2 data-i18n="h2cards"></h2></summary>
       <div class="fold-body">
-        <table class="quick"><thead><tr><th data-i18n="chCard"></th><th data-i18n="qhDue"></th><th data-i18n="chRem"></th><th data-i18n="chSlack"></th><th data-i18n="chLate"></th></tr></thead><tbody id="cards"></tbody></table>
+        <div class="tscroll"><table class="quick"><thead><tr><th data-i18n="chCard"></th><th data-i18n="qhDue"></th><th data-i18n="chRem"></th><th data-i18n="chSlack"></th><th data-i18n="chLate"></th></tr></thead><tbody id="cards"></tbody></table></div>
         <p class="say" id="simOut"></p>
         <p class="note" id="cardsNote"></p>
       </div>
@@ -293,6 +296,7 @@ button:hover{border-color:var(--blue)}
           <label for="start"><span data-i18n="lStart"></span> <span class="unit" data-i18n="uHour"></span><input id="start" type="number" min="0" max="24" step="0.5"></label>
           <label for="end"><span data-i18n="lEnd"></span> <span class="unit" data-i18n="uHour"></span><input id="end" type="number" min="0" max="24" step="0.5"></label>
           <label for="daily"><span data-i18n="lDaily"></span> <span class="unit">hr</span><input id="daily" type="number" min="0" max="24" step="0.5"></label>
+          <label for="ot"><span data-i18n="lOt"></span> <span class="unit">hr</span><input id="ot" type="number" min="0" max="12" step="0.5"></label>
           <label for="buffer"><span data-i18n="lBuffer"></span> <span class="unit">%</span><input id="buffer" type="number" min="0" step="1"></label>
           <label for="overhead"><span data-i18n="lOverhead"></span> <span class="unit">hr</span><input id="overhead" type="number" min="0" step="0.25"></label>
           <label for="dlDays"><span data-i18n="lDlDays"></span> <span class="unit" data-i18n="uWorkdays"></span><input id="dlDays" type="number" min="0" max="60" step="1"></label>
@@ -344,7 +348,7 @@ const I18N = {
     nNeedL:"新案所需工時（順的話～偏壞）", nNeedMid:m=>`通常 ${m}h`, nAvailL:"截止前可用工時", nSlackL:"扣掉手上工作後的餘裕",
     barAria:"工時分配", legLoad:"手上剩餘", legNew:"新案",
     h2new:"新案", uSheet:"枚", h2quick:"還能接多少", qhDue:"截止", qhFree:"空き", qhSheet:j=>`枚（${j}）`,
-    quickNote:(c,l)=>`以手上剩餘 ${l}h、目前的難度係數 ×${c}、上面選的工種計算（動仕的 1 枚＝合わせ＋仕上）；截止算到當天收工；中1～中3 跳過休假日，7／14 天後若遇休假日順延到下個工作日。`,
+    quickNote:(c,l)=>`以手上剩餘 ${l}h、目前的難度係數 ×${c}、上面選的工種計算（動仕的 1 枚＝合わせ＋仕上）；截止算到當天收工；中1～中3 跳過休假日，7／14 天後若遇休假日順延到下個工作日。括號是 ±1 個標準差的範圍：左邊是做得比平常慢一個標準差時能接的枚數，右邊是快一個標準差時。`,
     quickDay:(n,c)=>n === 0 ? "今天" : n <= 3 ? `中${n}（${c} 天後）` : `${c} 天後`, lDetail:"精細度", lMotion:"動作", lJobType:"工種", lGen:"原画",
     chkGaichu:"社外", chkPart:"部分修", chkRedo:"やり直し／ゴミ素材（再 ×1.3）", chkRisk:"手上已有高風險卡",
     lDeadline:"締め切り", lLoad:"手上剩餘（一般）", lLoadHard:"手上剩餘（難卡，自動 ×2）",
@@ -359,7 +363,7 @@ const I18N = {
     cardsNote:(noDl,unk)=>`按截止從近到遠：餘裕＝到那張截止的可用工時－到那張為止的剩餘合計（不含難卡 ×2）。紅＝接了新案會趕不上；橘＝不接也已經趕不上。` + (noDl ? `沒填締め切り的 ${noDl} 張只算進總量。` : "") + (unk ? `剩餘「?」的 ${unk} 張先算 0，請回 Notion 更新見積(hr)。` : ""),
     whyRisk:"高風險卡同時最多一卡，手上已有一張", whyLate:n=>`接了會讓 ${n} 張既有卡趕不上截止`, whyUnknown:n=>`有 ${n} 張卡剩餘不明（需重估或沒見積），先回 Notion 更新見積再判斷`,
     alertLate:n=>`接了這張，這些卡會趕不上：${n}。`, alertAlreadyLate:n=>`不接也已經趕不上：${n}。先跟主任談延期。`,
-    lStart:"開工", lEnd:"收工", uHour:"時", lDaily:"每日上限", lBuffer:"額外緩衝", lOverhead:"每案固定",
+    lStart:"開工", lEnd:"收工", uHour:"時", lDaily:"每日上限", lOt:"每天最多加班", otNote:(d,o,cap,mid,bad,pm,pb,p)=>`加班額度 <b>${cap}h</b>（${d} 個工作日 × 每天 ${o}h）。通常：${mid > 0 ? `要加班 ${fmt(mid)}h（額度的 <b>${pm}%</b>）` : "不用加班"}；偏壞（${p/10} 成線）：${bad > 0 ? `要加班 ${fmt(bad)}h（額度的 <b>${pb}%</b>）` : "不用加班"}。${pb > 100 ? (pm > 100 ? "照通常的速度就超過加班極限。" : "偏壞時會超過加班極限。") : bad > 0 ? "偏壞時靠加班補得回來。" : ""}`, lBuffer:"額外緩衝", lOverhead:"每案固定",
     lTarget:"安心線", uSlackPct:"餘裕 %", lDlDays:"預設截止：幾個工作日後", lDlHour:"預設截止時刻", uWorkdays:"工作日",
     gridTitle:"排程係數（精細度 × 動作）", gridNote:"直列是精細度、橫列是動作。數字是妳最近 9 個月 121 張社內動仕卡的「實際÷基準工時」中位數，用「精細度效果＋動作效果」的模型算出（動作 簡単 和 普通 沒有差別）。只乘清書＋合わせ，仕上另外依精細度算。虛線框是樣本不到 8 張的格子；動作ハード 那一欄沒有實績，是推估。不準就直接改那一格。", lCGaichu:"社外 係數", lRiskLevel:"高風險：難度從", lRiskMai:"高風險：枚數至少", lRiskGaichu:"社外一律高風險", optNever:"不判斷", optYes:"是", optNo:"否", riskNote:"難度達到這級以上、而且動画（或原画）枚數達到門檻，就提醒是高風險卡。",
     reset:"恢復預設值", saved:"已儲存", fromLink:n=>`已從 Notion 連結帶入 ${n} 個速度並儲存；之後一樣可以手動改。`, saveFail:"這個瀏覽器無法儲存設定",
@@ -405,7 +409,7 @@ const I18N = {
     nNeedL:"新案件の所要工数（順調～悪いケース）", nNeedMid:m=>`通常 ${m}h`, nAvailL:"締切までの稼働可能時間", nSlackL:"手持ち作業を引いた余裕",
     barAria:"工数の配分", legLoad:"手持ち残り", legNew:"新案件",
     h2new:"新案件", uSheet:"枚", h2quick:"あとどれだけ受けられる？", qhDue:"締切", qhFree:"空き", qhSheet:j=>`枚（${j}）`,
-    quickNote:(c,l)=>`手持ち残り ${l}h、現在の難易度係数 ×${c}、上で選んだ工種で計算します（動仕の 1枚＝合わせ＋仕上）。その日の終業時刻までを数えます。中1～中3 は休日を飛ばし、7日後・14日後が休日なら次の稼働日にずらします。`,
+    quickNote:(c,l)=>`手持ち残り ${l}h、現在の難易度係数 ×${c}、上で選んだ工種で計算します（動仕の 1枚＝合わせ＋仕上）。その日の終業時刻までを数えます。中1～中3 は休日を飛ばし、7日後・14日後が休日なら次の稼働日にずらします。かっこ内は ±1 標準偏差の幅：左が普段より 1 標準偏差遅いとき、右が 1 標準偏差速いときに受けられる枚数です。`,
     quickDay:(n,c)=>n === 0 ? "今日" : n <= 3 ? `中${n}（${c}日後）` : `${c}日後`, lDetail:"精細度", lMotion:"動作", lJobType:"工種", lGen:"原画",
     chkGaichu:"社外", chkPart:"部分修", chkRedo:"やり直し／ゴミ素材（さらに ×1.3）", chkRisk:"手持ちに高リスクカードあり",
     lDeadline:"締め切り", lLoad:"手持ち残り（通常）", lLoadHard:"手持ち残り（難カード、自動 ×2）",
@@ -420,7 +424,7 @@ const I18N = {
     cardsNote:(noDl,unk)=>`締切の近い順：余裕＝そのカードの締切までの空き時間－そこまでの残り合計（難カードの ×2 は含めません）。赤＝新案件を受けると間に合わない、橙＝受けなくてもすでに間に合わない。` + (noDl ? `締め切り未入力の ${noDl} 枚は合計にだけ含めます。` : "") + (unk ? `残り「?」の ${unk} 枚は 0 として数えています。Notion で見積(hr)を更新してください。` : ""),
     whyRisk:"高リスクカードは同時に 1 枚まで。すでに 1 枚あります", whyLate:n=>`受けると手持ちの ${n} 枚が締切に間に合いません`, whyUnknown:n=>`残りが不明なカードが ${n} 枚あります（要再見積・見積なし）。Notion で見積を更新してから判断してください`,
     alertLate:n=>`これを受けると間に合わなくなるカード：${n}。`, alertAlreadyLate:n=>`受けなくてもすでに間に合わない：${n}。先に主任と締切を相談してください。`,
-    lStart:"開始", lEnd:"終了", uHour:"時", lDaily:"1日の上限", lBuffer:"追加バッファ", lOverhead:"案件ごとの固定",
+    lStart:"開始", lEnd:"終了", uHour:"時", lDaily:"1日の上限", lOt:"1日の残業の上限", otNote:(d,o,cap,mid,bad,pm,pb,p)=>`残業枠 <b>${cap}h</b>（稼働日 ${d} 日 × 1日 ${o}h）。通常：${mid > 0 ? `残業 ${fmt(mid)}h（枠の <b>${pm}%</b>）` : "残業なし"}、悪いケース（${p/10} 割ライン）：${bad > 0 ? `残業 ${fmt(bad)}h（枠の <b>${pb}%</b>）` : "残業なし"}。${pb > 100 ? (pm > 100 ? "通常のペースでも残業の限界を超えます。" : "悪いケースでは残業の限界を超えます。") : bad > 0 ? "悪いケースでも残業で取り戻せます。" : ""}`, lBuffer:"追加バッファ", lOverhead:"案件ごとの固定",
     lTarget:"安心ライン", uSlackPct:"余裕 %", lDlDays:"締切の初期値：何稼働日後", lDlHour:"締切の初期時刻", uWorkdays:"稼働日",
     gridTitle:"排程係数（精細度 × 動作）", gridNote:"縦が精細度、横が動作。直近 9 か月の社内動仕カード 121 枚の「実績÷基準工数」の中央値を、精細度の効果＋動作の効果のモデルで出した値です（動作の 簡単 と 普通 は差がありません）。清書＋合わせだけに掛け、仕上は精細度ごとに別に見積もります。破線は 8 枚未満のマス、動作ハード の列は実績がない推定値です。合わなければそのマスを直接変えてください。", lCGaichu:"社外 係数", lRiskLevel:"高リスク：難度は", lRiskMai:"高リスク：枚数が", lRiskGaichu:"社外は常に高リスク", optNever:"判定しない", optYes:"はい", optNo:"いいえ", riskNote:"この難度以上で、動画（または原画）の枚数がしきい値以上なら、高リスクカードとして注意を出します。",
     reset:"初期値に戻す", saved:"保存しました", fromLink:n=>`Notion のリンクから速度を ${n} 件取り込んで保存しました。あとから手で変更できます。`, saveFail:"このブラウザには設定を保存できません",
@@ -466,7 +470,7 @@ const I18N = {
     nNeedL:"Hours the new job needs (good to bad case)", nNeedMid:m=>`typically ${m}h`, nAvailL:"Hours available before the deadline", nSlackL:"Slack after current workload",
     barAria:"Hours allocation", legLoad:"Current workload", legNew:"New job",
     h2new:"New job", uSheet:"sheets", h2quick:"How much more can I take?", qhDue:"Due", qhFree:"Free", qhSheet:j=>`Sheets (${j})`,
-    quickNote:(c,l)=>`Based on ${l}h of current workload, the current difficulty coefficient ×${c} and the job type chosen above (for 動仕, one sheet = 合わせ + 仕上), counting through the end of that day. 1–3 workdays skip days off; 7 and 14 days move to the next working day if they land on a day off.`,
+    quickNote:(c,l)=>`Based on ${l}h of current workload, the current difficulty coefficient ×${c} and the job type chosen above (for 動仕, one sheet = 合わせ + 仕上), counting through the end of that day. 1–3 workdays skip days off; 7 and 14 days move to the next working day if they land on a day off. The range in brackets is ±1 standard deviation: the left number is how many fit if you work one sd slower than usual, the right one if one sd faster.`,
     quickDay:(n,c)=>n === 0 ? "today" : n <= 3 ? `${n} workday${n > 1 ? "s" : ""} (in ${c} day${c > 1 ? "s" : ""})` : `in ${c} days`, lDetail:"精細度 (detail)", lMotion:"動作 (motion)", lJobType:"Job type", lGen:"Key animation",
     chkGaichu:"External client 社外", chkPart:"部分修 (partial fix)", chkRedo:"Redo / poor source material (extra ×1.3)", chkRisk:"Already holding a high-risk card",
     lDeadline:"Deadline", lLoad:"Remaining workload (normal)", lLoadHard:"Remaining workload (hard cards, auto ×2)",
@@ -481,7 +485,7 @@ const I18N = {
     cardsNote:(noDl,unk)=>`Nearest deadline first: slack = hours free until that card's deadline − all remaining work due by then (hard cards not doubled). Red = taking the new job makes it late; orange = already late without it. ` + (noDl ? `${noDl} card${noDl > 1 ? "s without a deadline only count" : " without a deadline only counts"} in the total. ` : "") + (unk ? `${unk} card${unk > 1 ? "s marked \"?\" count" : " marked \"?\" counts"} as 0; update 見積(hr) in Notion.` : ""),
     whyRisk:"Only one high-risk card at a time, and you already hold one", whyLate:n=>`Taking it would make ${n} open card${n > 1 ? "s" : ""} miss the deadline`, whyUnknown:n=>`${n} card${n > 1 ? "s have" : " has"} unknown remaining hours (needs a new estimate); update it in Notion first`,
     alertLate:n=>`Taking this makes these cards late: ${n}.`, alertAlreadyLate:n=>`Already late even without it: ${n}. Talk to your lead about the deadline first.`,
-    lStart:"Start", lEnd:"End", uHour:"h", lDaily:"Daily cap", lBuffer:"Extra buffer", lOverhead:"Fixed per job",
+    lStart:"Start", lEnd:"End", uHour:"h", lDaily:"Daily cap", lOt:"Max overtime per day", otNote:(d,o,cap,mid,bad,pm,pb,p)=>`Overtime allowance <b>${cap}h</b> (${d} workdays × ${o}h a day). Typical: ${mid > 0 ? `${fmt(mid)}h overtime (<b>${pm}%</b> of it)` : "no overtime"}; bad case (${p}% line): ${bad > 0 ? `${fmt(bad)}h overtime (<b>${pb}%</b> of it)` : "no overtime"}. ${pb > 100 ? (pm > 100 ? "Even the typical pace goes past your overtime limit." : "The bad case goes past your overtime limit.") : bad > 0 ? "The bad case can be covered with overtime." : ""}`, lBuffer:"Extra buffer", lOverhead:"Fixed per job",
     lTarget:"Comfort line", uSlackPct:"slack %", lDlDays:"Default deadline: working days ahead", lDlHour:"Default deadline time", uWorkdays:"working days",
     gridTitle:"Schedule coefficient (精細度 × 動作)", gridNote:"Rows are 精細度 (detail), columns are 動作 (motion). Values are medians of actual ÷ expected hours over 121 in-house 動仕 cards from the last 9 months, from a model with one effect for 精細度 and one for 動作 (動作 簡単 and 普通 do not differ). They multiply 清書 + 合わせ only; 仕上 is estimated per 精細度. Dashed cells had fewer than 8 cards; the 動作ハード column has no cards and is an estimate. Change any cell that does not match your experience.", lCGaichu:"社外 coefficient", lRiskLevel:"High risk from difficulty", lRiskMai:"High risk at sheets ≥", lRiskGaichu:"Every 社外 card is high risk", optNever:"Never", optYes:"Yes", optNo:"No", riskNote:"A card at or above this difficulty with at least this many 動画 (or 原画) sheets is flagged as high risk.",
     reset:"Reset to defaults", saved:"Saved", fromLink:n=>`Loaded ${n} speed${n > 1 ? "s" : ""} from the Notion link and saved them. You can still edit them by hand.`, saveFail:"This browser can't save settings",
@@ -544,7 +548,7 @@ function applyLang(){
   document.querySelectorAll("[data-i18n-aria]").forEach(el => el.setAttribute("aria-label", t(el.dataset.i18nAria)));
 }
 const DEFAULTS = {
-  kDouga:0.57, kShiage:0.10, kGentore:0.44, kLoMai:1.0, kNigenMai:0.8, start:10.5, end:20, daily:8, buffer:0, overhead:0, dlDays:3, dlHour:12,
+  kDouga:0.57, kShiage:0.10, kGentore:0.44, kLoMai:1.0, kNigenMai:0.8, start:10.5, end:20, daily:8, ot:2, buffer:0, overhead:0, dlDays:3, dlHour:12,
   // high-risk card: difficulty from riskLevel (1 普通, 2 難しい, 3 ハード, 9 never) and at least riskMai sheets, or any 社外 card when riskGaichu is 1
   riskLevel:2, riskMai:15, riskGaichu:1
 };
@@ -1020,8 +1024,16 @@ function renderQuick(now, s, cpx, load, job){
     const end = new Date(d); end.setHours(Math.floor(s.end), (s.end % 1) * 60);
     const free = end > now ? availableHours(now, end, s).total - load : -load;
     const fit = k => free <= 0 || k <= 0 || !mult ? 0 : Math.max(0, Math.floor((free / mult - s.overhead) / k));
+    // ±1 standard deviation: the most sheets whose hours still fit when the work runs one sd slow (z=+1) or fast (z=−1)
+    const fitZ = z => { if(free <= 0 || !(job.line + job.shiage > 0)) return 0;
+      let k = 0; while(k < 999){ const m = k + 1, a = m * job.line, b = m * job.shiage;
+        const sd = sdSum(a, spreadFor(m, job.part).sd, b, shiageSpread().sd);
+        if(((a + b) * Math.exp(sd * z) + s.overhead) * mult > free) break; k = m; }
+      return k; };
+    const mid = fit(job.perSheet), bad = fitZ(1), good = fitZ(-1);
+    const rng = mid > 0 || good > 0 ? ` <small>(${Math.min(bad, mid)}–${Math.max(good, mid)})</small>` : "";
     const off = isOff(d) ? ` ${t("tagOff")}` : "";
-    rows.push(`<tr><td>${d.getMonth()+1}/${d.getDate()} <small>${t("quickDay")(n, cal)}${off}</small></td><td>${fmt(free)}h</td><td>${fit(job.perSheet)}</td></tr>`);
+    rows.push(`<tr><td>${d.getMonth()+1}/${d.getDate()} <small>${t("quickDay")(n, cal)}${off}</small></td><td>${fmt(free)}h</td><td>${mid}${rng}</td></tr>`);
   }
   $("quick").innerHTML = rows.join("");
   $("qhSheet").textContent = t("qhSheet")(job.label);
@@ -1223,7 +1235,7 @@ function render(){
   if(redo) cpx *= REDO_MULT;
   if(part) cpx *= partMult();
   const shK = shiagePer(s, LEVELS.indexOf(lvD));
-  const job = {label: $("jobType").selectedOptions[0].textContent, perSheet: doushi ? s.kDouga * cpx + shK : kGen * cpx};
+  const job = {label: $("jobType").selectedOptions[0].textContent, perSheet: doushi ? s.kDouga * cpx + shK : kGen * cpx, line: (doushi ? s.kDouga : kGen) * cpx, shiage: doushi ? shK : 0, part};
   // hours of unticked cards come off the ordinary workload first, then off the hard-card workload (the link does not say which a card is)
   const skipH = skippedHours(), loadN = +$("load").value || 0;
   const loadHard = Math.max(0, (+$("loadHard").value || 0) - Math.max(0, skipH - loadN));
@@ -1243,6 +1255,14 @@ function render(){
   const dl = $("deadline").value ? new Date($("deadline").value) : null;
   const av = dl ? availableHours(now, dl, s) : {total:0, workdays:0};
   const slack = av.total - load - need, slackBad = av.total - load - needBad;
+  // overtime allowance = the shared buffer: workdays until the deadline × the most overtime the user can take a day (display only)
+  const otOn = dl && dl > now && s.ot > 0 && (load > 0 || need > 0), otCap = av.workdays * s.ot;
+  $("otNote").hidden = !otOn;
+  if(otOn){
+    const oM = Math.max(0, -slack), oB = Math.max(0, -slackBad), pc = v => otCap > 0 ? Math.round(v / otCap * 100) : (v > 0 ? 999 : 0);
+    $("otNote").innerHTML = t("otNote")(av.workdays, fmt(s.ot), fmt(otCap), oM, oB, pc(oM), pc(oB), badPct());
+    $("otNote").style.setProperty("--st", pc(oM) > 100 ? "var(--bad)" : pc(oB) > 100 ? "var(--warn)" : "var(--ok)");
+  }
 
   // the range comes first: a single number is off by ×1.6 or more for one card in three
   $("nNeed").textContent = need > 0 ? `${fmt(needLo)}～${fmt(needBad)}h` : "0h";
