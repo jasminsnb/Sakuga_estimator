@@ -46,7 +46,7 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--f-body);fo
 .quick td:first-child small{color:var(--muted);font-family:var(--f-body)}
 .quick tr.bad td{color:var(--bad)}
 .quick tr.warn td{color:var(--warn)}
-.dists{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px}
+.dists{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(260px,100%),1fr));gap:16px}
 .dist{position:relative;display:grid;gap:2px;align-content:start}
 .dist h3{margin:0;font-size:.85rem;font-weight:600;color:var(--muted)}
 .dist-wait[hidden],.dist [hidden]{display:none}
@@ -60,8 +60,8 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--f-body);fo
 .dist-band div{position:absolute;top:2px;border-top:2px solid var(--blue);display:flex;justify-content:space-between;gap:6px;white-space:nowrap;padding-top:2px}
 .dist-band b{font-weight:600}
 .dist-tip{position:absolute;top:0;transform:translateX(-50%);background:var(--paper);border:1px solid var(--rule);border-radius:6px;padding:2px 8px;font:12px var(--f-num);color:var(--ink);pointer-events:none;white-space:nowrap}
-.quick tr.skip td{color:var(--muted)} .quick label.pick{display:inline-flex;gap:6px;align-items:center;cursor:pointer;font:inherit;color:inherit} .quick label.pick input{width:auto;margin:0}
-.quick tr.new td{font-weight:600} #notionNote.stale{color:var(--warn)}
+.quick tr.skip td{color:var(--muted)} .quick label.pick{display:inline-flex;gap:6px;align-items:center;cursor:pointer;font:inherit;color:inherit} .quick label.pick input{width:auto;margin:0;flex-shrink:0}
+.quick tr.new td{font-weight:600} .quick td:first-child{text-align:left;overflow-wrap:anywhere;word-break:break-word} .tscroll{overflow-x:auto;max-width:100%} .wrap>*,.pair>*,.sheet>*,.fold-body>*{min-width:0} #notionNote.stale{color:var(--warn)}
 h1{font-size:1.35rem;margin:0;text-wrap:balance;letter-spacing:.02em}
 .sub{color:var(--muted);font-size:.85rem;margin:2px 0 0}
 .sheet{background:var(--paper);border:1px solid var(--rule);border-radius:6px;padding:16px;display:grid;gap:14px}
@@ -183,7 +183,7 @@ button:hover{border-color:var(--blue)}
     <details class="fold" data-fold="cards" open>
       <summary><h2 data-i18n="h2cards"></h2></summary>
       <div class="fold-body">
-        <table class="quick"><thead><tr><th data-i18n="chCard"></th><th data-i18n="qhDue"></th><th data-i18n="chRem"></th><th data-i18n="chSlack"></th><th data-i18n="chLate"></th></tr></thead><tbody id="cards"></tbody></table>
+        <div class="tscroll"><table class="quick"><thead><tr><th data-i18n="chCard"></th><th data-i18n="qhDue"></th><th data-i18n="chRem"></th><th data-i18n="chSlack"></th><th data-i18n="chLate"></th></tr></thead><tbody id="cards"></tbody></table></div>
         <p class="say" id="simOut"></p>
         <p class="note" id="cardsNote"></p>
       </div>
